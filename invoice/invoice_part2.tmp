@@ -1,0 +1,307 @@
+  var text=(e.clipboardData||window.clipboardData).getData('text/plain');
+  document.execCommand('insertText',false,text);
+});
+document.querySelector('.toolbar').contentEditable='false';
+document.querySelectorAll('.sp td, .ra, .ba, .note, .logo-zone').forEach(function(el){el.contentEditable='false'});
+
+document.addEventListener('mousedown',function(e){
+  var t=e.target;
+  if(t.classList.contains('bd')){
+    e.preventDefault();dr(t);return;
+  }
+  if(t.classList.contains('ba')){
+    e.preventDefault();
+    var g=t.getAttribute('data-g');
+    if(g)aa(t,g); else ar(t,2);
+    return;
+  }
+  if(t.classList.contains('logo-drop')){
+    e.preventDefault();document.getElementById('logo-input').click();return;
+  }
+  if(t.classList.contains('logo-remove')){
+    e.preventDefault();removeLogo();return;
+  }
+});
+
+function pY(t){return parseInt((t||'').replace(/[¥￥,\s]/g,''),10)||0}
+function fY(n){return'¥'+n.toLocaleString('en-US')}
+
+function rc(sh,g){
+  const cs=sh.querySelectorAll('[data-a="'+g+'"]');
+  const tc=sh.querySelector('[data-t="'+g+'"]');
+  if(!tc)return;
+  let s=0;cs.forEach(c=>{s+=pY(c.innerText)});
+  tc.textContent=fY(s);
+  tc.classList.add('fl');setTimeout(()=>tc.classList.remove('fl'),400);
+}
+
+function ba(c){}
+
+function calcAll(){
+  document.querySelectorAll('.am').forEach(function(td){
+    var v=pY(td.innerText);
+    if(v>0)td.textContent=fY(v);
+  });
+  document.querySelectorAll('.sheet').forEach(function(sh){
+    ['svc','pay'].forEach(function(g){rc(sh,g)});
+  });
+  saveAll();
+  showToast('계산 완료!');
+}
+
+function findPrevSec(btn){
+  var table=btn.closest('table');
+  var children=Array.from(table.children);
+  var idx=-1;
+  for(var i=0;i<children.length;i++){if(children[i].contains(btn)){idx=i;break}}
+  for(var i=idx-1;i>=0;i--){
+    if(children[i].tagName==='TBODY'&&children[i].classList.contains('sec'))return children[i];
+  }
+  return null;
+}
+
+function aa(btn,g){
+  var sh=btn.closest('.sheet');
+  var tbody=sh.querySelector('[data-g="'+g+'"]');
+  if(!tbody)return;
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td class="ra"><button class="bd">×</button></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true" class="am"></td><td contenteditable="true" class="am" data-a="'+g+'"></td>';
+  ba(tr.querySelector('[data-a]'));
+  tbody.appendChild(tr);
+  scheduleSave();
+}
+
+function ar(btn,cols){
+  var tbody=findPrevSec(btn);
+  if(!tbody)return;
+  var tr=document.createElement('tr');
+  tr.className='cr';
+  if(cols===2){
+    tr.innerHTML='<td class="ra"><button class="bd">×</button></td><td class="lb" contenteditable="true"></td><td contenteditable="true" colspan="3"></td>';
+  } else {
+    tr.innerHTML='<td class="ra"><button class="bd">×</button></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>';
+  }
+  tbody.appendChild(tr);
+  scheduleSave();
+}
+
+function dr(btn){
+  const tr=btn.closest('tr');
+  const sh=tr.closest('.sheet');
+  const ac=tr.querySelector('[data-a]');
+  const g=ac?ac.getAttribute('data-a'):null;
+  tr.remove();
+  if(g)rc(sh,g);
+  scheduleSave();
+}
+
+function resetInvoice(){
+  if(!confirm('고객 정보, 서비스 내역, 입금 내역을 모두 초기화합니다.\n회사 정보, 계좌 정보, 로고는 유지됩니다.\n계속하시겠습니까?'))return;
+  document.querySelectorAll('.sheet').forEach(function(sh){
+    var custSec=sh.querySelectorAll('.sec')[1];
+    if(custSec){
+      custSec.querySelectorAll('td[contenteditable="true"]:not(.lb)').forEach(function(td){td.textContent='';});
+    }
+    ['svc','pay'].forEach(function(g){
+      var tbody=sh.querySelector('[data-g="'+g+'"]');
+      if(!tbody)return;
+      var rows=tbody.querySelectorAll('tr');
+      for(var i=rows.length-1;i>0;i--)rows[i].remove();
+      var first=rows[0];
+      if(first){
+        first.querySelectorAll('td[contenteditable="true"]').forEach(function(td){td.textContent='';});
+      }
+      var tc=sh.querySelector('[data-t="'+g+'"]');
+      if(tc)tc.textContent='¥0';
+    });
+  });
+  document.querySelectorAll('[data-a]').forEach(ba);
+  saveAll();
+  showToast('초기화 완료! 회사·계좌 정보·로고는 유지됩니다.');
+}
+
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+
+function printPDF(){
+  var sh=document.querySelector('.sheet.active');
+  var table=sh.querySelector('table');
+  var clone=table.cloneNode(true);
+  clone.querySelectorAll('.ra').forEach(function(el){el.remove()});
+  clone.querySelectorAll('.ba').forEach(function(el){el.closest('tr').remove()});
+  clone.querySelectorAll('.logo-drop,.logo-remove,.bd').forEach(function(el){el.remove()});
+  clone.querySelectorAll('col.ca').forEach(function(el){el.remove()});
+  clone.querySelectorAll('td[colspan="5"]').forEach(function(td){td.setAttribute('colspan','4')});
+  clone.querySelectorAll('.sh,.tr').forEach(function(tr){
+    var tds=tr.querySelectorAll('td');
+    if(tds.length>1){
+      var first=tds[0];
+      if(!first.getAttribute('colspan')&&first.innerText.trim()==='')first.remove();
+    }
+  });
+  clone.querySelectorAll('[contenteditable]').forEach(function(el){el.removeAttribute('contenteditable')});
+  var cg=clone.querySelector('colgroup');
+  if(cg)cg.remove();
+  clone.style.tableLayout='auto';
+  clone.style.width='100%';
+  var css='*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}body{font-family:"Segoe UI","Meiryo","Hiragino Sans","Yu Gothic",sans-serif;padding:24px;background:#fff}table{width:100%;border-collapse:collapse;table-layout:auto;page-break-inside:avoid}td{border:1px solid #ccc;padding:6px 10px;font-size:13px;vertical-align:top;line-height:1.5;word-break:keep-all}.hd td{background:#2c3e6b;color:#fff;font-weight:700;font-size:18px;text-align:center;letter-spacing:3px}.sh td{background:#3a5ba0;color:#fff;font-weight:600;font-size:13px}.cr td{background:#f7f8fa;font-size:12px;color:#444}.lb{background:#e8ecf3!important;font-weight:600;color:#333;white-space:nowrap}.tr td{background:#f0e6c8;font-weight:700;font-size:14px}.am{text-align:right;font-family:Consolas,Menlo,monospace}.sp td{border:none;height:10px;padding:0}.at{background:#e8f5e9!important}.logo-zone{text-align:center;padding:16px;border:none}.logo-preview{display:block}.logo-preview img{max-height:70px;max-width:250px}@media print{body{padding:15px}td{font-size:11px;padding:4px 8px}.hd td{font-size:16px}.logo-preview img{max-height:60px}}';
+  var w=window.open('','_blank');
+  if(w){
+    w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice</title><style>'+css+'</style></head><body>'+clone.outerHTML+'</body></html>');
+    w.document.close();
+    setTimeout(function(){w.print()},500);
+  }
+}
+
+function tableToCSV(table){
+  const rows=table.querySelectorAll('tr');const csv=[];
+  rows.forEach(row=>{
+    if(row.classList.contains('sp')){csv.push(',,,,');return}
+    if(row.querySelector('.ba'))return;
+    if(row.querySelector('.logo-zone'))return;
+    const cells=row.querySelectorAll('td');const d=[];
+    cells.forEach(c=>{if(c.classList.contains('ra'))return;let t=c.innerText.replace(/\n/g,' ').trim();if(t.includes(',')||t.includes('"'))t='"'+t.replace(/"/g,'""')+'"';d.push(t)});
+    if(d.length)csv.push(d.join(','));
+  });
+  return'﻿'+csv.join('\n');
+}
+
+function dlHTML(){
+  var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  var w=window.open('','_blank');
+  if(w){
+    w.document.open();w.document.write('<pre style="white-space:pre-wrap;word-break:break-all;font-size:12px">'+html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>');w.document.close();
+    showToast('새 창이 열렸습니다. Cmd+S (또는 Ctrl+S)로 저장하세요.');
+  } else {
+    navigator.clipboard.writeText(html).then(function(){
+      showToast('HTML이 클립보드에 복사되었습니다! 텍스트 편집기에 붙여넣고 .html로 저장하세요.');
+    }).catch(function(){
+      showToast('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
+    });
+  }
+}
+
+function dlCSV(){
+  try{
+    var sh=document.querySelector('.sheet.active');
+    var table=sh.querySelector('table');
+    var hide=table.querySelectorAll('.ra,.ba,.logo-zone,.logo-drop,.logo-preview,.logo-remove');
+    hide.forEach(function(el){el.style.display='none'});
+    var range=document.createRange();
+    range.selectNode(table);
+    var sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    hide.forEach(function(el){el.style.display=''});
+    showToast('표가 복사되었습니다! Google Sheets에 Cmd+V로 붙여넣기 하세요.');
+  }catch(e){alert('Error: '+e.message)}
+}
+function copyCSV(){
+  var ta=document.getElementById('csv-text');
+  ta.focus();ta.select();
+  try{document.execCommand('copy');showToast('복사 완료! Google Sheets에 Cmd+V로 붙여넣기 하세요.')}
+  catch(e){showToast('Cmd+C로 직접 복사해주세요.')}
+}
+function closeCSV(){document.getElementById('csv-modal').classList.remove('show')}
+
+function getCurrentData(){
+  var data={};
+  ['ko','jp','en'].forEach(function(lang){
+    var sh=document.getElementById('s-'+lang);
+    if(!sh)return;
+    var cells=[];
+    sh.querySelectorAll('td[contenteditable="true"]').forEach(function(td){cells.push(td.innerHTML)});
+    var svcCount=0,payCount=0;
+    var svcTb=sh.querySelector('[data-g="svc"]');
+    var payTb=sh.querySelector('[data-g="pay"]');
+    if(svcTb)svcCount=svcTb.querySelectorAll('tr').length;
+    if(payTb)payCount=payTb.querySelectorAll('tr').length;
+    data[lang]={cells:cells,svc:svcCount,pay:payCount};
+  });
+  data.logo=localStorage.getItem('th_invoice_logo')||null;
+  return data;
+}
+
+function getSavedInvoices(){
+  try{return JSON.parse(localStorage.getItem('th_invoices')||'[]')}catch(e){return[]}
+}
+function setSavedInvoices(list){
+  try{localStorage.setItem('th_invoices',JSON.stringify(list))}catch(e){}
+}
+
+function saveInvoiceAs(){
+  var name=prompt('청구서 이름을 입력하세요:');
+  if(!name||!name.trim())return;
+  var list=getSavedInvoices();
+  var existing=list.findIndex(function(inv){return inv.name===name.trim()});
+  if(existing>=0){
+    if(!confirm('"'+name.trim()+'" 이름의 청구서가 이미 있습니다. 덮어쓰시겠습니까?'))return;
+    list[existing]={name:name.trim(),date:new Date().toLocaleString('ko-KR'),data:getCurrentData()};
+  } else {
+    list.unshift({name:name.trim(),date:new Date().toLocaleString('ko-KR'),data:getCurrentData()});
+  }
+  setSavedInvoices(list);
+  showToast('"'+name.trim()+'" 저장 완료!');
+}
+
+function loadInvoiceData(data){
+  ['ko','jp','en'].forEach(function(lang){
+    if(!data[lang])return;
+    var sh=document.getElementById('s-'+lang);
+    if(!sh)return;
+    var d=data[lang];
+    var svcTb=sh.querySelector('[data-g="svc"]');
+    var payTb=sh.querySelector('[data-g="pay"]');
+    if(svcTb){for(var i=svcTb.querySelectorAll('tr').length;i<d.svc;i++){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td class="ra"><button class="bd">×</button></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true" class="am"></td><td contenteditable="true" class="am" data-a="svc"></td>';
+      svcTb.appendChild(tr);
+    }}
+    if(payTb){for(var i=payTb.querySelectorAll('tr').length;i<d.pay;i++){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td class="ra"><button class="bd">×</button></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true" class="am"></td><td contenteditable="true" class="am" data-a="pay"></td>';
+      payTb.appendChild(tr);
+    }}
+    var cells=sh.querySelectorAll('td[contenteditable="true"]');
+    for(var i=0;i<cells.length&&i<d.cells.length;i++){
+      cells[i].innerHTML=d.cells[i];
+    }
+  });
+  if(data.logo)setLogo(data.logo);
+}
+
+function openLoadModal(){
+  var list=getSavedInvoices();
+  var container=document.getElementById('inv-list');
+  if(list.length===0){
+    container.innerHTML='<div class="inv-empty">저장된 청구서가 없습니다</div>';
+  } else {
+    container.innerHTML='';
+    list.forEach(function(inv,idx){
+      var div=document.createElement('div');
+      div.className='inv-item';
+      div.innerHTML='<div><div class="inv-item-name">'+inv.name+'</div><div class="inv-item-date">'+inv.date+'</div></div><button class="inv-item-del" data-idx="'+idx+'">삭제</button>';
+      div.addEventListener('mousedown',function(e){
+        if(e.target.classList.contains('inv-item-del')){
+          e.preventDefault();
+          var i=parseInt(e.target.getAttribute('data-idx'));
+          if(confirm('"'+list[i].name+'" 을(를) 삭제하시겠습니까?')){
+            list.splice(i,1);setSavedInvoices(list);openLoadModal();
+            showToast('삭제되었습니다.');
+          }
+          return;
+        }
+        loadInvoiceData(inv.data);
+        closeLoadModal();
+        showToast('"'+inv.name+'" 불러오기 완료!');
+      });
+      container.appendChild(div);
+    });
+  }
+  document.getElementById('inv-modal').classList.add('show');
+}
+function closeLoadModal(){document.getElementById('inv-modal').classList.remove('show')}
+</script>
+</body>
+</html>

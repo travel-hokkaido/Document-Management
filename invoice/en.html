@@ -526,6 +526,19 @@
 
   .pdf-btn:hover { background: #1d4ed8; }
 
+  .preview-btn {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: white;
+    background: #6366f1; border: none; border-radius: 6px; padding: 8px 18px; cursor: pointer; font-weight: 600; transition: background 0.15s;
+  }
+  .preview-btn:hover { background: #4f46e5; }
+  .preview-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #555; z-index: 3000; overflow-y: auto; padding: 32px; }
+  .preview-overlay.show { display: block; }
+  .preview-close { position: fixed; top: 16px; right: 24px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 14px; font-weight: 600; cursor: pointer; z-index: 3001; }
+  .preview-close:hover { background: rgba(0,0,0,0.8); }
+  .a4-frame { width: 210mm; min-height: 297mm; background: white; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,0.3); padding: 20mm; font-size: 13px; line-height: 1.6; }
+  .a4-frame .top-bar, .a4-frame .reset-bar, .a4-frame .add-row-btn, .a4-frame .add-stop-btn, .a4-frame .add-day-btn, .a4-frame .delete-btn, .a4-frame .logo-placeholder, .a4-frame .logo-remove { display: none !important; }
+  .a4-frame .page { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
+
   .load-btn {
     display: inline-flex;
     align-items: center;
@@ -666,7 +679,7 @@
         <div class="logo-upload">
           <div class="logo-area has-logo" id="logoArea" onclick="document.getElementById('logoInput').click()">
             <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogo(event)">
-            <img src="images/f17d8744.txt">
+            <img src="https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf">
             <div class="logo-placeholder">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
               Add Logo
@@ -741,6 +754,10 @@
     <button class="add-row-btn" onclick="addCancelRow()">+ Add Row</button>
 
     <div class="reset-bar">
+      <button class="preview-btn" onclick="openPreview()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        A4 Preview
+      </button>
       <button class="pdf-btn" onclick="window.print()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Save as PDF
@@ -774,16 +791,33 @@
 </div>
 
 <div class="save-toast" id="saveToast">Saved successfully</div>
+<div class="preview-overlay" id="previewOverlay">
+  <button class="preview-close" onclick="closePreview()">✕ Close</button>
+  <div class="a4-frame" id="a4Frame"></div>
+</div>
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeSavedList()">
   <div class="modal"><div class="modal-header"><h2>Saved List</h2><button class="modal-close" onclick="closeSavedList()">×</button></div><div class="modal-body"><ul class="saved-list" id="savedList"></ul></div></div>
 </div>
 
 <script>
 const STORAGE_KEY = 'invoice_cheryl_en';
+function openPreview() {
+  var page = document.querySelector('.page');
+  var frame = document.getElementById('a4Frame');
+  frame.innerHTML = page.innerHTML;
+  frame.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
+  document.getElementById('previewOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closePreview() {
+  document.getElementById('previewOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
 const LOGO_KEY = 'invoice_cheryl_logo';
+const DEFAULT_LOGO = 'https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf';
 function handleLogo(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+  const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = function(ev) { setLogo(ev.target.result); };
   reader.readAsDataURL(file);
@@ -793,18 +827,15 @@ function setLogo(dataURL) {
   let img = area.querySelector('img');
   if (!img) { img = document.createElement('img'); area.appendChild(img); }
   img.src = dataURL; area.classList.add('has-logo');
-  try { localStorage.setItem(LOGO_KEY, dataURL); } catch(e) {}
+  if (dataURL !== DEFAULT_LOGO) { try { localStorage.setItem(LOGO_KEY, dataURL); } catch(e) {} }
 }
 function removeLogo(e) {
   e.stopPropagation();
-  const area = document.getElementById('logoArea');
-  const img = area.querySelector('img');
-  if (img) img.remove();
-  area.classList.remove('has-logo');
   document.getElementById('logoInput').value = '';
   localStorage.removeItem(LOGO_KEY);
+  setLogo(DEFAULT_LOGO);
 }
-(function loadLogo() { var s = localStorage.getItem(LOGO_KEY); if (s) setLogo(s); })();
+(function loadLogo() { setLogo(localStorage.getItem(LOGO_KEY) || DEFAULT_LOGO); })();
 
 function deleteRow(btn) {
   btn.closest('tr').remove();
@@ -886,11 +917,9 @@ function resetBooking() {
 
   document.getElementById('scheduleContainer').innerHTML = '';
 
-  const logo = document.getElementById('logoArea');
-  const img = logo.querySelector('img');
-  if (img) img.remove();
-  logo.classList.remove('has-logo');
   document.getElementById('logoInput').value = '';
+  localStorage.removeItem(LOGO_KEY);
+  setLogo(DEFAULT_LOGO);
 }
 
 function resetDefaults() {

@@ -7,7 +7,7 @@
 <style>
   :root { --hd:#2c3e6b; --ac:#3a5ba0; --lb:#e8ecf3; --tl:#f0e6c8; --bd:#b0b0b0; }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Segoe UI","Meiryo","Hiragino Sans","Yu Gothic","Apple SD Gothic Neo",sans-serif;background:#f4f5f7;color:#222;padding:20px;padding-bottom:70px}
+  body{font-family:"Segoe UI","Meiryo","Hiragino Sans","Yu Gothic","Apple SD Gothic Neo",sans-serif;background:#f4f5f7;color:#222;padding:20px;padding-bottom:70px;max-width:800px;margin:0 auto}
   .toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:0}
   .home-link{color:#fff;text-decoration:none;font-size:13px;font-weight:600;padding:6px 14px;border-radius:6px;background:var(--hd);transition:background .15s;white-space:nowrap}
   .home-link:hover{background:#1e2d50}
@@ -20,6 +20,25 @@
   .dl-btn.share-btn{background:#27ae60} .dl-btn.share-btn:hover{background:#219a52}
   .dl-btn.reset-btn{background:#e67e22} .dl-btn.reset-btn:hover{background:#d35400}
   .dl-btn.pdf-btn{background:#c0392b} .dl-btn.pdf-btn:hover{background:#a93226}
+  .dl-btn.preview{background:#6366f1} .dl-btn.preview:hover{background:#4f46e5}
+  .preview-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#555;z-index:200;overflow-y:auto;padding:32px}
+  .preview-overlay.show{display:block}
+  .preview-close{position:fixed;top:16px;right:24px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:14px;font-weight:600;cursor:pointer;z-index:201}
+  .preview-close:hover{background:rgba(0,0,0,.8)}
+  .a4-frame{width:210mm;min-height:297mm;background:#fff;margin:0 auto;box-shadow:0 4px 24px rgba(0,0,0,.3);padding:20mm}
+  .a4-frame table{width:100%;border-collapse:collapse;table-layout:fixed}
+  .a4-frame td{border:1px solid #ccc;padding:6px 10px;font-size:13px;vertical-align:top;line-height:1.5}
+  .a4-frame .hd td{background:#2c3e6b;color:#fff;font-weight:700;font-size:18px;text-align:center;letter-spacing:3px}
+  .a4-frame .sh td{background:#3a5ba0;color:#fff;font-weight:600;font-size:13px}
+  .a4-frame .cr td{background:#f7f8fa;font-size:12px;color:#444}
+  .a4-frame .lb{background:#e8ecf3!important;font-weight:600;color:#333}
+  .a4-frame .tr td{background:#f0e6c8;font-weight:700;font-size:14px}
+  .a4-frame .am{text-align:right;font-family:Consolas,Menlo,monospace}
+  .a4-frame .sp td{border:none;height:10px;padding:0}
+  .a4-frame .at{background:#e8f5e9!important}
+  .a4-frame .ra,.a4-frame .ba,.a4-frame .bd,.a4-frame .note,.a4-frame .logo-drop,.a4-frame .logo-remove,.a4-frame .logo-zone{display:none!important}
+  .a4-frame .logo-preview{display:block!important;text-align:center;padding:16px}
+  .a4-frame .logo-preview img{max-height:70px;max-width:250px}
   .dl-btn.calc-btn{background:#8e44ad} .dl-btn.calc-btn:hover{background:#7d3c98}
   .sheet{display:none;background:#fff;border:1px solid var(--bd);border-radius:0 8px 8px 8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
   .sheet.active{display:block}
@@ -106,6 +125,7 @@
     <button class="dl-btn load-inv" onclick="openLoadModal()">📂 Load</button>
     <button class="dl-btn reset-btn" onclick="resetInvoice()">Reset</button>
     <button class="dl-btn calc-btn" onclick="calcAll()">Calculate</button>
+    <button class="dl-btn preview" onclick="openA4Preview()">A4 Preview</button>
     <button class="dl-btn pdf-btn" onclick="printPDF()">Save PDF</button>
   </div>
 </div>
@@ -159,7 +179,7 @@
 <tr><td class="ra"><button class="bd">×</button></td><td class="lb" contenteditable="true">SWIFT</td><td contenteditable="true" colspan="3">NORPJPJP</td></tr>
 </tbody>
 <tr><td colspan="5" style="padding:0;border:none"><button class="ba">+ 행 추가</button></td></tr>
-<tr><td colspan="5" class="logo-zone"><div class="logo-drop" id="logo-drop-ko">📷 로고 이미지 추가 (클릭 또는 드래그)</div><div class="logo-preview" id="logo-preview-ko"></div></td></tr>
+<tr><td colspan="5" class="logo-zone"><div class="logo-drop" id="logo-drop-ko">📷 로고 이미지 추가 (클릭 또는 드래그)</div><div class="logo-preview" id="logo-preview-ko"><img src="https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf"><button class="logo-remove">✕ 삭제</button></div></td></tr>
 </table>
 <div class="note">제목·라벨·셀 모두 클릭해서 자유 편집 · 행 추가/삭제 · 금액 자동 합산</div>
 </div>
@@ -213,7 +233,7 @@
 <tr><td class="ra"><button class="bd">×</button></td><td class="lb" contenteditable="true">SWIFT</td><td contenteditable="true" colspan="3">NORPJPJP</td></tr>
 </tbody>
 <tr><td colspan="5" style="padding:0;border:none"><button class="ba">+ 行を追加</button></td></tr>
-<tr><td colspan="5" class="logo-zone"><div class="logo-drop" id="logo-drop-jp">📷 ロゴ画像を追加（クリックまたはドラッグ）</div><div class="logo-preview" id="logo-preview-jp"></div></td></tr>
+<tr><td colspan="5" class="logo-zone"><div class="logo-drop" id="logo-drop-jp">📷 ロゴ画像を追加（クリックまたはドラッグ）</div><div class="logo-preview" id="logo-preview-jp"><img src="https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf"><button class="logo-remove">✕ 삭제</button></div></td></tr>
 </table>
 <div class="note">すべてのセル・見出し・ラベル編集可 · 行の追加・削除 · 金額自動合計</div>
 </div>
@@ -267,12 +287,16 @@
 <tr><td class="ra"><button class="bd">×</button></td><td class="lb" contenteditable="true">SWIFT</td><td contenteditable="true" colspan="3">NORPJPJP</td></tr>
 </tbody>
 <tr><td colspan="5" style="padding:0;border:none"><button class="ba">+ Add Row</button></td></tr>
-<tr><td colspan="5" class="logo-zone"><div class="logo-drop" id="logo-drop-en">📷 Add Logo Image (click or drag)</div><div class="logo-preview" id="logo-preview-en"></div></td></tr>
+<tr><td colspan="5" class="logo-zone"><div class="logo-drop" id="logo-drop-en">📷 Add Logo Image (click or drag)</div><div class="logo-preview" id="logo-preview-en"><img src="https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf"><button class="logo-remove">✕ 삭제</button></div></td></tr>
 </table>
 <div class="note">Edit everything: headers, labels, cells · Add/remove rows · Auto-totals</div>
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="preview-overlay" id="previewOverlay">
+  <button class="preview-close" onclick="closeA4Preview()">✕ Close</button>
+  <div class="a4-frame" id="a4Frame"></div>
+</div>
 <div class="inv-modal" id="inv-modal">
   <div class="inv-box">
     <h3>📂 저장된 청구서</h3>
@@ -294,6 +318,37 @@
 
 <script>
 function sw(l){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('s-'+l).classList.add('active');document.querySelectorAll('.tab-btn')[['jp','en','ko'].indexOf(l)].classList.add('active')}
+
+function openA4Preview(){
+  var sh=document.querySelector('.sheet.active');
+  var table=sh.querySelector('table');
+  var clone=table.cloneNode(true);
+  clone.querySelectorAll('.ra').forEach(function(el){el.remove()});
+  clone.querySelectorAll('.ba').forEach(function(el){el.closest('tr').remove()});
+  clone.querySelectorAll('.logo-drop,.logo-remove,.bd').forEach(function(el){el.remove()});
+  clone.querySelectorAll('col.ca').forEach(function(el){el.remove()});
+  clone.querySelectorAll('td[colspan="5"]').forEach(function(td){td.setAttribute('colspan','4')});
+  clone.querySelectorAll('.sh,.tr').forEach(function(tr){
+    var tds=tr.querySelectorAll('td');
+    if(tds.length>1){
+      var first=tds[0];
+      if(!first.getAttribute('colspan')&&first.innerText.trim()==='')first.remove();
+    }
+  });
+  clone.querySelectorAll('[contenteditable]').forEach(function(el){el.removeAttribute('contenteditable')});
+  var cg=clone.querySelector('colgroup');if(cg)cg.remove();
+  clone.style.tableLayout='auto';clone.style.width='100%';clone.style.borderCollapse='collapse';
+  var logoPreview=sh.querySelector('.logo-preview');
+  var logoHTML='';
+  if(logoPreview&&logoPreview.querySelector('img')){logoHTML='<div style="text-align:center;padding:16px"><img src="'+logoPreview.querySelector('img').src+'" style="max-height:70px;max-width:250px"></div>';}
+  document.getElementById('a4Frame').innerHTML=clone.outerHTML+logoHTML;
+  document.getElementById('previewOverlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeA4Preview(){
+  document.getElementById('previewOverlay').classList.remove('show');
+  document.body.style.overflow='';
+}
 
 var logoDataURL=null;
 var logoInput=document.getElementById('logo-input');
@@ -341,7 +396,12 @@ document.querySelectorAll('.logo-drop').forEach(function(zone){
 });
 
 var savedLogo=localStorage.getItem('th_invoice_logo');
-if(savedLogo)setLogo(savedLogo);
+if(savedLogo){setLogo(savedLogo);}
+else{['ko','jp','en'].forEach(function(lang){
+  var drop=document.getElementById('logo-drop-'+lang);
+  var preview=document.getElementById('logo-preview-'+lang);
+  if(preview&&preview.querySelector('img')){drop.style.display='none';preview.style.display='block';}
+});}
 
 var saveTimer=null;
 function scheduleSave(){

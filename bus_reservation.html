@@ -489,15 +489,18 @@
 </head>
 <body>
 
-<div class="toolbar no-print">
-  <span class="save-msg" id="saveMsg">✓ 保存しました</span>
-  <button class="btn-save" onclick="saveForm()">💾 保存</button>
-  <button class="btn-import" onclick="showLoadDialog()">📂 呼び出し</button>
-  <span style="border-left:1px solid #ccc; height:24px; margin:0 4px;"></span>
-  <button class="btn-clear" onclick="clearForm()">クリア</button>
-  <button class="btn-add" onclick="addItineraryRow()">＋ 日程を追加</button>
-  <button class="btn-remove" onclick="removeLastDayBlock()">－ 日程を削除</button>
-  <button class="btn-print" onclick="window.print()">印刷 / FAX送信</button>
+<div class="toolbar no-print" style="justify-content: space-between;">
+  <a href="index.html" style="font-family:var(--font-main); font-size:14px; padding:8px 20px; background:#444; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">🏠 ホーム</a>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <span class="save-msg" id="saveMsg">✓ 保存しました</span>
+    <button class="btn-save" onclick="saveForm()">💾 保存</button>
+    <button class="btn-import" onclick="showLoadDialog()">📂 呼び出し</button>
+    <span style="border-left:1px solid #ccc; height:24px; margin:0 4px;"></span>
+    <button class="btn-clear" onclick="clearForm()">クリア</button>
+    <button class="btn-add" onclick="addItineraryRow()">＋ 日程を追加</button>
+    <button class="btn-remove" onclick="removeLastDayBlock()">－ 日程を削除</button>
+    <button class="btn-print" onclick="window.print()">印刷 / FAX送信</button>
+  </div>
 </div>
 
 <!-- Load dialog -->

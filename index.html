@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Hokkaido Documents</title>
+<style>
+  :root {
+    --slate-900: #0f172a;
+    --slate-700: #334155;
+    --slate-500: #64748b;
+    --slate-300: #cbd5e1;
+    --slate-100: #f1f5f9;
+    --warm-50: #faf8f5;
+    --amber-100: #fef3c7;
+    --blue-100: #dbeafe;
+    --green-100: #dcfce7;
+    --font: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--warm-50);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px 80px;
+  }
+  .header { text-align: center; margin-bottom: 48px; }
+  .header h1 {
+    font-size: 13px; font-weight: 700; letter-spacing: 6px;
+    color: var(--slate-500); text-transform: uppercase; margin-bottom: 12px;
+  }
+  .header h2 { font-size: 28px; font-weight: 800; color: var(--slate-900); letter-spacing: -0.5px; }
+  .header .divider { width: 40px; height: 3px; background: var(--slate-900); margin: 16px auto 0; border-radius: 2px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 880px; width: 100%; }
+
+  .card {
+    background: #fff; border-radius: 14px; border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex; flex-direction: column; position: relative; overflow: hidden; cursor: pointer;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0;
+  }
+  .card.invoice::before { background: #f59e0b; }
+  .card.booking::before { background: #3b82f6; }
+  .card.bus::before { background: #22c55e; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+  .card-body { padding: 28px 24px 22px; display: flex; flex-direction: column; flex: 1; }
+  .card-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 18px;
+  }
+  .card.invoice .card-icon { background: var(--amber-100); }
+  .card.booking .card-icon { background: var(--blue-100); }
+  .card.bus .card-icon { background: var(--green-100); }
+
+  .card h3 { font-size: 17px; font-weight: 700; color: var(--slate-900); margin-bottom: 8px; line-height: 1.3; }
+  .card p { font-size: 12.5px; color: var(--slate-500); line-height: 1.6; margin-bottom: 20px; flex: 1; }
+
+  .lang-links { display: flex; gap: 6px; flex-wrap: wrap; }
+  .lang-links a {
+    display: inline-flex; align-items: center; padding: 5px 12px;
+    font-size: 11.5px; font-weight: 600; color: var(--slate-700);
+    background: var(--slate-100); border-radius: 6px; text-decoration: none;
+    transition: all 0.2s; letter-spacing: 0.3px; position: relative; z-index: 2;
+  }
+  .lang-links a:hover { background: var(--slate-900); color: #fff; }
+
+  @media (max-width: 820px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .cards { grid-template-columns: 1fr; max-width: 340px; } body { padding: 40px 16px 80px; } }
+  @media print {
+    body { background: white; padding: 20px; }
+    .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Travel Hokkaido</h1>
+  <h2>Document Management</h2>
+  <div class="divider"></div>
+</div>
+
+<div class="cards">
+
+  <div class="card invoice" onclick="window.location.href='invoice.html'">
+    <div class="card-body">
+      <div class="card-icon">💰</div>
+      <h3>Invoice</h3>
+      <p>Create service invoices<br>Auto-calculate totals, bank info</p>
+      <div class="lang-links">
+        <a href="invoice.html" onclick="event.stopPropagation()">日本語</a>
+        <a href="invoice.html" onclick="event.stopPropagation()">EN</a>
+        <a href="invoice.html" onclick="event.stopPropagation()">한국어</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card booking" onclick="window.location.href='confirmation.html'">
+    <div class="card-body">
+      <div class="card-icon">📋</div>
+      <h3>Booking Confirmation</h3>
+      <p>Create booking confirmations<br>Bus schedule, accommodation, passengers</p>
+      <div class="lang-links">
+        <a href="confirmation.html" onclick="event.stopPropagation()">日本語</a>
+        <a href="confirmation.html" onclick="event.stopPropagation()">EN</a>
+        <a href="confirmation.html" onclick="event.stopPropagation()">한국어</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bus" onclick="window.location.href='bus_reservation.html'">
+    <div class="card-body">
+      <div class="card-icon">🚌</div>
+      <h3>Bus Reservation</h3>
+      <p>バス予約依頼書を作成<br>行程表、費用、車種選択</p>
+      <div class="lang-links">
+        <a href="bus_reservation.html" onclick="event.stopPropagation()">日本語</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

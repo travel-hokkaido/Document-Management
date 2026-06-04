@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking Confirmation Travel Hokkaido</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #6b7280;
+    --border: #d1d5db;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --bg: #ffffff;
+    --section-bg: #f8fafc;
+    --warm: #fefce8;
+    --font-body: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+    --font-display: Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: #f0f2f5;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 32px auto 80px;
+    background: var(--bg);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+
+  .home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .home-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--accent);
+    color: white;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    gap: 8px;
+  }
+
+  .edit-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .edit-banner svg { flex-shrink: 0; }
+
+  .lang-switch {
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 3px;
+  }
+
+  .lang-btn {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .lang-btn.active {
+    background: white;
+    color: var(--accent);
+  }
+
+  .lang-btn:not(.active) {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .lang-btn:not(.active):hover {
+    background: rgba(255,255,255,0.2);
+    color: white;
+  }
+
+  .header {
+    padding: 40px 48px 32px;
+  }
+
+  .header h1 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 24px;
+    text-align: center;
+    padding-bottom: 16px;
+  }
+
+  .header-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .client-info, .company-info {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .company-info {
+    text-align: right;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .logo-upload {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  .logo-area {
+    width: 140px;
+    height: 80px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s, background 0.15s;
+    background: var(--bg);
+    position: relative;
+  }
+
+  .logo-area:hover {
+    background: var(--section-bg);
+  }
+
+  .logo-area img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .logo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .logo-area.has-logo .logo-placeholder { display: none; }
+
+  .logo-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .logo-area.has-logo:hover .logo-remove { display: flex; }
+
+  .client-name {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .content { padding: 32px 48px; }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .info-card {
+    background: var(--section-bg);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+
+  .info-card-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .info-card-value {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin: 32px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-light);
+  }
+
+  .pickup-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .pickup-table th {
+    text-align: left;
+    background: var(--section-bg);
+    padding: 10px 14px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pickup-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+  }
+
+  .day-block {
+    margin-bottom: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--section-bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .day-date {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .day-route {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .day-hours {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .day-stops {
+    padding: 16px 20px;
+    list-style: none;
+  }
+
+  .day-stops li {
+    padding: 6px 0;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border-bottom: 1px solid #f8f8f8;
+  }
+
+  .day-stops li:last-child { border-bottom: none; }
+
+  .stop-time {
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 48px;
+  }
+
+  .notes-section {
+    background: var(--warm);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 32px 0;
+  }
+
+  .notes-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  .notes-section ul {
+    list-style: none;
+    font-size: 14px;
+  }
+
+  .notes-section li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .notes-section li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+  }
+
+  .cancel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .cancel-table th {
+    text-align: left;
+    background: var(--section-bg);
+    padding: 10px 16px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cancel-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .cancel-table tr:last-child td { border-bottom: none; }
+
+  .footer {
+    text-align: center;
+    padding: 32px 48px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  [contenteditable="true"] {
+    outline: none;
+    border-radius: 3px;
+    transition: background 0.15s, box-shadow 0.15s;
+    cursor: text;
+  }
+
+  [contenteditable="true"]:hover {
+    background: var(--accent-light);
+  }
+
+  [contenteditable="true"]:focus {
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .add-row-btn, .add-stop-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--accent);
+    background: none;
+    border: 1px dashed var(--accent);
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.15s;
+  }
+
+  .add-row-btn:hover, .add-stop-btn:hover {
+    background: var(--accent-light);
+  }
+
+  .delete-btn {
+    opacity: 0;
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: opacity 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .delete-btn:hover { background: #fee2e2; }
+
+  tr:hover .delete-btn,
+  li:hover > .delete-btn,
+  .day-block:hover > .day-header .delete-btn {
+    opacity: 1;
+  }
+
+  .add-day-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 14px;
+    font-size: 14px;
+    color: var(--accent);
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .add-day-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+
+  .reset-btn:hover {
+    color: #ef4444;
+    border-color: #ef4444;
+    background: #fef2f2;
+  }
+
+  .reset-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 48px 0;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: white;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+    margin-right: auto;
+  }
+
+  .pdf-btn:hover { background: #1d4ed8; }
+
+  .preview-btn {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: white;
+    background: #6366f1; border: none; border-radius: 6px; padding: 8px 18px; cursor: pointer; font-weight: 600; transition: background 0.15s;
+  }
+  .preview-btn:hover { background: #4f46e5; }
+  .preview-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #555; z-index: 3000; overflow-y: auto; padding: 32px; }
+  .preview-overlay.show { display: block; }
+  .preview-close { position: fixed; top: 16px; right: 24px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 14px; font-weight: 600; cursor: pointer; z-index: 3001; }
+  .preview-close:hover { background: rgba(0,0,0,0.8); }
+  .a4-frame { width: 210mm; min-height: 297mm; background: white; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,0.3); padding: 20mm; font-size: 13px; line-height: 1.6; }
+  .a4-frame .top-bar, .a4-frame .reset-bar, .a4-frame .add-row-btn, .a4-frame .add-stop-btn, .a4-frame .add-day-btn, .a4-frame .delete-btn, .a4-frame .logo-placeholder, .a4-frame .logo-remove { display: none !important; }
+  .a4-frame .page { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
+
+  .load-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--accent);
+    background: white;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+
+  .load-btn:hover { background: var(--accent-light); }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal { background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); width: 480px; max-width: 90vw; max-height: 70vh; display: flex; flex-direction: column; overflow: hidden; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .modal-header h2 { font-size: 16px; font-weight: 700; }
+  .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); padding: 4px 8px; border-radius: 4px; }
+  .modal-close:hover { background: #f3f4f6; }
+  .modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+  .saved-list { list-style: none; }
+  .saved-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+  .saved-item:hover { border-color: var(--accent); }
+  .saved-item-info { flex: 1; }
+  .saved-item-name { font-weight: 600; font-size: 14px; }
+  .saved-item-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .saved-item-del { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; opacity: 0; transition: opacity 0.15s, background 0.15s; }
+  .saved-item:hover .saved-item-del { opacity: 1; }
+  .saved-item-del:hover { background: #fee2e2; }
+  .empty-msg { text-align: center; color: var(--muted); font-size: 14px; padding: 32px 0; }
+
+  .save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: white;
+    background: #16a34a;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+
+  .save-btn:hover { background: #15803d; }
+
+  .save-btn.saved {
+    background: #86efac;
+    color: #166534;
+    pointer-events: none;
+  }
+
+  .save-toast {
+    position: fixed;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #166534;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .save-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; border-radius: 0; }
+    .edit-banner { display: none; }
+    [contenteditable="true"]:hover { background: transparent; }
+    [contenteditable="true"]:focus { box-shadow: none; background: transparent; }
+    .add-row-btn, .add-stop-btn, .add-day-btn, .delete-btn, .reset-btn, .reset-bar, .pdf-btn, .save-btn, .save-toast { display: none !important; }
+  }
+
+  @media (max-width: 640px) {
+    .header, .content, .footer { padding-left: 24px; padding-right: 24px; }
+    .header-grid { grid-template-columns: 1fr; }
+    .company-info { text-align: left; }
+    .info-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="top-bar">
+    <a class="home-btn" href="index.html">← Home</a>
+    <div class="edit-banner">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Click any field to edit freely
+    </div>
+    <div class="lang-switch">
+      <a class="lang-btn" href="confirmation.html">日本語</a>
+      <span class="lang-btn active">EN</span>
+      <a class="lang-btn" href="ko.html">한국어</a>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>Booking Confirmation</h1>
+    <div class="header-grid">
+      <div class="client-info">
+        <div class="client-name" contenteditable="true">Client Name</div>
+        <div contenteditable="true">Name</div>
+        <div contenteditable="true">email@example.com</div>
+      </div>
+      <div class="company-info">
+        <strong>Travel Hokkaido Co., Ltd.</strong><br>
+        <span contenteditable="true">Alpha Square Azabu Room 203</span><br>
+        <span contenteditable="true">5-5-2 Azabu-cho, Kita-ku, Sapporo, Hokkaido 001-0045</span><br>
+        <span contenteditable="true">TEL: +81) 11-312-3913</span><br>
+        <span contenteditable="true">E-mail: info@yourtravelhokkaido.com</span>
+        <div class="logo-upload">
+          <div class="logo-area has-logo" id="logoArea" onclick="document.getElementById('logoInput').click()">
+            <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogo(event)">
+            <img src="https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf">
+            <div class="logo-placeholder">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              Add Logo
+            </div>
+            <button class="logo-remove" onclick="removeLogo(event)" title="Remove">×</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-label">Travel Period</div>
+        <div class="info-card-value" contenteditable="true">Start – End</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Vehicle</div>
+        <div class="info-card-value" contenteditable="true">Vehicle Type</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Passengers</div>
+        <div class="info-card-value" contenteditable="true">0</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px" contenteditable="true">0 Adults / 0 Children / 0 Infants</div>
+      </div>
+    </div>
+
+    <div class="section-title">Accommodation</div>
+    <table class="pickup-table" id="pickupTable">
+      <thead>
+        <tr><th>Location</th><th>Address</th><th style="width:36px"></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="true">Location</td>
+          <td contenteditable="true">Address</td>
+          <td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="add-row-btn" onclick="addPickupRow()">+ Add Accommodation</button>
+
+    <div class="section-title">Bus Schedule</div>
+    <div id="scheduleContainer">
+    </div>
+    <button class="add-day-btn" onclick="addDay()">+ Add Day</button>
+
+    <div class="notes-section">
+      <h3>Important Notes</h3>
+      <ul id="notesList">
+        <li contenteditable="true">Bank transfer fees are the responsibility of the customer.</li>
+        <li contenteditable="true">All highway tolls, fuel costs, and bus parking fees are included in the price.</li>
+        <li contenteditable="true">An additional charge of ¥15,000 per hour applies for extended service hours.</li>
+      </ul>
+    </div>
+
+    <div class="section-title">Cancellation Policy</div>
+    <table class="cancel-table" id="cancelTable">
+      <thead>
+        <tr><th>Timing</th><th>Refund</th><th style="width:36px"></th></tr>
+      </thead>
+      <tbody>
+        <tr><td contenteditable="true">30+ days before departure</td><td contenteditable="true">100% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>
+        <tr><td contenteditable="true">21–30 days before</td><td contenteditable="true">80% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>
+        <tr><td contenteditable="true">11–20 days before</td><td contenteditable="true">60% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>
+        <tr><td contenteditable="true">4–10 days before</td><td contenteditable="true">30% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>
+        <tr><td contenteditable="true">3 days or less / Day of</td><td contenteditable="true">Non-refundable</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>
+      </tbody>
+    </table>
+    <button class="add-row-btn" onclick="addCancelRow()">+ Add Row</button>
+
+    <div class="reset-bar">
+      <button class="preview-btn" onclick="openPreview()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        A4 Preview
+      </button>
+      <button class="pdf-btn" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Save as PDF
+      </button>
+      <button class="save-btn" id="saveBtn" onclick="saveData()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save
+      </button>
+      <button class="load-btn" onclick="openSavedList()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Saved List
+      </button>
+      <button class="reset-btn" onclick="resetBooking()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
+        Reset Booking Info
+      </button>
+      <button class="reset-btn" onclick="resetDefaults()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
+        Reset Default Info
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <strong>Travel Hokkaido Co., Ltd.</strong><br>
+    <a href="mailto:info@yourtravelhokkaido.com" contenteditable="true">info@yourtravelhokkaido.com</a><br>
+    <span contenteditable="true">Please don't hesitate to contact us with any questions.</span>
+  </div>
+
+</div>
+
+<div class="save-toast" id="saveToast">Saved successfully</div>
+<div class="preview-overlay" id="previewOverlay">
+  <button class="preview-close" onclick="closePreview()">✕ Close</button>
+  <div class="a4-frame" id="a4Frame"></div>
+</div>
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeSavedList()">
+  <div class="modal"><div class="modal-header"><h2>Saved List</h2><button class="modal-close" onclick="closeSavedList()">×</button></div><div class="modal-body"><ul class="saved-list" id="savedList"></ul></div></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'invoice_cheryl_en';
+function openPreview() {
+  var page = document.querySelector('.page');
+  var frame = document.getElementById('a4Frame');
+  frame.innerHTML = page.innerHTML;
+  frame.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
+  document.getElementById('previewOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closePreview() {
+  document.getElementById('previewOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+const LOGO_KEY = 'invoice_cheryl_logo';
+const DEFAULT_LOGO = 'https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf';
+function handleLogo(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) { setLogo(ev.target.result); };
+  reader.readAsDataURL(file);
+}
+function setLogo(dataURL) {
+  const area = document.getElementById('logoArea');
+  let img = area.querySelector('img');
+  if (!img) { img = document.createElement('img'); area.appendChild(img); }
+  img.src = dataURL; area.classList.add('has-logo');
+  if (dataURL !== DEFAULT_LOGO) { try { localStorage.setItem(LOGO_KEY, dataURL); } catch(e) {} }
+}
+function removeLogo(e) {
+  e.stopPropagation();
+  document.getElementById('logoInput').value = '';
+  localStorage.removeItem(LOGO_KEY);
+  setLogo(DEFAULT_LOGO);
+}
+(function loadLogo() { setLogo(localStorage.getItem(LOGO_KEY) || DEFAULT_LOGO); })();
+
+function deleteRow(btn) {
+  btn.closest('tr').remove();
+}
+
+function deleteStop(btn) {
+  btn.closest('li').remove();
+}
+
+function deleteDay(btn) {
+  btn.closest('.day-block').remove();
+}
+
+function addPickupRow() {
+  const tbody = document.querySelector('#pickupTable tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td contenteditable="true">Location</td><td contenteditable="true">Address</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td>';
+  tbody.appendChild(tr);
+  tr.querySelector('td').focus();
+}
+
+function addCancelRow() {
+  const tbody = document.querySelector('#cancelTable tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td contenteditable="true">Timing</td><td contenteditable="true">Refund</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td>';
+  tbody.appendChild(tr);
+  tr.querySelector('td').focus();
+}
+
+function addStop(btn) {
+  const ul = btn.closest('.day-block').querySelector('.day-stops');
+  const li = document.createElement('li');
+  li.innerHTML = '<span class="stop-time" contenteditable="true">00:00</span><span contenteditable="true">Stop</span><button class="delete-btn" onclick="deleteStop(this)" title="Delete">×</button>';
+  ul.appendChild(li);
+  li.querySelector('.stop-time').focus();
+}
+
+function addDay() {
+  const container = document.getElementById('scheduleContainer');
+  const block = document.createElement('div');
+  block.className = 'day-block';
+  block.innerHTML = `
+    <div class="day-header">
+      <div>
+        <span class="day-date" contenteditable="true">Date (Day)</span>
+        <span class="day-route" contenteditable="true">Route</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="day-hours" contenteditable="true">00:00–00:00 / 0 hrs</span>
+        <button class="delete-btn" onclick="deleteDay(this)" title="Delete">×</button>
+      </div>
+    </div>
+    <ul class="day-stops">
+      <li><span class="stop-time" contenteditable="true">00:00</span><span contenteditable="true">Stop</span><button class="delete-btn" onclick="deleteStop(this)" title="Delete">×</button></li>
+    </ul>
+    <div style="padding:0 20px 12px"><button class="add-stop-btn" onclick="addStop(this)">+ Add Stop</button></div>
+  `;
+  container.appendChild(block);
+  block.querySelector('.day-date').focus();
+}
+
+function resetBooking() {
+  if (!confirm('Reset booking info (client, period, vehicle, passengers, accommodation, schedule)?')) return;
+
+  document.querySelector('.client-name').textContent = 'Client Name';
+  const clientDivs = document.querySelectorAll('.client-info > div:not(.client-name)');
+  if (clientDivs[0]) clientDivs[0].textContent = 'Name';
+  if (clientDivs[1]) clientDivs[1].textContent = 'email@example.com';
+
+  const cards = document.querySelectorAll('.info-card-value');
+  if (cards[0]) cards[0].textContent = 'Start – End';
+  if (cards[1]) cards[1].textContent = 'Vehicle Type';
+  if (cards[2]) cards[2].textContent = '0';
+  const detail = document.querySelector('.info-card div[style]');
+  if (detail) detail.textContent = '0 Adults / 0 Children / 0 Infants';
+
+  document.querySelector('#pickupTable tbody').innerHTML =
+    '<tr><td contenteditable="true">Location</td><td contenteditable="true">Address</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>';
+
+  document.getElementById('scheduleContainer').innerHTML = '';
+
+  document.getElementById('logoInput').value = '';
+  localStorage.removeItem(LOGO_KEY);
+  setLogo(DEFAULT_LOGO);
+}
+
+function resetDefaults() {
+  if (!confirm('Reset Notes, Cancellation Policy & Company Info to defaults?')) return;
+
+  const ci = document.querySelector('.company-info');
+  ci.querySelector('strong').textContent = 'Travel Hokkaido Co., Ltd.';
+  const spans = ci.querySelectorAll(':scope > span[contenteditable]');
+  const companyDefaults = [
+    'Alpha Square Azabu Room 203',
+    '5-5-2 Azabu-cho, Kita-ku, Sapporo, Hokkaido 001-0045',
+    'TEL: +81) 11-312-3913',
+    'E-mail: info@yourtravelhokkaido.com'
+  ];
+  spans.forEach((s, i) => { if (companyDefaults[i]) s.textContent = companyDefaults[i]; });
+
+  document.getElementById('notesList').innerHTML =
+    '<li contenteditable="true">Bank transfer fees are the responsibility of the customer.</li>' +
+    '<li contenteditable="true">All highway tolls, fuel costs, and bus parking fees are included in the price.</li>' +
+    '<li contenteditable="true">An additional charge of ¥15,000 per hour applies for extended service hours.</li>';
+
+  document.querySelector('#cancelTable tbody').innerHTML =
+    '<tr><td contenteditable="true">30+ days before departure</td><td contenteditable="true">100% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>' +
+    '<tr><td contenteditable="true">21–30 days before</td><td contenteditable="true">80% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>' +
+    '<tr><td contenteditable="true">11–20 days before</td><td contenteditable="true">60% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>' +
+    '<tr><td contenteditable="true">4–10 days before</td><td contenteditable="true">30% refund (excl. deposit & transfer fees)</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>' +
+    '<tr><td contenteditable="true">3 days or less / Day of</td><td contenteditable="true">Non-refundable</td><td><button class="delete-btn" onclick="deleteRow(this)" title="Delete">×</button></td></tr>';
+
+  const footer = document.querySelector('.footer');
+  footer.querySelector('strong').textContent = 'Travel Hokkaido Co., Ltd.';
+  footer.querySelector('a').textContent = 'info@yourtravelhokkaido.com';
+  footer.querySelector('span').textContent = "Please don't hesitate to contact us with any questions.";
+}
+
+function getClientName() { return document.querySelector('.client-name')?.textContent?.trim() || 'Unnamed'; }
+function getSavedItems() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; } }
+
+function saveData() {
+  var page = document.querySelector('.page');
+  var items = getSavedItems();
+  items.unshift({ id: Date.now(), name: getClientName(), timestamp: new Date().toISOString(), content: page.innerHTML });
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    var btn = document.getElementById('saveBtn');
+    btn.classList.add('saved');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved';
+    var toast = document.getElementById('saveToast');
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); btn.classList.remove('saved'); btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save'; }, 2000);
+  } catch(e) { alert('Save failed.'); }
+}
+
+function openSavedList() {
+  var items = getSavedItems(); var list = document.getElementById('savedList');
+  if (!items.length) { list.innerHTML = '<li class="empty-msg">No saved data</li>'; }
+  else { list.innerHTML = items.map(function(item) { var d = new Date(item.timestamp); var ds = d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); return '<li class="saved-item" onclick="loadItem('+item.id+')"><div class="saved-item-info"><div class="saved-item-name">'+item.name+'</div><div class="saved-item-date">'+ds+'</div></div><div class="saved-item-actions"><button class="saved-item-del" onclick="event.stopPropagation();deleteItem('+item.id+')">×</button></div></li>'; }).join(''); }
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeSavedList() { document.getElementById('modalOverlay').classList.remove('show'); }
+function loadItem(id) { var item = getSavedItems().find(function(i){return i.id===id;}); if(item){document.querySelector('.page').innerHTML=item.content;closeSavedList();} }
+function deleteItem(id) { if(!confirm('Delete this saved data?'))return; localStorage.setItem(STORAGE_KEY,JSON.stringify(getSavedItems().filter(function(i){return i.id!==id;}))); openSavedList(); }
+</script>
+
+</body>
+</html>

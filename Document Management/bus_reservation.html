@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バス予約依頼書</title>
+<style>
+  :root {
+    --border: #333;
+    --bg-header: #e8e8e8;
+    --bg-light: #f5f5f5;
+    --font-main: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-main);
+    font-size: 16px;
+    color: #111;
+    background: #888;
+    padding: 20px;
+  }
+
+  .page {
+    width: 297mm;
+    min-height: 210mm;
+    margin: 0 auto 24px;
+    background: #fff;
+    padding: 2mm 8mm 2mm;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    position: relative;
+  }
+
+  /* Inputs & selects */
+  input, select, textarea {
+    font-family: var(--font-main);
+    font-size: 16px;
+    border: none;
+    background: transparent;
+    color: #111;
+    outline: none;
+    width: 100%;
+    text-align: center;
+  }
+  input:focus, select:focus, textarea:focus {
+    background: #fffde6;
+  }
+  select {
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 18px;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 48px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* Custom combo box */
+  .combo {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+  .combo input {
+    width: 100%;
+    padding-right: 24px;
+    cursor: text;
+  }
+  .combo .combo-arrow {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 10px;
+    color: #666;
+    user-select: none;
+    padding: 4px;
+  }
+  .combo .combo-list {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #999;
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+  .combo .combo-list.open { display: block; }
+  .combo .combo-item {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+  }
+  .combo .combo-item:hover {
+    background: #e8f0fe;
+  }
+
+  /* Title row */
+  .doc-title-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1px;
+  }
+  .doc-title-select {
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+    width: auto;
+    min-width: 320px;
+    padding: 4px 24px 4px 8px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  /* Main table */
+  table.form-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  table.form-table td, table.form-table th {
+    border: 1px solid var(--border);
+    padding: 1px 4px;
+    vertical-align: middle;
+    font-size: 15px;
+    line-height: 1.2;
+    text-align: center;
+  }
+  table.form-table th {
+    background: var(--bg-header);
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .label-cell {
+    background: var(--bg-light);
+    font-weight: bold;
+    text-align: center;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .no-border { border: none !important; }
+  .text-center { text-align: center; }
+  .text-right { text-align: right; }
+  .text-small { font-size: 11px; }
+  .bold { font-weight: bold; }
+
+  /* Top header section */
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1px;
+    gap: 8px;
+  }
+  .header-left { flex: 1; }
+  .header-right {
+    width: 300px;
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .recipient-row {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 2px;
+    font-size: 24px;
+  }
+  .recipient-row input {
+    font-size: 24px;
+    font-weight: bold;
+    width: 260px;
+    border-bottom: 1px solid #999;
+    padding: 1px 0;
+  }
+  .recipient-row .sama {
+    margin-left: 8px;
+    font-size: 24px;
+  }
+
+  .greeting-box {
+    margin: 1px 0 2px;
+  }
+  .greeting-box textarea {
+    width: 100%;
+    font-size: 13px;
+    line-height: 1.3;
+    min-height: 36px;
+    border: 1px solid #ccc;
+    padding: 2px 6px;
+    text-align: left;
+  }
+
+  .company-info-box {
+    border: 1px solid #999;
+    padding: 3px 6px;
+    font-size: 13px;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  .company-info-box .company-name {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+
+  /* Itinerary */
+  .itinerary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+  }
+  .itinerary-table td, .itinerary-table th {
+    border: 1px solid var(--border);
+    padding: 0px 3px;
+    font-size: 15px;
+    vertical-align: middle;
+    height: 20px;
+    text-align: center;
+  }
+  .itinerary-table th {
+    background: var(--bg-header);
+    font-weight: bold;
+    text-align: center;
+    font-size: 12px;
+  }
+  .itinerary-table .arr-dep {
+    width: 28px;
+    text-align: center;
+    font-weight: bold;
+    background: var(--bg-light);
+    font-size: 14px;
+  }
+  .itinerary-table .time-cell {
+    width: 56px;
+    text-align: center;
+  }
+  .itinerary-table .time-cell input {
+    text-align: center;
+    font-size: 13px;
+  }
+  .itinerary-table .place-cell input {
+    font-size: 13px;
+  }
+
+  /* Costs row */
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: -1px;
+  }
+  .cost-table td {
+    border: 1px solid var(--border);
+    padding: 1px 4px;
+    font-size: 15px;
+    vertical-align: middle;
+    text-align: center;
+  }
+  .cost-table .cost-label {
+    background: var(--bg-light);
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    width: 80px;
+  }
+
+  /* Footer sections */
+  .footer-note {
+    font-size: 13px;
+    margin: 8px 0 6px;
+    padding: 4px 0;
+  }
+  .footer-tables {
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .footer-table {
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .footer-table td {
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    height: 28px;
+  }
+  .footer-table .ft-label {
+    background: var(--bg-light);
+    font-weight: bold;
+    white-space: nowrap;
+    width: 110px;
+  }
+  .footer-table .ft-value {
+    min-width: 140px;
+  }
+
+  /* Buttons */
+  .toolbar {
+    width: 297mm;
+    margin: 0 auto 8px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .toolbar button {
+    font-family: var(--font-main);
+    font-size: 14px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+  .btn-print {
+    background: #1a5276;
+    color: #fff;
+  }
+  .btn-print:hover { background: #154360; }
+  .btn-clear {
+    background: #eee;
+    color: #333;
+    border: 1px solid #ccc;
+  }
+  .btn-clear:hover { background: #ddd; }
+  .btn-add {
+    background: #27ae60;
+    color: #fff;
+  }
+  .btn-add:hover { background: #1e8449; }
+  .btn-remove {
+    background: #c0392b;
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 12px;
+  }
+  .btn-remove:hover { background: #a93226; }
+
+  /* Day columns */
+  .day-col-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .payment-select {
+    font-size: 13px;
+  }
+
+  /* Row add/remove for itinerary */
+  .add-row-section {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 6px 0;
+  }
+  .add-row-section button {
+    font-family: var(--font-main);
+    font-size: 12px;
+    padding: 4px 14px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: #f9f9f9;
+    cursor: pointer;
+  }
+  .add-row-section button:hover { background: #eee; }
+
+  /* Day tabs */
+  .day-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .day-tab {
+    font-family: var(--font-main);
+    font-size: 12px;
+    padding: 4px 12px;
+    border: 1px solid #999;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: #eee;
+    cursor: pointer;
+  }
+  .day-tab.active {
+    background: #fff;
+    font-weight: bold;
+    border-bottom: 1px solid #fff;
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Print styles */
+  @media print {
+    body {
+      background: white;
+      padding: 0;
+      margin: 0;
+    }
+    .toolbar, .add-row-section, .btn-remove, .no-print, #loadOverlay, #pageCountBadge, .combo-arrow {
+      display: none !important;
+    }
+    .page {
+      box-shadow: none;
+      width: 100%;
+      padding: 0 4mm;
+      margin: 0;
+      min-height: auto;
+      page-break-inside: auto;
+      break-inside: auto;
+      page-break-before: auto;
+      break-before: auto;
+    }
+    table, thead, tbody, div {
+      page-break-inside: auto !important;
+      break-inside: auto !important;
+      page-break-before: auto !important;
+      break-before: auto !important;
+    }
+    tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    input, select, textarea {
+      border: none !important;
+      background: transparent !important;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: none !important;
+      resize: none !important;
+    }
+    .doc-title-select {
+      border-bottom: 2px solid #333 !important;
+    }
+    }
+    select {
+      background-image: none !important;
+    }
+    .day-tab { display: none; }
+    .day-section { display: block !important; }
+    @page {
+      size: A4 landscape;
+      margin: 5mm;
+    }
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 4px 0;
+  }
+
+  .备考-cell {
+    vertical-align: top;
+  }
+  .btn-save {
+    background: #2980b9;
+    color: #fff;
+  }
+  .btn-save:hover { background: #1f6da0; }
+  .btn-import {
+    background: #8e44ad;
+    color: #fff;
+  }
+  .btn-import:hover { background: #7d3c98; }
+  .save-msg {
+    font-size: 12px;
+    color: #27ae60;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s;
+    margin-right: 8px;
+  }
+  .save-msg.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <span class="save-msg" id="saveMsg">✓ 保存しました</span>
+  <button class="btn-save" onclick="saveForm()">💾 保存</button>
+  <button class="btn-import" onclick="showLoadDialog()">📂 呼び出し</button>
+  <span style="border-left:1px solid #ccc; height:24px; margin:0 4px;"></span>
+  <button class="btn-clear" onclick="clearForm()">クリア</button>
+  <button class="btn-add" onclick="addItineraryRow()">＋ 日程を追加</button>
+  <button class="btn-remove" onclick="removeLastDayBlock()">－ 日程を削除</button>
+  <button class="btn-print" onclick="window.print()">印刷 / FAX送信</button>
+</div>
+
+<!-- Load dialog -->
+<div id="loadOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:999; justify-content:center; align-items:center;">
+  <div style="background:#fff; border-radius:10px; padding:20px 24px; min-width:360px; max-width:500px; max-height:70vh; overflow-y:auto; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <strong style="font-size:18px;">保存データ一覧</strong>
+      <button onclick="closeLoadDialog()" style="border:none; background:none; font-size:20px; cursor:pointer;">✕</button>
+    </div>
+    <input type="text" id="searchSaved" oninput="filterSavedList()" placeholder="🔍 検索..." style="width:100%; padding:8px 12px; font-size:15px; border:1px solid #ccc; border-radius:6px; margin-bottom:12px; box-sizing:border-box; font-family:var(--font-main); text-align:left;">
+    <div id="savedList" style="font-family:var(--font-main);"></div>
+  </div>
+</div>
+
+<div class="page" id="formPage">
+
+  <!-- Title -->
+  <div class="doc-title-row">
+    <div class="combo">
+      <input class="doc-title-select" id="docType" value="新規予約依頼書" onclick="toggleCombo(this)" readonly>
+      <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
+      <div class="combo-list" data-options="新規予約依頼書,空車確認、お見積もり依頼書,予約内容変更依頼書,新規運送依頼申込書,ファイナル,行程表,行程表（更新）,予約依頼書,お見積もり依頼書,空き状況確認、お見積もり依頼書"></div>
+    </div>
+  </div>
+
+  <!-- Header: Recipient + Company Info -->
+  <div class="header-section">
+    <div class="header-left">
+      <!-- Recipient -->
+      <div class="recipient-row">
+        <input type="text" id="recipientName" placeholder="バス会社名（例：ジャスト）" style="font-size:15px;">
+        <span class="sama">様</span>
+      </div>
+      <!-- Greeting -->
+      <div class="greeting-box">
+        <textarea id="greetingText">いつもお世話になっております。
+下記内容にて車両お手配をお願いいたします。</textarea>
+      </div>
+    </div>
+    <div class="header-right">
+      <div style="text-align:right; margin-bottom:6px; font-size:13px;">
+        <span style="font-size:11px;">申込者</span>　<strong>株式会社トラベル北海道</strong>
+      </div>
+      <div class="company-info-box">
+        <div>〒001-0045</div>
+        <div>北海道札幌市北区麻生町5丁目５−２</div>
+        <div>アルファスクエア麻生　２０３号</div>
+        <div style="margin-top:3px;">Tel: 011-312-3913　FAX: 011-351-2945</div>
+        <div style="font-size:10px; margin-top:2px;">（北海道知事登録旅行サービス手配業第245号）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Table -->
+  <table class="form-table" style="margin-bottom:0px;">
+    <colgroup>
+      <col style="width:90px">
+      <col style="width:auto">
+      <col style="width:90px">
+      <col style="width:auto">
+      <col style="width:90px">
+      <col style="width:auto">
+    </colgroup>
+    <tr>
+      <td class="label-cell" style="font-size:13px; padding:2px;">利用日</td>
+      <td><input type="text" id="useDate" placeholder="2026/01/05" style="font-size:18px; font-weight:bold; padding:2px 4px;"></td>
+      <td class="label-cell">担当者</td>
+      <td><input type="text" id="personInCharge" placeholder="ユーミン" value="ユーミン" style="font-size:15px;"></td>
+      <td class="label-cell">会社名</td>
+      <td><input type="text" id="companyName" placeholder="" value="株式会社トラベル北海道" style="font-size:15px;"></td>
+    </tr>
+  </table>
+
+  <!-- Group & People -->
+  <table class="form-table" style="margin-bottom:0px;">
+    <colgroup>
+      <col style="width:90px">
+      <col style="width:auto">
+      <col style="width:36px">
+      <col style="width:70px">
+      <col style="width:70px">
+      <col style="width:36px">
+      <col style="width:70px">
+      <col style="width:70px">
+      <col style="width:36px">
+    </colgroup>
+    <tr>
+      <td class="label-cell" style="font-size:15px; padding:2px;">団体名</td>
+      <td><input type="text" id="groupName" placeholder="団体名" style="font-size:20px; font-weight:bold; padding:2px 4px;"></td>
+      <td class="text-center" style="font-size:14px;">様</td>
+      <td class="label-cell" style="font-size:14px;">大人</td>
+      <td><input type="text" id="numAdult" class="text-center" placeholder="" style="font-size:16px; font-weight:bold;"></td>
+      <td class="text-center" style="font-size:14px;">名</td>
+      <td class="label-cell" style="font-size:14px;">子供</td>
+      <td><input type="text" id="numChild" class="text-center" placeholder="" style="font-size:16px; font-weight:bold;"></td>
+      <td class="text-center" style="font-size:14px;">名</td>
+    </tr>
+    <tr>
+      <td class="label-cell" style="font-size:11px;">プレート名</td>
+      <td><input type="text" value="同上" id="plateName"></td>
+      <td></td>
+      <td class="label-cell" style="font-size:14px;">合計</td>
+      <td><input type="text" id="numTotal" class="text-center bold" placeholder="" style="font-size:18px; font-weight:bold;"></td>
+      <td class="text-center" style="font-size:14px;">名</td>
+      <td colspan="2"></td>
+      <td></td>
+    </tr>
+  </table>
+
+  <!-- Vehicle & Options -->
+  <table class="form-table" style="margin-bottom:0px;">
+    <colgroup>
+      <col style="width:90px">
+      <col style="width:auto">
+      <col style="width:90px">
+      <col style="width:120px">
+    </colgroup>
+    <tr>
+      <td class="label-cell" style="font-size:16px; padding:2px;">車　種</td>
+      <td>
+        <div class="combo">
+          <input id="vehicleType" value="大型バス" style="font-size:24px; font-weight:bold; padding:2px;" onclick="toggleCombo(this)" readonly>
+          <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
+          <div class="combo-list" data-options="セレナ,アルファード,ヴェルファイア,プリウス,プリウスα,ハイエースジャンボ,タクシー,小型バス,マイクロバス,中型バス,大型バス"></div>
+        </div>
+      </td>
+      <td class="label-cell" style="font-size:14px;">台数</td>
+      <td><input type="text" id="vehicleCount" placeholder="1台" value="" style="font-size:18px; font-weight:bold; text-align:center;"></td>
+    </tr>
+  </table>
+
+  <!-- Dispatch info -->
+  <table class="form-table" style="margin-bottom:0px;">
+    <colgroup>
+      <col style="width:90px">
+      <col style="width:150px">
+      <col style="width:70px">
+      <col style="width:130px">
+      <col style="width:70px">
+      <col style="width:auto">
+    </colgroup>
+    <tr>
+      <td class="label-cell" style="font-size:11px;">配車場所</td>
+      <td><input type="text" id="pickupPlace" placeholder=""></td>
+      <td colspan="2"></td>
+      <td class="label-cell" style="font-size:11px;">帰発便</td>
+      <td><input type="text" id="returnFlight" placeholder=""></td>
+    </tr>
+    <tr>
+      <td class="label-cell" style="font-size:11px;">配車時間</td>
+      <td><input type="text" id="pickupTime" placeholder=""></td>
+      <td class="label-cell" style="font-size:11px;">発時間</td>
+      <td><input type="text" id="departTime" placeholder=""></td>
+      <td class="label-cell" style="font-size:11px;">到着便</td>
+      <td><input type="text" id="arrivalFlight" placeholder=""></td>
+    </tr>
+  </table>
+
+  <!-- Itinerary (each 行程 column has its own 月日) -->
+  <table class="itinerary-table" id="itineraryTable">
+    <colgroup>
+      <col style="width:44px">
+      <col style="width:24px">
+      <col style="width:48px">
+      <col>
+      <col style="width:44px">
+      <col style="width:24px">
+      <col style="width:48px">
+      <col>
+      <col style="width:44px">
+      <col style="width:24px">
+      <col style="width:48px">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>月日</th>
+        <th colspan="3">行　　　　程</th>
+        <th>月日</th>
+        <th colspan="3">行　　　程</th>
+        <th>月日</th>
+        <th colspan="3">行　　　程</th>
+      </tr>
+    </thead>
+    <tbody id="itineraryBody">
+      <!-- Rows generated by JS -->
+    </tbody>
+  </table>
+
+  <!-- Costs -->
+  <table class="cost-table">
+    <tr>
+      <td class="cost-label">高速代</td>
+      <td style="width:140px;">
+        <div class="combo">
+          <input style="font-size:13px;" onclick="toggleCombo(this)" readonly placeholder="選択">
+          <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
+          <div class="combo-list" data-options="立替希望,利用なし,実費"></div>
+        </div>
+      </td>
+      <td class="cost-label">駐車場代</td>
+      <td style="width:160px;">
+        <div class="combo">
+          <input style="font-size:13px;" onclick="toggleCombo(this)" readonly placeholder="選択">
+          <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
+          <div class="combo-list" data-options="立替希望,あれば立替希望,利用なし"></div>
+        </div>
+      </td>
+      <td class="cost-label">宿泊代</td>
+      <td>
+        <div class="combo">
+          <input style="font-size:13px;" onclick="toggleCombo(this)" readonly placeholder="選択">
+          <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
+          <div class="combo-list" data-options="立替希望,弊社で手配,なし"></div>
+        </div>
+      </td>
+      <td class="cost-label">支払方法</td>
+      <td>
+        <div class="combo">
+          <input id="paymentMethod" value="振込" style="font-size:13px;" onclick="toggleCombo(this)" readonly>
+          <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
+          <div class="combo-list" data-options="現集無,振込,クレジットカード"></div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Remarks -->
+  <div style="margin-top:2px; border:1px solid var(--border); padding:0;">
+    <div style="background:var(--bg-light); font-weight:bold; font-size:13px; padding:1px 8px; border-bottom:1px solid var(--border); text-align:center;">備考</div>
+    <textarea id="remarks" placeholder="" style="min-height:24px; font-size:13px; border:none; padding:2px 8px; width:100%;"></textarea>
+  </div>
+
+  <div style="margin-top:3px; font-size:12px;">
+    ※恐れ入りますが確認の為、後日ドライバー氏名、携帯電話番号をご連絡ください。
+  </div>
+
+</div>
+
+<div class="no-print" style="height:60px;"></div>
+
+<script>
+var STOPS_PER_DAY = 3;
+var dayBlocks = [];
+var dayBlockIdCounter = 0;
+
+function initItinerary() {
+  const tbody = document.getElementById('itineraryBody');
+  tbody.innerHTML = '';
+  dayBlocks = [];
+  dayBlockIdCounter = 0;
+  addDayBlock(tbody);
+}
+
+function collectBlockValues(blockId) {
+  const rows = document.querySelectorAll(`[data-block="${blockId}"]`);
+  const vals = [];
+  rows.forEach(r => {
+    r.querySelectorAll('input').forEach(inp => vals.push(inp.value));
+  });
+  return vals;
+}
+
+function renderDayBlock(tbody, blockId, stopCount) {
+  const dateStyle = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border:1px solid var(--border); border-bottom:none;';
+  const dateStyleLast = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border:1px solid var(--border); border-top:none;';
+  const dateStyleMid = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border-left:1px solid var(--border); border-right:1px solid var(--border); border-top:none; border-bottom:none;';
+
+  // Sub-header row with date inputs (first row of date cells)
+  const subRow = document.createElement('tr');
+  subRow.className = 'day-block-start';
+  subRow.setAttribute('data-block', blockId);
+  subRow.innerHTML = `
+    <td class="text-center" style="${dateStyle}">
+      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%;">
+    </td>
+    <td class="arr-dep"></td>
+    <td class="time-cell" style="font-size:11px; font-weight:bold;">時間</td>
+    <td style="font-size:11px; text-align:center; font-weight:bold; background:var(--bg-header);">場所</td>
+    <td class="text-center" style="${dateStyle}">
+      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%;">
+    </td>
+    <td class="arr-dep"></td>
+    <td class="time-cell" style="font-size:11px; font-weight:bold;">時間</td>
+    <td style="font-size:11px; text-align:center; font-weight:bold; background:var(--bg-header);">場所</td>
+    <td class="text-center" style="${dateStyle}">
+      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%;">
+    </td>
+    <td class="arr-dep"></td>
+    <td class="time-cell" style="font-size:11px; font-weight:bold;">時間</td>
+    <td style="font-size:11px; text-align:center; font-weight:bold; background:var(--bg-header);">場所</td>
+  `;
+  tbody.appendChild(subRow);
+
+  for (let i = 0; i < stopCount; i++) {
+    var isLast = (i === stopCount - 1);
+    var midStyle = isLast ? dateStyleLast : dateStyleMid;
+
+    const arrRow = document.createElement('tr');
+    arrRow.setAttribute('data-block', blockId);
+    arrRow.innerHTML = `
+      <td style="${midStyle}"></td>
+      <td class="arr-dep">着</td>
+      <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+      <td class="place-cell"><input type="text" placeholder=""></td>
+      <td style="${midStyle}"></td>
+      <td class="arr-dep">着</td>
+      <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+      <td class="place-cell"><input type="text" placeholder=""></td>
+      <td style="${midStyle}"></td>
+      <td class="arr-dep">着</td>
+      <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+      <td class="place-cell"><input type="text" placeholder=""></td>
+    `;
+    tbody.appendChild(arrRow);
+
+    if (!isLast) {
+      const depRow = document.createElement('tr');
+      depRow.setAttribute('data-block', blockId);
+      depRow.innerHTML = `
+        <td style="${dateStyleMid}"></td>
+        <td class="arr-dep">発</td>
+        <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+        <td class="place-cell"></td>
+        <td style="${dateStyleMid}"></td>
+        <td class="arr-dep">発</td>
+        <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+        <td class="place-cell"></td>
+        <td style="${dateStyleMid}"></td>
+        <td class="arr-dep">発</td>
+        <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+        <td class="place-cell"></td>
+      `;
+      tbody.appendChild(depRow);
+    }
+  }
+
+  // Control row (add/remove stop buttons)
+  const ctrlRow = document.createElement('tr');
+  ctrlRow.setAttribute('data-block', blockId);
+  ctrlRow.className = 'no-print';
+  ctrlRow.innerHTML = `
+    <td colspan="12" style="border:none; text-align:center; padding:4px 0;">
+      <button onclick="addStopToBlock('${blockId}')" style="font-family:var(--font-main); font-size:12px; padding:3px 14px; border:1px solid #27ae60; border-radius:4px; background:#eafaf1; color:#27ae60; cursor:pointer; font-weight:bold; margin-right:6px;">＋ 行を追加</button>
+      <button onclick="removeStopFromBlock('${blockId}')" style="font-family:var(--font-main); font-size:12px; padding:3px 14px; border:1px solid #c0392b; border-radius:4px; background:#fdf2f2; color:#c0392b; cursor:pointer; font-weight:bold;">－ 行を削除</button>
+    </td>
+  `;
+  tbody.appendChild(ctrlRow);
+}
+
+function addDayBlock(tbody) {
+  if (!tbody) tbody = document.getElementById('itineraryBody');
+  const blockId = 'block_' + dayBlockIdCounter++;
+  const block = { id: blockId, stops: STOPS_PER_DAY };
+  dayBlocks.push(block);
+  renderDayBlock(tbody, blockId, block.stops);
+}
+
+function rebuildBlock(blockId) {
+  const block = dayBlocks.find(b => b.id === blockId);
+  if (!block) return;
+  var tbody = document.getElementById('itineraryBody');
+
+  // Collect current values
+  const vals = collectBlockValues(blockId);
+
+  // Remove old rows
+  const oldRows = tbody.querySelectorAll(`[data-block="${blockId}"]`);
+  const firstRow = oldRows[0];
+  const nextSibling = oldRows[oldRows.length - 1].nextElementSibling;
+  oldRows.forEach(r => r.remove());
+
+  // Create temp container
+  const temp = document.createElement('tbody');
+  renderDayBlock(temp, blockId, block.stops);
+
+  // Insert before nextSibling or append
+  const newRows = Array.from(temp.children);
+  newRows.forEach(r => {
+    if (nextSibling) {
+      tbody.insertBefore(r, nextSibling);
+    } else {
+      tbody.appendChild(r);
+    }
+  });
+
+  // Restore values
+  const newInputs = tbody.querySelectorAll(`[data-block="${blockId}"] input`);
+  vals.forEach((v, idx) => {
+    if (newInputs[idx]) newInputs[idx].value = v;
+  });
+}
+
+function addStopToBlock(blockId) {
+  const block = dayBlocks.find(b => b.id === blockId);
+  if (!block) return;
+  block.stops++;
+  STOPS_PER_DAY = block.stops;
+  rebuildBlock(blockId);
+}
+
+function removeStopFromBlock(blockId) {
+  const block = dayBlocks.find(b => b.id === blockId);
+  if (!block || block.stops <= 1) return;
+  block.stops--;
+  STOPS_PER_DAY = block.stops;
+  rebuildBlock(blockId);
+}
+
+function addItineraryRow() {
+  addDayBlock();
+  updatePageDisplay();
+}
+
+function removeLastDayBlock() {
+  if (dayBlocks.length <= 1) return;
+  var last = dayBlocks.pop();
+  var tbody = document.getElementById('itineraryBody');
+  var rows = tbody.querySelectorAll('[data-block="' + last.id + '"]');
+  rows.forEach(function(r) { r.remove(); });
+  updatePageDisplay();
+}
+
+function clearForm() {
+  if (!confirm('フォームの内容をすべてクリアしますか？')) return;
+  const inputs = document.querySelectorAll('input[type="text"], textarea');
+  inputs.forEach(inp => {
+    if (inp.id === 'personInCharge') {
+      inp.value = 'ユーミン';
+    } else if (inp.id === 'greetingText') {
+      inp.value = 'いつもお世話になっております。\n下記内容にて車両お手配をお願いいたします。';
+    } else if (inp.id === 'plateName') {
+      inp.value = '同上';
+    } else if (inp.id === 'companyName') {
+      inp.value = '株式会社トラベル北海道';
+    } else {
+      inp.value = '';
+    }
+  });
+  document.getElementById('docType').value = '新規予約依頼書';
+  document.getElementById('vehicleType').value = '大型バス';
+  document.getElementById('paymentMethod').value = '振込';
+  STOPS_PER_DAY = 3;
+  initItinerary();
+}
+
+// Auto-calculate total
+document.getElementById('numAdult').addEventListener('input', calcTotal);
+document.getElementById('numChild').addEventListener('input', calcTotal);
+
+function calcTotal() {
+  const a = parseInt(document.getElementById('numAdult').value) || 0;
+  const c = parseInt(document.getElementById('numChild').value) || 0;
+  if (a > 0 || c > 0) {
+    document.getElementById('numTotal').value = a + c;
+  }
+}
+
+initItinerary();
+
+// Combo box logic
+function toggleCombo(inputEl) {
+  var combo = inputEl.closest('.combo');
+  var list = combo.querySelector('.combo-list');
+  closeAllCombos(list);
+  if (list.classList.contains('open')) {
+    list.classList.remove('open');
+    return;
+  }
+  // Build options
+  var opts = list.getAttribute('data-options').split(',');
+  list.innerHTML = '';
+  // Add "カスタム入力" option
+  var customItem = document.createElement('div');
+  customItem.className = 'combo-item';
+  customItem.style.color = '#888';
+  customItem.style.fontStyle = 'italic';
+  customItem.textContent = '✎ カスタム入力';
+  customItem.onclick = function() {
+    inputEl.removeAttribute('readonly');
+    inputEl.value = '';
+    inputEl.focus();
+    list.classList.remove('open');
+    inputEl.onclick = function() { toggleCombo(inputEl); };
+    inputEl.onblur = function() {
+      if (!inputEl.value) inputEl.setAttribute('readonly', '');
+      inputEl.setAttribute('readonly', '');
+    };
+  };
+  list.appendChild(customItem);
+
+  opts.forEach(function(opt) {
+    var item = document.createElement('div');
+    item.className = 'combo-item';
+    item.textContent = opt;
+    item.onclick = function() {
+      inputEl.value = opt;
+      inputEl.setAttribute('readonly', '');
+      list.classList.remove('open');
+    };
+    list.appendChild(item);
+  });
+  list.classList.add('open');
+}
+
+function closeAllCombos(except) {
+  document.querySelectorAll('.combo-list.open').forEach(function(l) {
+    if (l !== except) l.classList.remove('open');
+  });
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.combo')) closeAllCombos();
+});
+
+// Page count badge
+function updatePageDisplay() {
+  var page = document.getElementById('formPage');
+  var pageH = 210 * 3.7795;
+  var h = page.scrollHeight;
+  var pages = Math.max(1, Math.ceil(h / pageH));
+
+  var indicator = document.getElementById('pageCountBadge');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'pageCountBadge';
+    indicator.className = 'no-print';
+    indicator.style.cssText = 'position:fixed; bottom:60px; right:20px; padding:8px 16px; border-radius:8px; font-size:14px; font-weight:bold; z-index:50; font-family:var(--font-main); color:#fff;';
+    document.body.appendChild(indicator);
+  }
+  indicator.textContent = 'A4 × ' + pages + '枚';
+  indicator.style.background = pages === 1 ? '#27ae60' : '#e74c3c';
+}
+
+var pageObserver = new MutationObserver(function() { setTimeout(updatePageDisplay, 80); });
+pageObserver.observe(document.getElementById('itineraryBody'), { childList: true, subtree: true });
+document.getElementById('formPage').addEventListener('input', function() { setTimeout(updatePageDisplay, 100); });
+window.addEventListener('resize', updatePageDisplay);
+setTimeout(updatePageDisplay, 200);
+
+// === Save / Load / Export / Import ===
+var STORAGE_PREFIX = 'bus_form_';
+
+function gatherFormData() {
+  var data = { dayBlocks: [], stopsPerDay: STOPS_PER_DAY };
+  var fixedIds = ['docType','recipientName','greetingText','useDate','personInCharge','companyName',
+    'groupName','numAdult','numChild','numTotal','plateName','vehicleType','vehicleCount',
+    'pickupPlace','pickupTime','departTime','returnFlight','arrivalFlight','paymentMethod','remarks'];
+  fixedIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  var costInputs = document.querySelectorAll('.cost-table .combo input');
+  data.costs = Array.from(costInputs).map(function(inp) { return inp.value; });
+  dayBlocks.forEach(function(block) {
+    var rows = document.querySelectorAll('[data-block="' + block.id + '"]');
+    var vals = [];
+    rows.forEach(function(r) {
+      r.querySelectorAll('input').forEach(function(inp) { vals.push(inp.value); });
+    });
+    data.dayBlocks.push({ stops: block.stops, values: vals });
+  });
+  return data;
+}
+
+function applyFormData(data) {
+  var fixedIds = ['docType','recipientName','greetingText','useDate','personInCharge','companyName',
+    'groupName','numAdult','numChild','numTotal','plateName','vehicleType','vehicleCount',
+    'pickupPlace','pickupTime','departTime','returnFlight','arrivalFlight','paymentMethod','remarks'];
+  fixedIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && data[id] !== undefined) el.value = data[id];
+  });
+  if (data.costs) {
+    var costInputs = document.querySelectorAll('.cost-table .combo input');
+    data.costs.forEach(function(v, i) { if (costInputs[i]) costInputs[i].value = v; });
+  }
+  if (data.dayBlocks && data.dayBlocks.length > 0) {
+    STOPS_PER_DAY = data.stopsPerDay || 3;
+    var tbody = document.getElementById('itineraryBody');
+    tbody.innerHTML = '';
+    dayBlocks = [];
+    dayBlockIdCounter = 0;
+    data.dayBlocks.forEach(function(bd) {
+      var blockId = 'block_' + dayBlockIdCounter++;
+      var block = { id: blockId, stops: bd.stops };
+      dayBlocks.push(block);
+      renderDayBlock(tbody, blockId, bd.stops);
+      var inputs = tbody.querySelectorAll('[data-block="' + blockId + '"] input');
+      bd.values.forEach(function(v, i) { if (inputs[i]) inputs[i].value = v; });
+    });
+  }
+}
+
+function getSavedKeys() {
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k.startsWith(STORAGE_PREFIX)) keys.push(k);
+  }
+  keys.sort();
+  return keys;
+}
+
+function saveForm() {
+  try {
+    var data = gatherFormData();
+    var group = data.groupName || '';
+    var date = data.useDate || '';
+    var label = (group || '新規') + '　' + date;
+    var slotName = prompt('保存名を入力してください', label);
+    if (!slotName) return;
+    var key = STORAGE_PREFIX + slotName;
+    data._savedAt = new Date().toLocaleString('ja-JP');
+    data._label = slotName;
+    localStorage.setItem(key, JSON.stringify(data));
+    var msg = document.getElementById('saveMsg');
+    msg.classList.add('show');
+    setTimeout(function() { msg.classList.remove('show'); }, 2000);
+  } catch(e) {}
+}
+
+function loadSlot(key) {
+  try {
+    var saved = localStorage.getItem(key);
+    if (saved) {
+      var data = JSON.parse(saved);
+      applyFormData(data);
+    }
+    closeLoadDialog();
+  } catch(e) {}
+}
+
+function deleteSlot(key) {
+  if (!confirm('このデータを削除しますか？')) return;
+  localStorage.removeItem(key);
+  showLoadDialog();
+}
+
+function showLoadDialog() {
+  var overlay = document.getElementById('loadOverlay');
+  var list = document.getElementById('savedList');
+  var keys = getSavedKeys();
+  if (keys.length === 0) {
+    list.innerHTML = '<p style="color:#999; text-align:center; padding:20px;">保存データがありません</p>';
+  } else {
+    list.innerHTML = '';
+    keys.forEach(function(key) {
+      try {
+        var data = JSON.parse(localStorage.getItem(key));
+        var label = data._label || key.replace(STORAGE_PREFIX, '');
+        var savedAt = data._savedAt || '';
+        var item = document.createElement('div');
+        item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border:1px solid #ddd; border-radius:6px; margin-bottom:8px; cursor:pointer;';
+        item.innerHTML = '<div onclick="loadSlot(\'' + key.replace(/'/g, "\\'") + '\')" style="flex:1; cursor:pointer;">' +
+          '<div style="font-size:15px; font-weight:bold;">' + label + '</div>' +
+          '<div style="font-size:11px; color:#888;">' + savedAt + '</div></div>' +
+          '<button onclick="event.stopPropagation(); deleteSlot(\'' + key.replace(/'/g, "\\'") + '\')" style="border:1px solid #e74c3c; background:#fff; color:#e74c3c; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:12px;">削除</button>';
+        item.querySelector('div').addEventListener('mouseenter', function() { item.style.background = '#f0f7ff'; });
+        item.querySelector('div').addEventListener('mouseleave', function() { item.style.background = ''; });
+        list.appendChild(item);
+      } catch(e) {}
+    });
+  }
+  overlay.style.display = 'flex';
+}
+
+function closeLoadDialog() {
+  document.getElementById('loadOverlay').style.display = 'none';
+  document.getElementById('searchSaved').value = '';
+}
+
+function filterSavedList() {
+  var query = document.getElementById('searchSaved').value.toLowerCase();
+  var items = document.querySelectorAll('#savedList > div');
+  items.forEach(function(item) {
+    var text = item.textContent.toLowerCase();
+    item.style.display = text.includes(query) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

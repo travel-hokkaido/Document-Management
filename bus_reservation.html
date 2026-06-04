@@ -43,6 +43,9 @@
     width: 100%;
     text-align: center;
   }
+  input::placeholder {
+    color: #999;
+  }
   input:focus, select:focus, textarea:focus {
     background: #fffde6;
   }
@@ -56,8 +59,9 @@
     padding-right: 18px;
   }
   textarea {
-    resize: vertical;
-    min-height: 48px;
+    resize: none;
+    overflow: hidden;
+    min-height: 20px;
     font-size: 15px;
     line-height: 1.5;
   }
@@ -229,6 +233,14 @@
     vertical-align: middle;
     height: 20px;
     text-align: center;
+  }
+  .itinerary-table .date-cell {
+    padding: 0;
+  }
+  .itinerary-table .date-cell input {
+    height: 100%;
+    padding: 0;
+    cursor: text;
   }
   .itinerary-table th {
     background: var(--bg-header);
@@ -410,7 +422,7 @@
       padding: 0;
       margin: 0;
     }
-    .toolbar, .add-row-section, .btn-remove, .no-print, #loadOverlay, #pageCountBadge, .combo-arrow {
+    .toolbar, .add-row-section, .btn-remove, .no-print, #loadOverlay, #pageCountBadge, .combo-arrow, .page-break-line {
       display: none !important;
     }
     .page {
@@ -419,16 +431,13 @@
       padding: 0 4mm;
       margin: 0;
       min-height: auto;
+      height: auto;
       page-break-inside: auto;
       break-inside: auto;
-      page-break-before: auto;
-      break-before: auto;
     }
     table, thead, tbody, div {
       page-break-inside: auto !important;
       break-inside: auto !important;
-      page-break-before: auto !important;
-      break-before: auto !important;
     }
     tr {
       page-break-inside: avoid;
@@ -442,12 +451,11 @@
       background-image: none !important;
       resize: none !important;
     }
-    .doc-title-select {
-      border-bottom: 2px solid #333 !important;
-    }
-    }
     select {
       background-image: none !important;
+    }
+    .doc-title-select {
+      border-bottom: 2px solid #333 !important;
     }
     .day-tab { display: none; }
     .day-section { display: block !important; }
@@ -455,6 +463,25 @@
       size: A4 landscape;
       margin: 5mm;
     }
+  }
+
+  .page-break-line {
+    border: none;
+    border-top: 2px dashed #c0392b;
+    margin: 0;
+    position: relative;
+  }
+  .page-break-line::after {
+    content: '--- ページ区切り ---';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 0 12px;
+    color: #c0392b;
+    font-size: 11px;
+    font-weight: bold;
   }
 
   .section-divider {
@@ -557,12 +584,12 @@
   <!-- Info Table -->
   <table class="form-table" style="margin-bottom:0px;">
     <colgroup>
-      <col style="width:90px">
+      <col style="width:70px">
       <col style="width:auto">
-      <col style="width:90px">
-      <col style="width:auto">
-      <col style="width:90px">
-      <col style="width:auto">
+      <col style="width:70px">
+      <col style="width:150px">
+      <col style="width:70px">
+      <col style="width:160px">
     </colgroup>
     <tr>
       <td class="label-cell" style="font-size:13px; padding:2px;">利用日</td>
@@ -589,7 +616,7 @@
     </colgroup>
     <tr>
       <td class="label-cell" style="font-size:15px; padding:2px;">団体名</td>
-      <td><input type="text" id="groupName" placeholder="団体名" style="font-size:20px; font-weight:bold; padding:2px 4px;"></td>
+      <td><input type="text" id="groupName" placeholder="〇〇団体" style="font-size:20px; font-weight:bold; padding:2px 4px;"></td>
       <td class="text-center" style="font-size:14px;">様</td>
       <td class="label-cell" style="font-size:14px;">大人</td>
       <td><input type="text" id="numAdult" class="text-center" placeholder="" style="font-size:16px; font-weight:bold;"></td>
@@ -765,29 +792,28 @@ function collectBlockValues(blockId) {
 }
 
 function renderDayBlock(tbody, blockId, stopCount) {
-  const dateStyle = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border:1px solid var(--border); border-bottom:none;';
-  const dateStyleLast = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border:1px solid var(--border); border-top:none;';
-  const dateStyleMid = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border-left:1px solid var(--border); border-right:1px solid var(--border); border-top:none; border-bottom:none;';
+  var totalRows = 1 + stopCount + (stopCount - 1);
+  var dateSpan = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border:1px solid var(--border); text-align:center; cursor:text; padding:0;';
 
-  // Sub-header row with date inputs (first row of date cells)
+  // Sub-header row with rowspan date cells
   const subRow = document.createElement('tr');
   subRow.className = 'day-block-start';
   subRow.setAttribute('data-block', blockId);
   subRow.innerHTML = `
-    <td class="text-center" style="${dateStyle}">
-      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%;">
+    <td class="date-cell" rowspan="${totalRows}" style="${dateSpan}">
+      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%; height:100%;">
     </td>
     <td class="arr-dep"></td>
     <td class="time-cell" style="font-size:11px; font-weight:bold;">時間</td>
     <td style="font-size:11px; text-align:center; font-weight:bold; background:var(--bg-header);">場所</td>
-    <td class="text-center" style="${dateStyle}">
-      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%;">
+    <td class="date-cell" rowspan="${totalRows}" style="${dateSpan}">
+      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%; height:100%;">
     </td>
     <td class="arr-dep"></td>
     <td class="time-cell" style="font-size:11px; font-weight:bold;">時間</td>
     <td style="font-size:11px; text-align:center; font-weight:bold; background:var(--bg-header);">場所</td>
-    <td class="text-center" style="${dateStyle}">
-      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%;">
+    <td class="date-cell" rowspan="${totalRows}" style="${dateSpan}">
+      <input type="text" placeholder="" class="text-center bold" style="font-size:14px; width:100%; height:100%;">
     </td>
     <td class="arr-dep"></td>
     <td class="time-cell" style="font-size:11px; font-weight:bold;">時間</td>
@@ -797,20 +823,16 @@ function renderDayBlock(tbody, blockId, stopCount) {
 
   for (let i = 0; i < stopCount; i++) {
     var isLast = (i === stopCount - 1);
-    var midStyle = isLast ? dateStyleLast : dateStyleMid;
 
     const arrRow = document.createElement('tr');
     arrRow.setAttribute('data-block', blockId);
     arrRow.innerHTML = `
-      <td style="${midStyle}"></td>
       <td class="arr-dep">着</td>
       <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
       <td class="place-cell"><input type="text" placeholder=""></td>
-      <td style="${midStyle}"></td>
       <td class="arr-dep">着</td>
       <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
       <td class="place-cell"><input type="text" placeholder=""></td>
-      <td style="${midStyle}"></td>
       <td class="arr-dep">着</td>
       <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
       <td class="place-cell"><input type="text" placeholder=""></td>
@@ -821,18 +843,15 @@ function renderDayBlock(tbody, blockId, stopCount) {
       const depRow = document.createElement('tr');
       depRow.setAttribute('data-block', blockId);
       depRow.innerHTML = `
-        <td style="${dateStyleMid}"></td>
         <td class="arr-dep">発</td>
         <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-        <td class="place-cell"></td>
-        <td style="${dateStyleMid}"></td>
+        <td class="place-cell"><input type="text" placeholder=""></td>
         <td class="arr-dep">発</td>
         <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-        <td class="place-cell"></td>
-        <td style="${dateStyleMid}"></td>
+        <td class="place-cell"><input type="text" placeholder=""></td>
         <td class="arr-dep">発</td>
         <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-        <td class="place-cell"></td>
+        <td class="place-cell"><input type="text" placeholder=""></td>
       `;
       tbody.appendChild(depRow);
     }
@@ -961,6 +980,96 @@ function calcTotal() {
 
 initItinerary();
 
+document.querySelectorAll('input, textarea, select').forEach(function(el) {
+  el.setAttribute('autocomplete', 'off');
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  var tag = e.target.tagName;
+  if (tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'TEXTAREA') return;
+
+  // Option+Enter: insert line break
+  if (e.altKey) {
+    e.preventDefault();
+    if (tag === 'INPUT') {
+      var ta = document.createElement('textarea');
+      ta.value = e.target.value + '\n';
+      ta.className = e.target.className;
+      ta.style.cssText = e.target.style.cssText;
+      ta.style.resize = 'none';
+      ta.style.overflow = 'hidden';
+      ta.style.minHeight = '20px';
+      ta.style.lineHeight = '1.4';
+      e.target.parentNode.replaceChild(ta, e.target);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = ta.value.length;
+      autoResize(ta);
+    } else if (tag === 'TEXTAREA') {
+      var pos = e.target.selectionStart;
+      var val = e.target.value;
+      e.target.value = val.slice(0, pos) + '\n' + val.slice(pos);
+      e.target.selectionStart = e.target.selectionEnd = pos + 1;
+      autoResize(e.target);
+    }
+    return;
+  }
+
+  // Enter: move to cell below
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  var src = e.target;
+  var tr = src.closest('tr');
+  var table = src.closest('table');
+  if (!tr || !table) return;
+
+  // Find input index among direct children inputs only
+  var rowInputs = [];
+  Array.from(tr.cells).forEach(function(td) {
+    var inp = td.querySelector('input, textarea, select');
+    if (inp) rowInputs.push(inp);
+  });
+  var inputIdx = rowInputs.indexOf(src);
+  if (inputIdx === -1) return;
+
+  var rows = Array.from(table.rows);
+  var rowIdx = rows.indexOf(tr);
+  for (var i = rowIdx + 1; i < rows.length; i++) {
+    var nextInputs = [];
+    Array.from(rows[i].cells).forEach(function(td) {
+      var inp = td.querySelector('input, textarea, select');
+      if (inp) nextInputs.push(inp);
+    });
+    if (nextInputs.length > 0 && nextInputs[inputIdx]) {
+      var target = nextInputs[inputIdx];
+      setTimeout(function() { target.focus(); }, 0);
+      return;
+    }
+  }
+});
+
+function autoResize(el) {
+  if (el.tagName === 'TEXTAREA') {
+    el.style.height = '0';
+    el.style.height = el.scrollHeight + 'px';
+  }
+}
+
+document.addEventListener('input', function(e) {
+  autoResize(e.target);
+});
+
+document.querySelectorAll('textarea').forEach(autoResize);
+
+// Date cell click to focus input
+document.addEventListener('click', function(e) {
+  var td = e.target.closest('.date-cell');
+  if (td) {
+    var inp = td.querySelector('input,textarea');
+    if (inp) inp.focus();
+  }
+});
+
 // Combo box logic
 function toggleCombo(inputEl) {
   var combo = inputEl.closest('.combo');
@@ -1016,7 +1125,7 @@ document.addEventListener('click', function(e) {
   if (!e.target.closest('.combo')) closeAllCombos();
 });
 
-// Page count badge
+// Page count badge and page break lines
 function updatePageDisplay() {
   var page = document.getElementById('formPage');
   var pageH = 210 * 3.7795;
@@ -1033,6 +1142,27 @@ function updatePageDisplay() {
   }
   indicator.textContent = 'A4 × ' + pages + '枚';
   indicator.style.background = pages === 1 ? '#27ae60' : '#e74c3c';
+
+  // Show/remove page break lines
+  page.querySelectorAll('.page-break-line').forEach(function(el) { el.remove(); });
+  if (pages > 1) {
+    for (var p = 1; p < pages; p++) {
+      var breakY = pageH * p;
+      var children = Array.from(page.children);
+      var inserted = false;
+      var cumH = 0;
+      for (var i = 0; i < children.length; i++) {
+        cumH += children[i].offsetHeight;
+        if (cumH >= breakY && !children[i].classList.contains('page-break-line')) {
+          var hr = document.createElement('hr');
+          hr.className = 'page-break-line no-print';
+          children[i].after(hr);
+          inserted = true;
+          break;
+        }
+      }
+    }
+  }
 }
 
 var pageObserver = new MutationObserver(function() { setTimeout(updatePageDisplay, 80); });
@@ -1181,6 +1311,75 @@ function filterSavedList() {
     item.style.display = text.includes(query) ? '' : 'none';
   });
 }
+
+// Print: temporarily remove rowspan so pages can break
+var savedRowspans = [];
+window.addEventListener('beforeprint', function() {
+  savedRowspans = [];
+  var table = document.getElementById('itineraryTable');
+  if (!table) return;
+  var spanCells = table.querySelectorAll('td[rowspan]');
+  spanCells.forEach(function(td) {
+    var span = parseInt(td.getAttribute('rowspan'));
+    var val = '';
+    var inp = td.querySelector('input,textarea');
+    if (inp) val = inp.value;
+    savedRowspans.push({ td: td, rowspan: span, value: val });
+    td.removeAttribute('rowspan');
+    td.style.borderBottom = 'none';
+  });
+  var rows = table.querySelectorAll('tbody tr[data-block]');
+  rows.forEach(function(tr) {
+    if (tr.classList.contains('day-block-start')) return;
+    if (tr.classList.contains('no-print')) return;
+    var block = tr.dataset.block;
+    var startRow = table.querySelector('tr.day-block-start[data-block="' + block + '"]');
+    if (!startRow) return;
+    var dateCells = startRow.querySelectorAll('.date-cell');
+    var firstCell = tr.cells[0];
+    if (firstCell && !firstCell.classList.contains('date-cell')) {
+      for (var c = dateCells.length - 1; c >= 0; c--) {
+        var newTd = document.createElement('td');
+        newTd.className = 'date-cell';
+        newTd.style.cssText = dateCells[c].style.cssText;
+        newTd.style.borderTop = 'none';
+        newTd.style.borderBottom = 'none';
+        newTd.setAttribute('data-print-added', '1');
+        var colIdx = c * 4;
+        if (tr.cells[colIdx]) {
+          tr.insertBefore(newTd, tr.cells[colIdx]);
+        } else {
+          tr.appendChild(newTd);
+        }
+      }
+    }
+  });
+  // Fix last row border
+  var blocks = {};
+  rows.forEach(function(tr) {
+    if (tr.dataset.block && !tr.classList.contains('no-print')) {
+      blocks[tr.dataset.block] = tr;
+    }
+  });
+  Object.values(blocks).forEach(function(lastTr) {
+    lastTr.querySelectorAll('.date-cell').forEach(function(td) {
+      td.style.borderBottom = '1px solid #333';
+    });
+  });
+});
+
+window.addEventListener('afterprint', function() {
+  var table = document.getElementById('itineraryTable');
+  if (!table) return;
+  table.querySelectorAll('td[data-print-added]').forEach(function(td) { td.remove(); });
+  savedRowspans.forEach(function(s) {
+    s.td.setAttribute('rowspan', s.rowspan);
+    s.td.style.borderBottom = '';
+    var inp = s.td.querySelector('input,textarea');
+    if (inp) inp.value = s.value;
+  });
+  savedRowspans = [];
+});
 </script>
 </body>
 </html>

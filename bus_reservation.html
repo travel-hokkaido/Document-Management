@@ -953,6 +953,7 @@ function removeLastDayBlock() {
 
 function clearForm() {
   if (!confirm('フォームの内容をすべてクリアしますか？')) return;
+  clearAutoSave();
   const inputs = document.querySelectorAll('input[type="text"], textarea');
   inputs.forEach(inp => {
     if (inp.id === 'personInCharge') {
@@ -987,6 +988,7 @@ function calcTotal() {
 }
 
 initItinerary();
+loadAutoSave();
 
 document.querySelectorAll('input, textarea, select').forEach(function(el) {
   el.setAttribute('autocomplete', 'off');
@@ -1174,7 +1176,7 @@ function updatePageDisplay() {
   }
 }
 
-var pageObserver = new MutationObserver(function() { setTimeout(updatePageDisplay, 80); });
+var pageObserver = new MutationObserver(function() { setTimeout(updatePageDisplay, 80); setTimeout(autoSaveForm, 300); });
 pageObserver.observe(document.getElementById('itineraryBody'), { childList: true, subtree: true });
 document.getElementById('formPage').addEventListener('input', function() { setTimeout(updatePageDisplay, 100); });
 window.addEventListener('resize', updatePageDisplay);
@@ -1182,6 +1184,36 @@ setTimeout(updatePageDisplay, 200);
 
 // === Save / Load / Export / Import ===
 var STORAGE_PREFIX = 'bus_form_';
+var AUTOSAVE_KEY = 'bus_form__autosave';
+
+function autoSaveForm() {
+  try {
+    var data = gatherFormData();
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function clearAutoSave() {
+  localStorage.removeItem(AUTOSAVE_KEY);
+}
+
+function loadAutoSave() {
+  try {
+    var saved = localStorage.getItem(AUTOSAVE_KEY);
+    if (saved) {
+      var data = JSON.parse(saved);
+      applyFormData(data);
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+var autoSaveTimer = null;
+document.getElementById('formPage').addEventListener('input', function() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(autoSaveForm, 500);
+});
 
 function gatherFormData() {
   var data = { dayBlocks: [], stopsPerDay: STOPS_PER_DAY };
@@ -1256,6 +1288,7 @@ function saveForm() {
     data._savedAt = new Date().toLocaleString('ja-JP');
     data._label = slotName;
     localStorage.setItem(key, JSON.stringify(data));
+    clearAutoSave();
     var msg = document.getElementById('saveMsg');
     msg.classList.add('show');
     setTimeout(function() { msg.classList.remove('show'); }, 2000);
@@ -1347,6 +1380,7 @@ window.addEventListener('beforeprint', function() {
     var dateCells = startRow.querySelectorAll('.date-cell');
     var firstCell = tr.cells[0];
     if (firstCell && !firstCell.classList.contains('date-cell')) {
+      var cellsPerGroup = Math.floor(tr.cells.length / dateCells.length);
       for (var c = dateCells.length - 1; c >= 0; c--) {
         var newTd = document.createElement('td');
         newTd.className = 'date-cell';
@@ -1354,7 +1388,7 @@ window.addEventListener('beforeprint', function() {
         newTd.style.borderTop = 'none';
         newTd.style.borderBottom = 'none';
         newTd.setAttribute('data-print-added', '1');
-        var colIdx = c * 4;
+        var colIdx = c * cellsPerGroup;
         if (tr.cells[colIdx]) {
           tr.insertBefore(newTd, tr.cells[colIdx]);
         } else {

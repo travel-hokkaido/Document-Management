@@ -443,6 +443,10 @@
       page-break-inside: avoid;
       break-inside: avoid;
     }
+    .arr-row {
+      page-break-after: avoid;
+      break-after: avoid;
+    }
     input, select, textarea {
       border: none !important;
       background: transparent !important;
@@ -450,6 +454,9 @@
       appearance: none;
       background-image: none !important;
       resize: none !important;
+    }
+    input::placeholder {
+      color: transparent !important;
     }
     select {
       background-image: none !important;
@@ -459,9 +466,14 @@
     }
     .day-tab { display: none; }
     .day-section { display: block !important; }
+    .itinerary-table .arr-dep,
+    .itinerary-table .date-cell,
+    .itinerary-table td[style*="background"] {
+      background: transparent !important;
+    }
     @page {
       size: A4 landscape;
-      margin: 5mm;
+      margin: 2mm;
     }
   }
 
@@ -723,7 +735,7 @@
       <td class="cost-label">高速代</td>
       <td style="width:140px;">
         <div class="combo">
-          <input style="font-size:13px;" onclick="toggleCombo(this)" readonly placeholder="選択">
+          <input style="font-size:13px;" onclick="toggleCombo(this)" readonly value="立替希望">
           <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
           <div class="combo-list" data-options="立替希望,利用なし,実費"></div>
         </div>
@@ -731,7 +743,7 @@
       <td class="cost-label">駐車場代</td>
       <td style="width:160px;">
         <div class="combo">
-          <input style="font-size:13px;" onclick="toggleCombo(this)" readonly placeholder="選択">
+          <input style="font-size:13px;" onclick="toggleCombo(this)" readonly value="立替希望">
           <span class="combo-arrow" onclick="toggleCombo(this.previousElementSibling)">▼</span>
           <div class="combo-list" data-options="立替希望,あれば立替希望,利用なし"></div>
         </div>
@@ -792,7 +804,7 @@ function collectBlockValues(blockId) {
 }
 
 function renderDayBlock(tbody, blockId, stopCount) {
-  var totalRows = 1 + stopCount + (stopCount - 1);
+  var totalRows = 1 + stopCount * 2;
   var dateSpan = 'background:var(--bg-light); vertical-align:middle; font-weight:bold; border:1px solid var(--border); text-align:center; cursor:text; padding:0;';
 
   // Sub-header row with rowspan date cells
@@ -826,35 +838,31 @@ function renderDayBlock(tbody, blockId, stopCount) {
 
     const arrRow = document.createElement('tr');
     arrRow.setAttribute('data-block', blockId);
+    arrRow.className = 'arr-row';
     arrRow.innerHTML = `
       <td class="arr-dep">着</td>
       <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-      <td class="place-cell"><input type="text" placeholder=""></td>
+      <td class="place-cell" rowspan="2"><input type="text" placeholder=""></td>
       <td class="arr-dep">着</td>
       <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-      <td class="place-cell"><input type="text" placeholder=""></td>
+      <td class="place-cell" rowspan="2"><input type="text" placeholder=""></td>
       <td class="arr-dep">着</td>
       <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-      <td class="place-cell"><input type="text" placeholder=""></td>
+      <td class="place-cell" rowspan="2"><input type="text" placeholder=""></td>
     `;
     tbody.appendChild(arrRow);
 
-    if (!isLast) {
-      const depRow = document.createElement('tr');
-      depRow.setAttribute('data-block', blockId);
-      depRow.innerHTML = `
-        <td class="arr-dep">発</td>
-        <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-        <td class="place-cell"><input type="text" placeholder=""></td>
-        <td class="arr-dep">発</td>
-        <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-        <td class="place-cell"><input type="text" placeholder=""></td>
-        <td class="arr-dep">発</td>
-        <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
-        <td class="place-cell"><input type="text" placeholder=""></td>
-      `;
-      tbody.appendChild(depRow);
-    }
+    const depRow = document.createElement('tr');
+    depRow.setAttribute('data-block', blockId);
+    depRow.innerHTML = `
+      <td class="arr-dep">発</td>
+      <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+      <td class="arr-dep">発</td>
+      <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+      <td class="arr-dep">発</td>
+      <td class="time-cell"><input type="text" placeholder="" class="text-center"></td>
+    `;
+    tbody.appendChild(depRow);
   }
 
   // Control row (add/remove stop buttons)
@@ -986,6 +994,7 @@ document.querySelectorAll('input, textarea, select').forEach(function(el) {
 
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Enter') return;
+  if (e.isComposing || e.keyCode === 229) return;
   var tag = e.target.tagName;
   if (tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'TEXTAREA') return;
 
@@ -1015,7 +1024,7 @@ document.addEventListener('keydown', function(e) {
     return;
   }
 
-  // Enter: move to cell below
+  // Enter: move to cell below (by matching closest x-position)
   e.preventDefault();
   e.stopImmediatePropagation();
   var src = e.target;
@@ -1023,14 +1032,8 @@ document.addEventListener('keydown', function(e) {
   var table = src.closest('table');
   if (!tr || !table) return;
 
-  // Find input index among direct children inputs only
-  var rowInputs = [];
-  Array.from(tr.cells).forEach(function(td) {
-    var inp = td.querySelector('input, textarea, select');
-    if (inp) rowInputs.push(inp);
-  });
-  var inputIdx = rowInputs.indexOf(src);
-  if (inputIdx === -1) return;
+  var srcRect = src.getBoundingClientRect();
+  var srcX = srcRect.left + srcRect.width / 2;
 
   var rows = Array.from(table.rows);
   var rowIdx = rows.indexOf(tr);
@@ -1040,9 +1043,15 @@ document.addEventListener('keydown', function(e) {
       var inp = td.querySelector('input, textarea, select');
       if (inp) nextInputs.push(inp);
     });
-    if (nextInputs.length > 0 && nextInputs[inputIdx]) {
-      var target = nextInputs[inputIdx];
-      setTimeout(function() { target.focus(); }, 0);
+    if (nextInputs.length === 0) continue;
+    var best = null, bestDist = Infinity;
+    nextInputs.forEach(function(inp) {
+      var r = inp.getBoundingClientRect();
+      var d = Math.abs(r.left + r.width / 2 - srcX);
+      if (d < bestDist) { bestDist = d; best = inp; }
+    });
+    if (best && bestDist < 50) {
+      (function(t){ setTimeout(function(){ t.focus(); }, 0); })(best);
       return;
     }
   }
@@ -1354,6 +1363,25 @@ window.addEventListener('beforeprint', function() {
       }
     }
   });
+  // Add empty place cells to 発 rows missing them (due to place-cell rowspan removal)
+  rows.forEach(function(tr) {
+    if (tr.classList.contains('day-block-start')) return;
+    if (tr.classList.contains('no-print')) return;
+    var arrDeps = tr.querySelectorAll('.arr-dep');
+    var isDep = false;
+    arrDeps.forEach(function(c) { if (c.textContent === '発') isDep = true; });
+    if (!isDep) return;
+    if (tr.querySelectorAll('.place-cell').length > 0) return;
+    var timeCells = Array.from(tr.querySelectorAll('.time-cell'));
+    for (var t = timeCells.length - 1; t >= 0; t--) {
+      var placeTd = document.createElement('td');
+      placeTd.className = 'place-cell';
+      placeTd.style.borderTop = 'none';
+      placeTd.style.borderBottom = 'none';
+      placeTd.setAttribute('data-print-added', '1');
+      timeCells[t].after(placeTd);
+    }
+  });
   // Fix last row border
   var blocks = {};
   rows.forEach(function(tr) {
@@ -1363,6 +1391,9 @@ window.addEventListener('beforeprint', function() {
   });
   Object.values(blocks).forEach(function(lastTr) {
     lastTr.querySelectorAll('.date-cell').forEach(function(td) {
+      td.style.borderBottom = '1px solid #333';
+    });
+    lastTr.querySelectorAll('.place-cell[data-print-added]').forEach(function(td) {
       td.style.borderBottom = '1px solid #333';
     });
   });

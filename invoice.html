@@ -97,6 +97,23 @@
   .inv-empty{text-align:center;color:#aaa;padding:30px;font-size:13px}
   .inv-box .inv-btns{display:flex;gap:8px;justify-content:flex-end}
   .inv-box button.inv-close{padding:8px 18px;border:none;border-radius:6px;background:#e0e0e0;color:#333;font-size:13px;font-weight:600;cursor:pointer}
+  .custom-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:400;align-items:center;justify-content:center;animation:cmFadeIn .15s}
+  .custom-modal.show{display:flex}
+  @keyframes cmFadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes cmSlideIn{from{opacity:0;transform:translateY(-16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .custom-modal-box{background:#fff;border-radius:14px;padding:28px 24px 22px;width:90%;max-width:400px;display:flex;flex-direction:column;gap:18px;box-shadow:0 12px 40px rgba(0,0,0,.18);animation:cmSlideIn .2s ease-out}
+  .custom-modal-box .cm-msg{font-size:14px;color:#333;line-height:1.7;white-space:pre-line;word-break:keep-all}
+  .custom-modal-box .cm-input{width:100%;padding:10px 14px;border:2px solid #ddd;border-radius:8px;font-size:14px;outline:none;transition:border .2s}
+  .custom-modal-box .cm-input:focus{border-color:var(--ac)}
+  .custom-modal-box .cm-btns{display:flex;gap:8px;justify-content:flex-end}
+  .custom-modal-box .cm-btn{padding:9px 22px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s}
+  .custom-modal-box .cm-btn:active{transform:scale(.97)}
+  .custom-modal-box .cm-ok{background:var(--ac);color:#fff}
+  .custom-modal-box .cm-ok:hover{background:#2a4a8a}
+  .custom-modal-box .cm-cancel{background:#e8e8e8;color:#444}
+  .custom-modal-box .cm-cancel:hover{background:#ddd}
+  .custom-modal-box .cm-ok.danger{background:#e74c3c}
+  .custom-modal-box .cm-ok.danger:hover{background:#c0392b}
   @media print{
     body{background:#fff;padding:15px 20px;margin:0}
     .toolbar,.note,.ba,.logo-drop,.logo-remove,.csv-modal,.bd,.ra{display:none!important}
@@ -108,6 +125,7 @@
     td.lb{white-space:nowrap}
     table{table-layout:auto!important;width:100%!important;margin:0;page-break-inside:auto}
     .sheet{overflow:visible!important}
+    .custom-modal{display:none!important}
   }
 </style>
 </head>
@@ -314,9 +332,134 @@
     </div>
   </div>
 </div>
+
+<div class="custom-modal" id="custom-modal">
+  <div class="custom-modal-box">
+    <div class="cm-msg" id="cm-msg"></div>
+    <input class="cm-input" id="cm-input" style="display:none">
+    <div class="cm-btns">
+      <button class="cm-btn cm-cancel" id="cm-cancel" style="display:none">キャンセル</button>
+      <button class="cm-btn cm-ok" id="cm-ok">確認</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="logo-input" accept="image/*" style="display:none">
 
 <script>
+/* ── i18n ── */
+var _i18n={
+  jp:{ok:'確認',cancel:'キャンセル',locale:'ja-JP',
+    resetMsg:'顧客情報・サービス明細・入金明細をすべて初期化します。\n会社情報・口座情報・ロゴは保持されます。\n続行しますか？',
+    resetDone:'初期化完了！会社・口座情報・ロゴは保持されます。',
+    calcDone:'計算完了！',
+    savePrompt:'請求書の名前を入力してください：',
+    saveExists:'" という名前の請求書が既にあります。\n上書きしますか？',
+    saveDone:'" 保存完了！入力欄が初期化されました。',
+    loadEmpty:'保存された請求書はありません',
+    loadDel:'削除',loadDelConfirm:'" を削除しますか？',
+    loadDelDone:'削除されました。',loadDone:'" 読み込み完了！',
+    htmlWin:'新しいウィンドウが開きました。Cmd+S（またはCtrl+S）で保存してください。',
+    htmlClip:'HTMLがクリップボードにコピーされました！テキストエディタに貼り付けて.htmlで保存してください。',
+    htmlBlock:'ポップアップがブロックされました。ブラウザ設定でポップアップを許可してください。',
+    csvCopy:'表がコピーされました！Google SheetsにCmd+Vで貼り付けてください。',
+    csvDone:'コピー完了！Google SheetsにCmd+Vで貼り付けてください。',
+    csvManual:'Cmd+Cで直接コピーしてください。'},
+  en:{ok:'OK',cancel:'Cancel',locale:'en-US',
+    resetMsg:'This will clear customer info, service details, and payment details.\nCompany info, bank details, and logo will be kept.\nContinue?',
+    resetDone:'Reset complete! Company, bank info & logo preserved.',
+    calcDone:'Calculation complete!',
+    savePrompt:'Enter invoice name:',
+    saveExists:'" already exists.\nOverwrite?',
+    saveDone:'" saved! Input fields have been reset.',
+    loadEmpty:'No saved invoices',
+    loadDel:'Delete',loadDelConfirm:'" — delete this invoice?',
+    loadDelDone:'Deleted.',loadDone:'" loaded!',
+    htmlWin:'New window opened. Press Cmd+S (or Ctrl+S) to save.',
+    htmlClip:'HTML copied to clipboard! Paste into a text editor and save as .html.',
+    htmlBlock:'Popup blocked. Please allow popups in browser settings.',
+    csvCopy:'Table copied! Paste into Google Sheets with Cmd+V.',
+    csvDone:'Copied! Paste into Google Sheets with Cmd+V.',
+    csvManual:'Please copy manually with Cmd+C.'},
+  ko:{ok:'확인',cancel:'취소',locale:'ko-KR',
+    resetMsg:'고객 정보, 서비스 내역, 입금 내역을 모두 초기화합니다.\n회사 정보, 계좌 정보, 로고는 유지됩니다.\n계속하시겠습니까?',
+    resetDone:'초기화 완료! 회사·계좌 정보·로고는 유지됩니다.',
+    calcDone:'계산 완료!',
+    savePrompt:'청구서 이름을 입력하세요:',
+    saveExists:'" 이름의 청구서가 이미 있습니다.\n덮어쓰시겠습니까?',
+    saveDone:'" 저장 완료! 입력란이 초기화되었습니다.',
+    loadEmpty:'저장된 청구서가 없습니다',
+    loadDel:'삭제',loadDelConfirm:'" 을(를) 삭제하시겠습니까?',
+    loadDelDone:'삭제되었습니다.',loadDone:'" 불러오기 완료!',
+    htmlWin:'새 창이 열렸습니다. Cmd+S (또는 Ctrl+S)로 저장하세요.',
+    htmlClip:'HTML이 클립보드에 복사되었습니다! 텍스트 편집기에 붙여넣고 .html로 저장하세요.',
+    htmlBlock:'팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.',
+    csvCopy:'표가 복사되었습니다! Google Sheets에 Cmd+V로 붙여넣기 하세요.',
+    csvDone:'복사 완료! Google Sheets에 Cmd+V로 붙여넣기 하세요.',
+    csvManual:'Cmd+C로 직접 복사해주세요.'}
+};
+function _lang(){
+  var sh=document.querySelector('.sheet.active');
+  if(!sh)return'jp';
+  return sh.id.replace('s-','');
+}
+function T(key){return _i18n[_lang()][key]||_i18n['jp'][key]||key}
+
+/* ── Custom Modal System ── */
+function _cmCleanup(){
+  document.getElementById('custom-modal').classList.remove('show');
+  var okBtn=document.getElementById('cm-ok');
+  var cancelBtn=document.getElementById('cm-cancel');
+  var input=document.getElementById('cm-input');
+  okBtn.onclick=null;cancelBtn.onclick=null;input.onkeydown=null;
+  okBtn.classList.remove('danger');
+}
+function customAlert(msg){
+  return new Promise(function(resolve){
+    _cmCleanup();
+    document.getElementById('cm-msg').textContent=msg;
+    document.getElementById('cm-input').style.display='none';
+    document.getElementById('cm-cancel').style.display='none';
+    var okBtn=document.getElementById('cm-ok');
+    okBtn.textContent=T('ok');
+    document.getElementById('custom-modal').classList.add('show');
+    okBtn.onclick=function(){_cmCleanup();resolve()};
+  });
+}
+function customConfirm(msg,danger){
+  return new Promise(function(resolve){
+    _cmCleanup();
+    document.getElementById('cm-msg').textContent=msg;
+    document.getElementById('cm-input').style.display='none';
+    var cancelBtn=document.getElementById('cm-cancel');
+    cancelBtn.style.display='';cancelBtn.textContent=T('cancel');
+    var okBtn=document.getElementById('cm-ok');
+    okBtn.textContent=T('ok');
+    if(danger)okBtn.classList.add('danger');
+    document.getElementById('custom-modal').classList.add('show');
+    okBtn.onclick=function(){_cmCleanup();resolve(true)};
+    cancelBtn.onclick=function(){_cmCleanup();resolve(false)};
+  });
+}
+function customPrompt(msg,defaultVal){
+  return new Promise(function(resolve){
+    _cmCleanup();
+    document.getElementById('cm-msg').textContent=msg;
+    var input=document.getElementById('cm-input');
+    input.style.display='';input.value=defaultVal||'';
+    var cancelBtn=document.getElementById('cm-cancel');
+    cancelBtn.style.display='';cancelBtn.textContent=T('cancel');
+    var okBtn=document.getElementById('cm-ok');
+    okBtn.textContent=T('ok');
+    document.getElementById('custom-modal').classList.add('show');
+    setTimeout(function(){input.focus()},100);
+    okBtn.onclick=function(){_cmCleanup();resolve(input.value)};
+    cancelBtn.onclick=function(){_cmCleanup();resolve(null)};
+    input.onkeydown=function(e){if(e.key==='Enter'){_cmCleanup();resolve(input.value)}};
+  });
+}
+
+/* ── Tab switching ── */
 function sw(l){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('s-'+l).classList.add('active');document.querySelectorAll('.tab-btn')[['jp','en','ko'].indexOf(l)].classList.add('active')}
 
 function openA4Preview(){
@@ -468,6 +611,12 @@ document.addEventListener('paste',function(e){
 document.querySelector('.toolbar').contentEditable='false';
 document.querySelectorAll('.sp td, .ra, .ba, .note, .logo-zone').forEach(function(el){el.contentEditable='false'});
 
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t&&t.getAttribute&&t.getAttribute('contenteditable')==='true')scheduleSave();
+});
+window.addEventListener('beforeunload',function(){saveAll()});
+
 document.addEventListener('mousedown',function(e){
   var t=e.target;
   if(t.classList.contains('bd')){
@@ -510,7 +659,7 @@ function calcAll(){
     ['svc','pay'].forEach(function(g){rc(sh,g)});
   });
   saveAll();
-  showToast('계산 완료!');
+  showToast(T('calcDone'));
 }
 
 function findPrevSec(btn){
@@ -559,8 +708,8 @@ function dr(btn){
   scheduleSave();
 }
 
-function resetInvoice(){
-  if(!confirm('고객 정보, 서비스 내역, 입금 내역을 모두 초기화합니다.\n회사 정보, 계좌 정보, 로고는 유지됩니다.\n계속하시겠습니까?'))return;
+async function resetInvoice(){
+  if(!await customConfirm(T('resetMsg'),true))return;
   document.querySelectorAll('.sheet').forEach(function(sh){
     var custSec=sh.querySelectorAll('.sec')[1];
     if(custSec){
@@ -581,7 +730,7 @@ function resetInvoice(){
   });
   document.querySelectorAll('[data-a]').forEach(ba);
   saveAll();
-  showToast('초기화 완료! 회사·계좌 정보·로고는 유지됩니다.');
+  showToast(T('resetDone'));
 }
 
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
@@ -634,12 +783,12 @@ function dlHTML(){
   var w=window.open('','_blank');
   if(w){
     w.document.open();w.document.write('<pre style="white-space:pre-wrap;word-break:break-all;font-size:12px">'+html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>');w.document.close();
-    showToast('새 창이 열렸습니다. Cmd+S (또는 Ctrl+S)로 저장하세요.');
+    showToast(T('htmlWin'));
   } else {
     navigator.clipboard.writeText(html).then(function(){
-      showToast('HTML이 클립보드에 복사되었습니다! 텍스트 편집기에 붙여넣고 .html로 저장하세요.');
+      showToast(T('htmlClip'));
     }).catch(function(){
-      showToast('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
+      showToast(T('htmlBlock'));
     });
   }
 }
@@ -658,14 +807,14 @@ function dlCSV(){
     document.execCommand('copy');
     sel.removeAllRanges();
     hide.forEach(function(el){el.style.display=''});
-    showToast('표가 복사되었습니다! Google Sheets에 Cmd+V로 붙여넣기 하세요.');
-  }catch(e){alert('Error: '+e.message)}
+    showToast(T('csvCopy'));
+  }catch(e){customAlert('Error: '+e.message)}
 }
 function copyCSV(){
   var ta=document.getElementById('csv-text');
   ta.focus();ta.select();
-  try{document.execCommand('copy');showToast('복사 완료! Google Sheets에 Cmd+V로 붙여넣기 하세요.')}
-  catch(e){showToast('Cmd+C로 직접 복사해주세요.')}
+  try{document.execCommand('copy');showToast(T('csvDone'))}
+  catch(e){showToast(T('csvManual'))}
 }
 function closeCSV(){document.getElementById('csv-modal').classList.remove('show')}
 
@@ -694,19 +843,43 @@ function setSavedInvoices(list){
   try{localStorage.setItem('th_invoices',JSON.stringify(list))}catch(e){}
 }
 
-function saveInvoiceAs(){
-  var name=prompt('청구서 이름을 입력하세요:');
+function clearWorkingData(){
+  document.querySelectorAll('.sheet').forEach(function(sh){
+    var custSec=sh.querySelectorAll('.sec')[1];
+    if(custSec){
+      custSec.querySelectorAll('td[contenteditable="true"]:not(.lb)').forEach(function(td){td.textContent='';});
+    }
+    ['svc','pay'].forEach(function(g){
+      var tbody=sh.querySelector('[data-g="'+g+'"]');
+      if(!tbody)return;
+      var rows=tbody.querySelectorAll('tr');
+      for(var i=rows.length-1;i>0;i--)rows[i].remove();
+      var first=rows[0];
+      if(first){
+        first.querySelectorAll('td[contenteditable="true"]').forEach(function(td){td.textContent='';});
+      }
+      var tc=sh.querySelector('[data-t="'+g+'"]');
+      if(tc)tc.textContent='¥0';
+    });
+  });
+  document.querySelectorAll('[data-a]').forEach(ba);
+  saveAll();
+}
+
+async function saveInvoiceAs(){
+  var name=await customPrompt(T('savePrompt'));
   if(!name||!name.trim())return;
   var list=getSavedInvoices();
   var existing=list.findIndex(function(inv){return inv.name===name.trim()});
   if(existing>=0){
-    if(!confirm('"'+name.trim()+'" 이름의 청구서가 이미 있습니다. 덮어쓰시겠습니까?'))return;
-    list[existing]={name:name.trim(),date:new Date().toLocaleString('ko-KR'),data:getCurrentData()};
+    if(!await customConfirm('"'+name.trim()+T('saveExists')))return;
+    list[existing]={name:name.trim(),date:new Date().toLocaleString(T('locale')),data:getCurrentData()};
   } else {
-    list.unshift({name:name.trim(),date:new Date().toLocaleString('ko-KR'),data:getCurrentData()});
+    list.unshift({name:name.trim(),date:new Date().toLocaleString(T('locale')),data:getCurrentData()});
   }
   setSavedInvoices(list);
-  showToast('"'+name.trim()+'" 저장 완료!');
+  clearWorkingData();
+  showToast('"'+name.trim()+T('saveDone'));
 }
 
 function loadInvoiceData(data){
@@ -739,26 +912,26 @@ function openLoadModal(){
   var list=getSavedInvoices();
   var container=document.getElementById('inv-list');
   if(list.length===0){
-    container.innerHTML='<div class="inv-empty">저장된 청구서가 없습니다</div>';
+    container.innerHTML='<div class="inv-empty">'+T('loadEmpty')+'</div>';
   } else {
     container.innerHTML='';
     list.forEach(function(inv,idx){
       var div=document.createElement('div');
       div.className='inv-item';
-      div.innerHTML='<div><div class="inv-item-name">'+inv.name+'</div><div class="inv-item-date">'+inv.date+'</div></div><button class="inv-item-del" data-idx="'+idx+'">삭제</button>';
-      div.addEventListener('mousedown',function(e){
+      div.innerHTML='<div><div class="inv-item-name">'+inv.name+'</div><div class="inv-item-date">'+inv.date+'</div></div><button class="inv-item-del" data-idx="'+idx+'">'+T('loadDel')+'</button>';
+      div.addEventListener('mousedown',async function(e){
         if(e.target.classList.contains('inv-item-del')){
           e.preventDefault();
           var i=parseInt(e.target.getAttribute('data-idx'));
-          if(confirm('"'+list[i].name+'" 을(를) 삭제하시겠습니까?')){
+          if(await customConfirm('"'+list[i].name+T('loadDelConfirm'),true)){
             list.splice(i,1);setSavedInvoices(list);openLoadModal();
-            showToast('삭제되었습니다.');
+            showToast(T('loadDelDone'));
           }
           return;
         }
         loadInvoiceData(inv.data);
         closeLoadModal();
-        showToast('"'+inv.name+'" 불러오기 완료!');
+        showToast('"'+inv.name+T('loadDone'));
       });
       container.appendChild(div);
     });

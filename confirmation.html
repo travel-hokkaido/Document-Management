@@ -160,9 +160,7 @@
     position: relative;
   }
 
-  .logo-area:hover {
-    background: var(--section-bg);
-  }
+  .logo-area:hover { background: var(--section-bg); }
 
   .logo-area img {
     max-width: 100%;
@@ -206,29 +204,6 @@
     font-weight: 600;
   }
 
-  .meta-row {
-    display: flex;
-    gap: 32px;
-    padding: 16px 48px;
-    background: var(--section-bg);
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .meta-label {
-    color: var(--muted);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-  }
-
   .content { padding: 32px 48px; }
 
   .info-grid {
@@ -257,6 +232,32 @@
     font-weight: 600;
   }
 
+  .period-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .period-date {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 6px;
+    transition: background 0.15s, box-shadow 0.15s;
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .period-date:hover {
+    background: var(--accent-light);
+  }
+
+  .period-sep {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 14px;
+  }
+
   .section-title {
     font-size: 14px;
     font-weight: 700;
@@ -267,6 +268,74 @@
     padding-bottom: 8px;
     border-bottom: 2px solid var(--accent-light);
   }
+
+  .schedule-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .schedule-title-text {
+    outline: none;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: -2px -6px;
+    transition: background 0.15s;
+    text-transform: none;
+    letter-spacing: 0;
+    flex-shrink: 0;
+  }
+
+  .schedule-title-text:hover { background: var(--accent-light); }
+  .schedule-title-text:focus { background: #fff; box-shadow: 0 0 0 2px var(--accent); }
+
+  .service-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+
+  .service-tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: white;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .service-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .service-tag.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+
+  .schedule-section {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .schedule-section:last-child { border-bottom: none; }
+
+  .schedule-section .schedule-title-wrap > .delete-btn {
+    margin-right: -12px;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .schedule-section:hover .schedule-title-wrap > .delete-btn { opacity: 1; }
 
   .pickup-table {
     width: 100%;
@@ -311,6 +380,33 @@
   .day-date {
     font-weight: 700;
     font-size: 15px;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 6px;
+    transition: background 0.15s, box-shadow 0.15s;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .day-date::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .day-date:hover::after { opacity: 1; }
+
+  .day-date:hover {
+    background: var(--accent-light);
   }
 
   .day-route {
@@ -377,7 +473,7 @@
   }
 
   .notes-section li::before {
-    content: "•";
+    content: "\2022";
     position: absolute;
     left: 0;
     color: var(--muted);
@@ -424,7 +520,6 @@
     text-decoration: none;
   }
 
-  /* Editable styling */
   [contenteditable="true"] {
     outline: none;
     border-radius: 3px;
@@ -439,6 +534,12 @@
   [contenteditable="true"]:focus {
     background: #fff;
     box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  [contenteditable="true"]:empty::before {
+    content: attr(data-placeholder);
+    color: #c0c0c0;
+    pointer-events: none;
   }
 
   .add-row-btn, .add-stop-btn {
@@ -506,13 +607,13 @@
   .reset-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 5px;
+    font-size: 12px;
     color: var(--muted);
     background: none;
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 8px 16px;
+    padding: 6px 12px;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s, background 0.15s;
   }
@@ -525,27 +626,29 @@
 
   .reset-bar {
     display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 16px 48px 0;
-    flex-wrap: wrap;
     align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--section-bg);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
   }
+
+  .toolbar-spacer { flex: 1; }
 
   .pdf-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 5px;
+    font-size: 12px;
     color: white;
     background: var(--accent);
     border: none;
     border-radius: 6px;
-    padding: 8px 18px;
+    padding: 6px 14px;
     cursor: pointer;
     font-weight: 600;
     transition: background 0.15s;
-    margin-right: auto;
   }
 
   .pdf-btn:hover { background: #1d4ed8; }
@@ -553,13 +656,13 @@
   .preview-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 5px;
+    font-size: 12px;
     color: white;
     background: #6366f1;
     border: none;
     border-radius: 6px;
-    padding: 8px 18px;
+    padding: 6px 14px;
     cursor: pointer;
     font-weight: 600;
     transition: background 0.15s;
@@ -617,18 +720,31 @@
   .a4-frame .logo-placeholder,
   .a4-frame .logo-remove { display: none !important; }
 
+  .a4-frame .service-tags { display: none !important; }
+  .a4-frame #addSectionBtn { display: none !important; }
+  .a4-frame .schedule-section .schedule-title-wrap > .delete-btn { display: none !important; }
+  .a4-frame .schedule-section { border-bottom: none; }
+  .a4-frame .schedule-title-text { cursor: default; }
+  .a4-frame .schedule-title-text:hover { background: transparent; }
+
+  .a4-frame .day-date::after { display: none !important; }
+  .a4-frame .day-date { cursor: default; }
+  .a4-frame .day-date:hover { background: transparent; }
+  .a4-frame .period-date { cursor: default; }
+  .a4-frame .period-date:hover { background: transparent; }
+
   .a4-frame .page { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
 
   .load-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 5px;
+    font-size: 12px;
     color: var(--accent);
     background: white;
     border: 1px solid var(--accent);
     border-radius: 6px;
-    padding: 8px 18px;
+    padding: 6px 14px;
     cursor: pointer;
     font-weight: 600;
     transition: background 0.15s;
@@ -668,10 +784,7 @@
     border-bottom: 1px solid var(--border);
   }
 
-  .modal-header h2 {
-    font-size: 16px;
-    font-weight: 700;
-  }
+  .modal-header h2 { font-size: 16px; font-weight: 700; }
 
   .modal-close {
     background: none;
@@ -706,24 +819,10 @@
   }
 
   .saved-item:hover { border-color: var(--accent); }
-
   .saved-item-info { flex: 1; }
-
-  .saved-item-name {
-    font-weight: 600;
-    font-size: 14px;
-  }
-
-  .saved-item-date {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .saved-item-actions {
-    display: flex;
-    gap: 4px;
-  }
+  .saved-item-name { font-weight: 600; font-size: 14px; }
+  .saved-item-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .saved-item-actions { display: flex; gap: 4px; }
 
   .saved-item-del {
     background: none;
@@ -747,16 +846,101 @@
     padding: 32px 0;
   }
 
+  /* Custom Confirm / Alert Dialog */
+  .dialog-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 5000;
+    justify-content: center;
+    align-items: center;
+    animation: dialogFade 0.15s ease;
+  }
+
+  .dialog-overlay.show { display: flex; }
+
+  @keyframes dialogFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .dialog-box {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    width: 380px;
+    max-width: 90vw;
+    overflow: hidden;
+    animation: dialogSlide 0.2s ease;
+  }
+
+  @keyframes dialogSlide {
+    from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .dialog-body {
+    padding: 28px 24px 20px;
+    text-align: center;
+  }
+
+  .dialog-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 22px;
+  }
+
+  .dialog-icon.warn { background: #fef3c7; }
+  .dialog-icon.error { background: #fee2e2; }
+  .dialog-icon.info { background: var(--accent-light); }
+
+  .dialog-msg {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .dialog-actions {
+    display: flex;
+    border-top: 1px solid var(--border);
+  }
+
+  .dialog-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .dialog-btn:hover { background: #f9fafb; }
+
+  .dialog-btn + .dialog-btn { border-left: 1px solid var(--border); }
+
+  .dialog-btn.cancel { color: var(--muted); }
+  .dialog-btn.danger { color: #ef4444; }
+  .dialog-btn.primary { color: var(--accent); }
+
   .save-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 5px;
+    font-size: 12px;
     color: white;
     background: #16a34a;
     border: none;
     border-radius: 6px;
-    padding: 8px 18px;
+    padding: 6px 14px;
     cursor: pointer;
     font-weight: 600;
     transition: background 0.15s;
@@ -792,21 +976,160 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* === Custom Calendar === */
+  .calendar-popup {
+    display: none;
+    position: fixed;
+    z-index: 4000;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    padding: 20px;
+    width: 300px;
+    font-size: 14px;
+    user-select: none;
+    animation: calFadeIn 0.15s ease;
+  }
+
+  .calendar-popup.show { display: block; }
+
+  @keyframes calFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .cal-nav {
+    background: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--ink);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .cal-nav:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .cal-title {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    text-align: center;
+  }
+
+  .cal-dow {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 4px 0 8px;
+    font-weight: 600;
+  }
+
+  .cal-dow.sun { color: #ef4444; }
+  .cal-dow.sat { color: #3b82f6; }
+
+  .cal-day {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, transform 0.1s;
+    font-size: 14px;
+    margin: 0 auto;
+  }
+
+  .cal-day:hover {
+    background: var(--accent-light);
+    transform: scale(1.08);
+  }
+
+  .cal-day.today {
+    border: 2px solid var(--accent);
+    font-weight: 700;
+  }
+
+  .cal-day.selected {
+    background: var(--accent);
+    color: white !important;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.35);
+  }
+
+  .cal-day.other-month {
+    color: #d1d5db;
+  }
+
+  .cal-day.other-month:hover {
+    color: var(--muted);
+  }
+
+  .cal-day.sun { color: #ef4444; }
+  .cal-day.sat { color: #3b82f6; }
+
+  .cal-today-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 7px 0;
+    background: var(--section-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .cal-today-btn:hover { background: var(--accent-light); }
+
   @media print {
     body { background: white; }
     .page { margin: 0; box-shadow: none; border-radius: 0; }
-    .edit-banner { display: none; }
+    .top-bar { display: none; }
     [contenteditable="true"]:hover { background: transparent; }
     [contenteditable="true"]:focus { box-shadow: none; background: transparent; }
-    .add-row-btn, .add-stop-btn, .add-day-btn, .delete-btn, .reset-btn, .reset-bar, .pdf-btn, .save-btn, .save-toast { display: none !important; }
+    .add-row-btn, .add-stop-btn, .add-day-btn, .delete-btn, .reset-btn, .reset-bar, .pdf-btn, .save-btn, .save-toast, .calendar-popup, .service-tags, #addSectionBtn { display: none !important; }
+    .schedule-section { border-bottom: none !important; }
+    .schedule-title-text { cursor: default !important; }
+    .schedule-title-text:hover { background: transparent !important; }
+    .day-date::after { display: none !important; }
+    .day-date { cursor: default !important; }
+    .day-date:hover { background: transparent !important; }
+    .period-date { cursor: default !important; }
+    .period-date:hover { background: transparent !important; }
   }
 
   @media (max-width: 640px) {
     .header, .content, .footer { padding-left: 24px; padding-right: 24px; }
-    .meta-row { padding-left: 24px; padding-right: 24px; flex-wrap: wrap; }
     .header-grid { grid-template-columns: 1fr; }
     .company-info { text-align: left; }
     .info-grid { grid-template-columns: 1fr; }
+    .calendar-popup { width: 280px; padding: 16px; }
   }
 </style>
 </head>
@@ -818,17 +1141,45 @@
     <a class="home-btn" href="index.html">← Home</a>
     <div class="edit-banner">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      すべての項目をクリックして自由に編集できます
+      <span data-i18n="editBanner">すべての項目をクリックして自由に編集できます</span>
     </div>
     <div class="lang-switch">
-      <span class="lang-btn active">日本語</span>
-      <a class="lang-btn" href="en.html">EN</a>
-      <a class="lang-btn" href="ko.html">한국어</a>
+      <span class="lang-btn active" data-lang="ja" onclick="switchLang('ja')">日本語</span>
+      <span class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</span>
+      <span class="lang-btn" data-lang="ko" onclick="switchLang('ko')">한국어</span>
     </div>
   </div>
 
+  <div class="reset-bar">
+    <button class="save-btn" id="saveBtn" onclick="saveData()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <span data-i18n="saveBtn">保存</span>
+    </button>
+    <button class="load-btn" onclick="openSavedList()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span data-i18n="loadBtn">保存一覧</span>
+    </button>
+    <button class="preview-btn" onclick="openPreview()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <span data-i18n="previewBtn">A4 Preview</span>
+    </button>
+    <button class="pdf-btn" onclick="window.print()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span data-i18n="pdfBtn">PDFで保存</span>
+    </button>
+    <div class="toolbar-spacer"></div>
+    <button class="reset-btn" onclick="resetBooking()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
+      <span data-i18n="resetBookingBtn">予約情報をリセット</span>
+    </button>
+    <button class="reset-btn" onclick="resetDefaults()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
+      <span data-i18n="resetDefaultBtn">基本情報をリセット</span>
+    </button>
+  </div>
+
   <div class="header">
-    <h1>予約確認書</h1>
+    <h1 data-i18n="title">予約確認書</h1>
     <div class="header-grid">
       <div class="client-info">
         <div class="client-name" contenteditable="true">お客様名 様</div>
@@ -836,9 +1187,10 @@
         <div contenteditable="true">email@example.com</div>
       </div>
       <div class="company-info">
-        <strong>株式会社トラベル北海道</strong><br>
+        <strong data-i18n="companyName">株式会社トラベル北海道</strong><br>
         <span contenteditable="true">〒001-0045 北海道札幌市北区麻生町５丁目５−２</span><br>
         <span contenteditable="true">アルファスクエア麻生 203号室</span><br>
+        <span contenteditable="true"></span><br>
         <span contenteditable="true">TEL: +81) 11-312-3913</span><br>
         <span contenteditable="true">E-mail: info@yourtravelhokkaido.com</span>
         <div class="logo-upload">
@@ -847,9 +1199,9 @@
             <img src="https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf">
             <div class="logo-placeholder">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-              ロゴを追加
+              <span data-i18n="logoAdd">ロゴを追加</span>
             </div>
-            <button class="logo-remove" onclick="removeLogo(event)" title="削除">×</button>
+            <button class="logo-remove" onclick="removeLogo(event)">×</button>
           </div>
         </div>
       </div>
@@ -860,113 +1212,104 @@
 
     <div class="info-grid">
       <div class="info-card">
-        <div class="info-card-label">ご利用期間</div>
-        <div class="info-card-value" contenteditable="true">開始日 〜 終了日</div>
+        <div class="info-card-label" data-i18n="periodLabel">ご利用期間</div>
+        <div class="info-card-value period-value">
+          <span class="period-date" id="periodStart" data-i18n-default="periodStart">開始日</span>
+          <span class="period-sep">〜</span>
+          <span class="period-date" id="periodEnd" data-i18n-default="periodEnd">終了日</span>
+        </div>
       </div>
       <div class="info-card">
-        <div class="info-card-label">車両</div>
+        <div class="info-card-label" data-i18n="vehicleLabel">車両</div>
         <div class="info-card-value" contenteditable="true">車両タイプ</div>
       </div>
       <div class="info-card">
-        <div class="info-card-label">ご利用人数</div>
+        <div class="info-card-label" data-i18n="passengersLabel">ご利用人数</div>
         <div class="info-card-value" contenteditable="true">0名</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px" contenteditable="true">大人0名 ／ 子供0名 ／ 赤ちゃん0名</div>
       </div>
     </div>
 
-    <div class="section-title">宿泊先</div>
+    <div class="section-title" data-i18n="accommodationTitle">宿泊先</div>
     <table class="pickup-table" id="pickupTable">
       <thead>
-        <tr><th>場所</th><th>住所</th><th style="width:36px"></th></tr>
+        <tr><th data-i18n="locationTh">場所</th><th data-i18n="addressTh">住所</th><th style="width:36px"></th></tr>
       </thead>
       <tbody>
         <tr>
           <td contenteditable="true">場所名</td>
           <td contenteditable="true">住所</td>
-          <td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td>
+          <td><button class="delete-btn" onclick="deleteRow(this)">×</button></td>
         </tr>
       </tbody>
     </table>
-    <button class="add-row-btn" onclick="addPickupRow()">＋ 宿泊先を追加</button>
+    <button class="add-row-btn" onclick="addPickupRow()" data-i18n="addAccommodation">＋ 宿泊先を追加</button>
 
-    <div class="section-title">バス利用スケジュール</div>
-    <div id="scheduleContainer">
-
+    <div id="allScheduleSections">
+      <div class="schedule-section" data-service="bus">
+        <div class="section-title schedule-title-wrap">
+          <span class="schedule-title-text" contenteditable="true">バス利用スケジュール</span>
+          <div class="service-tags">
+            <button class="service-tag active" onclick="setSectionType(this,'bus')" data-type="bus">🚌 バス</button>
+            <button class="service-tag" onclick="setSectionType(this,'hotel')" data-type="hotel">🏨 ホテル</button>
+            <button class="service-tag" onclick="setSectionType(this,'activity')" data-type="activity">🎿 アクティビティ</button>
+            <button class="service-tag" onclick="setSectionType(this,'restaurant')" data-type="restaurant">🍽️ レストラン</button>
+            <button class="service-tag" onclick="setSectionType(this,'custom')" data-type="custom">✏️</button>
+          </div>
+          <button class="delete-btn" onclick="deleteSection(this)">×</button>
+        </div>
+        <div class="schedule-days"></div>
+        <button class="add-day-btn" onclick="addDayToSection(this)">＋ 日程を追加</button>
+      </div>
     </div>
-    <button class="add-day-btn" onclick="addDay()">＋ 日程を追加</button>
+    <button class="add-day-btn" onclick="addScheduleSection()" id="addSectionBtn" style="margin-top:8px;border:1px dashed var(--accent);border-radius:8px;">＋ カテゴリを追加</button>
 
     <div class="notes-section">
-      <h3>ご確認事項</h3>
+      <h3 data-i18n="notesTitle">ご確認事項</h3>
       <ul id="notesList">
-        <li contenteditable="true">振込手数料はお客様のご負担となります。</li>
-        <li contenteditable="true">料金には高速料金・ガソリン代・バス駐車代等が全て含まれております。</li>
-        <li contenteditable="true">運行時間を延長される場合、1時間あたり¥15,000の追加料金が発生いたします。</li>
+        <li contenteditable="true">振込手数料はお客様のご負担となります。<button class="delete-btn" onclick="this.parentElement.remove()">×</button></li>
+        <li contenteditable="true">料金には高速料金・ガソリン代・バス駐車代等が全て含まれております。<button class="delete-btn" onclick="this.parentElement.remove()">×</button></li>
+        <li contenteditable="true">運行時間を延長される場合、1時間あたり¥15,000の追加料金が発生いたします。<button class="delete-btn" onclick="this.parentElement.remove()">×</button></li>
       </ul>
+      <button class="add-row-btn" onclick="addNoteRow()" data-i18n="addNote">＋ 項目を追加</button>
     </div>
 
-    <div class="section-title">キャンセルポリシー</div>
+    <div class="section-title" data-i18n="cancelTitle">キャンセルポリシー</div>
     <table class="cancel-table" id="cancelTable">
       <thead>
-        <tr><th>時期</th><th>返金率</th><th style="width:36px"></th></tr>
+        <tr><th data-i18n="timingTh">時期</th><th data-i18n="refundTh">返金率</th><th style="width:36px"></th></tr>
       </thead>
       <tbody>
-        <tr><td contenteditable="true">旅行開始日の30日前まで</td><td contenteditable="true">100%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>
-        <tr><td contenteditable="true">21日前〜30日前</td><td contenteditable="true">80%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>
-        <tr><td contenteditable="true">11日前〜20日前</td><td contenteditable="true">60%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>
-        <tr><td contenteditable="true">4日前〜10日前</td><td contenteditable="true">30%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>
-        <tr><td contenteditable="true">3日前〜当日</td><td contenteditable="true">返金不可</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>
+        <tr><td contenteditable="true">旅行開始日の30日前まで</td><td contenteditable="true">100%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>
+        <tr><td contenteditable="true">21日前〜30日前</td><td contenteditable="true">80%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>
+        <tr><td contenteditable="true">11日前〜20日前</td><td contenteditable="true">60%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>
+        <tr><td contenteditable="true">4日前〜10日前</td><td contenteditable="true">30%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>
+        <tr><td contenteditable="true">3日前〜当日</td><td contenteditable="true">返金不可</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>
       </tbody>
     </table>
-    <button class="add-row-btn" onclick="addCancelRow()">＋ 行を追加</button>
-
-    <div class="reset-bar">
-      <button class="preview-btn" onclick="openPreview()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        A4 Preview
-      </button>
-      <button class="pdf-btn" onclick="window.print()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        PDFで保存
-      </button>
-      <button class="save-btn" id="saveBtn" onclick="saveData()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        保存
-      </button>
-      <button class="load-btn" onclick="openSavedList()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        保存一覧
-      </button>
-      <button class="reset-btn" onclick="resetBooking()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
-        予約情報をリセット
-      </button>
-      <button class="reset-btn" onclick="resetDefaults()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
-        基本情報をリセット
-      </button>
-    </div>
+    <button class="add-row-btn" onclick="addCancelRow()" data-i18n="addRow">＋ 行を追加</button>
 
   </div>
 
   <div class="footer">
-    <strong>株式会社トラベル北海道</strong><br>
+    <strong data-i18n="footerCompany">株式会社トラベル北海道</strong><br>
     <a href="mailto:info@yourtravelhokkaido.com" contenteditable="true">info@yourtravelhokkaido.com</a><br>
     <span contenteditable="true">ご不明点がございましたらお気軽にお問い合わせください。</span>
   </div>
 
 </div>
 
-<div class="save-toast" id="saveToast">保存しました</div>
+<div class="save-toast" id="saveToast" data-i18n="toastMsg">保存しました</div>
 
 <div class="preview-overlay" id="previewOverlay">
-  <button class="preview-close" onclick="closePreview()">✕ 閉じる</button>
+  <button class="preview-close" onclick="closePreview()" data-i18n="previewClose">✕ 閉じる</button>
   <div class="a4-frame" id="a4Frame"></div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeSavedList()">
   <div class="modal">
     <div class="modal-header">
-      <h2>保存一覧</h2>
+      <h2 data-i18n="modalTitle">保存一覧</h2>
       <button class="modal-close" onclick="closeSavedList()">×</button>
     </div>
     <div class="modal-body">
@@ -975,36 +1318,393 @@
   </div>
 </div>
 
+<!-- Custom Calendar Popup -->
+<div class="calendar-popup" id="calendarPopup">
+  <div class="cal-header">
+    <button class="cal-nav" onclick="calPrev()">‹</button>
+    <span class="cal-title" id="calTitle"></span>
+    <button class="cal-nav" onclick="calNext()">›</button>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+  <button class="cal-today-btn" id="calTodayBtn" onclick="calGoToday()">Today</button>
+</div>
+
+<!-- Custom Dialog -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box">
+    <div class="dialog-body">
+      <div class="dialog-icon" id="dialogIcon">⚠️</div>
+      <div class="dialog-msg" id="dialogMsg"></div>
+    </div>
+    <div class="dialog-actions" id="dialogActions"></div>
+  </div>
+</div>
+
 <script>
-const STORAGE_KEY = 'invoice_cheryl_ja';
-function openPreview() {
+var currentLang = 'ja';
+
+var T = {
+  ja: {
+    pageTitle: '予約確認書 トラベル北海道',
+    editBanner: 'すべての項目をクリックして自由に編集できます',
+    title: '予約確認書',
+    periodLabel: 'ご利用期間',
+    vehicleLabel: '車両',
+    passengersLabel: 'ご利用人数',
+    accommodationTitle: '宿泊先',
+    locationTh: '場所',
+    addressTh: '住所',
+    addAccommodation: '＋ 宿泊先を追加',
+    scheduleTitle: 'バス利用スケジュール',
+    addDay: '＋ 日程を追加',
+    addCategory: '＋ カテゴリを追加',
+    tagBus: '🚌 バス', tagHotel: '🏨 ホテル', tagActivity: '🎿 アクティビティ', tagRestaurant: '🍽️ レストラン',
+    notesTitle: 'ご確認事項',
+    addNote: '＋ 項目を追加',
+    defaultNote: '確認事項を入力',
+    cancelTitle: 'キャンセルポリシー',
+    timingTh: '時期',
+    refundTh: '返金率',
+    addRow: '＋ 行を追加',
+    previewBtn: 'A4 Preview',
+    pdfBtn: 'PDFで保存',
+    saveBtn: '保存',
+    savedBtn: '保存済み',
+    loadBtn: '保存一覧',
+    resetBookingBtn: '予約情報をリセット',
+    resetDefaultBtn: '基本情報をリセット',
+    toastMsg: '保存しました',
+    previewClose: '✕ 閉じる',
+    modalTitle: '保存一覧',
+    emptyMsg: '保存されたデータはありません',
+    companyName: '株式会社トラベル北海道',
+    footerCompany: '株式会社トラベル北海道',
+    logoAdd: 'ロゴを追加',
+    defaultClientName: 'お客様名 様',
+    defaultPeriod: '開始日 〜 終了日',
+    periodStart: '開始日',
+    periodEnd: '終了日',
+    defaultVehicle: '車両タイプ',
+    defaultPassengers: '0名',
+    defaultPassengerDetail: '大人0名 ／ 子供0名 ／ 赤ちゃん0名',
+    defaultLocation: '場所名',
+    defaultAddress: '住所',
+    defaultTiming: '時期',
+    defaultRefund: '返金率',
+    defaultDayDate: '月日（曜日）',
+    defaultRoute: 'ルート',
+    defaultHours: '00:00〜00:00 ／ 0時間',
+    defaultStop: '停車地',
+    addStop: '＋ 停車地を追加',
+    busRoute: 'ルート', busHours: '00:00〜00:00 ／ 0時間', busStop: '停車地', busAddStop: '＋ 停車地を追加',
+    hotelRoute: 'ホテル名', hotelHours: 'チェックイン / チェックアウト', hotelStop: '部屋タイプ・備考', hotelAddStop: '＋ 詳細を追加',
+    activityRoute: 'アクティビティ名', activityHours: '00:00〜00:00', activityStop: '場所・内容', activityAddStop: '＋ 項目を追加',
+    restaurantRoute: 'レストラン名', restaurantHours: '予約時間', restaurantStop: '人数・メニュー', restaurantAddStop: '＋ 詳細を追加',
+    companyAddr1: '〒001-0045 北海道札幌市北区麻生町５丁目５−２',
+    companyAddr2: 'アルファスクエア麻生 203号室',
+    companyAddr3: '',
+    companyTel: 'TEL: +81) 11-312-3913',
+    companyEmailVal: 'E-mail: info@yourtravelhokkaido.com',
+    note1: '振込手数料はお客様のご負担となります。',
+    note2: '料金には高速料金・ガソリン代・バス駐車代等が全て含まれております。',
+    note3: '運行時間を延長される場合、1時間あたり¥15,000の追加料金が発生いたします。',
+    cancel1t: '旅行開始日の30日前まで', cancel1r: '100%返金 ※予約金・振込手数料を除く',
+    cancel2t: '21日前〜30日前', cancel2r: '80%返金 ※予約金・振込手数料を除く',
+    cancel3t: '11日前〜20日前', cancel3r: '60%返金 ※予約金・振込手数料を除く',
+    cancel4t: '4日前〜10日前', cancel4r: '30%返金 ※予約金・振込手数料を除く',
+    cancel5t: '3日前〜当日', cancel5r: '返金不可',
+    footerEmail: 'info@yourtravelhokkaido.com',
+    footerMsg: 'ご不明点がございましたらお気軽にお問い合わせください。',
+    confirmResetBooking: '予約情報（お客様名・利用期間・車両・人数・宿泊先・スケジュール）をリセットしますか？',
+    confirmResetDefaults: '確認事項・キャンセルポリシー・会社情報を初期値にリセットしますか？',
+    confirmDeleteItem: 'この保存データを削除しますか？',
+    saveFailed: '保存に失敗しました。',
+    defaultUnnamed: '無名',
+    calToday: '今日',
+    dialogCancel: 'キャンセル',
+    dialogConfirm: '実行'
+  },
+  en: {
+    pageTitle: 'Booking Confirmation Travel Hokkaido',
+    editBanner: 'Click any field to edit freely',
+    title: 'Booking Confirmation',
+    periodLabel: 'Travel Period',
+    vehicleLabel: 'Vehicle',
+    passengersLabel: 'Passengers',
+    accommodationTitle: 'Accommodation',
+    locationTh: 'Location',
+    addressTh: 'Address',
+    addAccommodation: '+ Add Accommodation',
+    scheduleTitle: 'Bus Schedule',
+    addDay: '+ Add Day',
+    addCategory: '+ Add Category',
+    tagBus: '🚌 Bus', tagHotel: '🏨 Hotel', tagActivity: '🎿 Activity', tagRestaurant: '🍽️ Restaurant',
+    notesTitle: 'Important Notes',
+    addNote: '+ Add Note',
+    defaultNote: 'Enter note',
+    cancelTitle: 'Cancellation Policy',
+    timingTh: 'Timing',
+    refundTh: 'Refund',
+    addRow: '+ Add Row',
+    previewBtn: 'A4 Preview',
+    pdfBtn: 'Save as PDF',
+    saveBtn: 'Save',
+    savedBtn: 'Saved',
+    loadBtn: 'Saved List',
+    resetBookingBtn: 'Reset Booking Info',
+    resetDefaultBtn: 'Reset Default Info',
+    toastMsg: 'Saved successfully',
+    previewClose: '✕ Close',
+    modalTitle: 'Saved List',
+    emptyMsg: 'No saved data',
+    companyName: 'Travel Hokkaido Co., Ltd.',
+    footerCompany: 'Travel Hokkaido Co., Ltd.',
+    logoAdd: 'Add Logo',
+    defaultClientName: 'Client Name',
+    defaultPeriod: 'Start – End',
+    periodStart: 'Start',
+    periodEnd: 'End',
+    defaultVehicle: 'Vehicle Type',
+    defaultPassengers: '0',
+    defaultPassengerDetail: '0 Adults / 0 Children / 0 Infants',
+    defaultLocation: 'Location',
+    defaultAddress: 'Address',
+    defaultTiming: 'Timing',
+    defaultRefund: 'Refund',
+    defaultDayDate: 'Date (Day)',
+    defaultRoute: 'Route',
+    defaultHours: '00:00–00:00 / 0 hrs',
+    defaultStop: 'Stop',
+    addStop: '+ Add Stop',
+    busRoute: 'Route', busHours: '00:00–00:00 / 0 hrs', busStop: 'Stop', busAddStop: '+ Add Stop',
+    hotelRoute: 'Hotel Name', hotelHours: 'Check-in / Check-out', hotelStop: 'Room Type / Notes', hotelAddStop: '+ Add Detail',
+    activityRoute: 'Activity Name', activityHours: '00:00–00:00', activityStop: 'Location / Details', activityAddStop: '+ Add Item',
+    restaurantRoute: 'Restaurant Name', restaurantHours: 'Reservation Time', restaurantStop: 'Guests / Menu', restaurantAddStop: '+ Add Detail',
+    companyAddr1: '#203 Alpha Square Asabu City',
+    companyAddr2: '5-5-2 Asabucho Kita-ku, Sapporo, Hokkaido,',
+    companyAddr3: '001-0045',
+    companyTel: 'TEL: +81) 11-312-3913',
+    companyEmailVal: 'E-mail: info@yourtravelhokkaido.com',
+    note1: 'Bank transfer fees are the responsibility of the customer.',
+    note2: 'All highway tolls, fuel costs, and bus parking fees are included in the price.',
+    note3: 'An additional charge of ¥15,000 per hour applies for extended service hours.',
+    cancel1t: '30+ days before departure', cancel1r: '100% refund (excl. deposit & transfer fees)',
+    cancel2t: '21–30 days before', cancel2r: '80% refund (excl. deposit & transfer fees)',
+    cancel3t: '11–20 days before', cancel3r: '60% refund (excl. deposit & transfer fees)',
+    cancel4t: '4–10 days before', cancel4r: '30% refund (excl. deposit & transfer fees)',
+    cancel5t: '3 days or less / Day of', cancel5r: 'Non-refundable',
+    footerEmail: 'info@yourtravelhokkaido.com',
+    footerMsg: "Please don't hesitate to contact us with any questions.",
+    confirmResetBooking: 'Reset booking info (client, period, vehicle, passengers, accommodation, schedule)?',
+    confirmResetDefaults: 'Reset Notes, Cancellation Policy & Company Info to defaults?',
+    confirmDeleteItem: 'Delete this saved data?',
+    saveFailed: 'Save failed.',
+    defaultUnnamed: 'Unnamed',
+    calToday: 'Today',
+    dialogCancel: 'Cancel',
+    dialogConfirm: 'Confirm'
+  },
+  ko: {
+    pageTitle: '예약 확인서 트래블 홋카이도',
+    editBanner: '모든 항목을 클릭하여 자유롭게 편집할 수 있습니다',
+    title: '예약 확인서',
+    periodLabel: '이용 기간',
+    vehicleLabel: '차량',
+    passengersLabel: '이용 인원',
+    accommodationTitle: '숙소',
+    locationTh: '장소',
+    addressTh: '주소',
+    addAccommodation: '+ 숙소 추가',
+    scheduleTitle: '버스 이용 일정',
+    addDay: '+ 일정 추가',
+    addCategory: '+ 카테고리 추가',
+    tagBus: '🚌 버스', tagHotel: '🏨 호텔', tagActivity: '🎿 액티비티', tagRestaurant: '🍽️ 레스토랑',
+    notesTitle: '확인 사항',
+    addNote: '+ 항목 추가',
+    defaultNote: '확인 사항을 입력',
+    cancelTitle: '취소 정책',
+    timingTh: '시기',
+    refundTh: '환불율',
+    addRow: '+ 행 추가',
+    previewBtn: 'A4 미리보기',
+    pdfBtn: 'PDF로 저장',
+    saveBtn: '저장',
+    savedBtn: '저장됨',
+    loadBtn: '저장 목록',
+    resetBookingBtn: '예약 정보 리셋',
+    resetDefaultBtn: '기본 정보 리셋',
+    toastMsg: '저장되었습니다',
+    previewClose: '✕ 닫기',
+    modalTitle: '저장 목록',
+    emptyMsg: '저장된 데이터가 없습니다',
+    companyName: 'Travel Hokkaido Co., Ltd.',
+    footerCompany: 'Travel Hokkaido Co., Ltd.',
+    logoAdd: '로고 추가',
+    defaultClientName: '고객명 님',
+    defaultPeriod: '시작일 ~ 종료일',
+    periodStart: '시작일',
+    periodEnd: '종료일',
+    defaultVehicle: '차량 종류',
+    defaultPassengers: '0명',
+    defaultPassengerDetail: '성인 0명 / 어린이 0명 / 유아 0명',
+    defaultLocation: '장소명',
+    defaultAddress: '주소',
+    defaultTiming: '시기',
+    defaultRefund: '환불율',
+    defaultDayDate: '날짜 (요일)',
+    defaultRoute: '경로',
+    defaultHours: '00:00~00:00 / 0시간',
+    defaultStop: '정류지',
+    addStop: '+ 정류지 추가',
+    busRoute: '경로', busHours: '00:00~00:00 / 0시간', busStop: '정류지', busAddStop: '+ 정류지 추가',
+    hotelRoute: '호텔명', hotelHours: '체크인 / 체크아웃', hotelStop: '객실 타입·비고', hotelAddStop: '+ 상세 추가',
+    activityRoute: '액티비티명', activityHours: '00:00~00:00', activityStop: '장소·내용', activityAddStop: '+ 항목 추가',
+    restaurantRoute: '레스토랑명', restaurantHours: '예약 시간', restaurantStop: '인원·메뉴', restaurantAddStop: '+ 상세 추가',
+    companyAddr1: '#203 Alpha Square Asabu City',
+    companyAddr2: '5-5-2 Asabucho Kita-ku, Sapporo, Hokkaido,',
+    companyAddr3: '001-0045',
+    companyTel: 'TEL: +81) 11-312-3913',
+    companyEmailVal: 'E-mail: info@yourtravelhokkaido.com',
+    note1: '송금 시 발생하는 수수료는 고객님 부담입니다.',
+    note2: '요금에는 고속도로 통행료, 유류비, 버스 주차비 등이 모두 포함되어 있습니다.',
+    note3: '운행 시간을 연장하실 경우, 시간당 ¥15,000의 추가 요금이 발생합니다.',
+    cancel1t: '출발 30일 이전', cancel1r: '100% 환불 (예약금·송금 수수료 제외)',
+    cancel2t: '21~30일 전', cancel2r: '80% 환불 (예약금·송금 수수료 제외)',
+    cancel3t: '11~20일 전', cancel3r: '60% 환불 (예약금·송금 수수료 제외)',
+    cancel4t: '4~10일 전', cancel4r: '30% 환불 (예약금·송금 수수료 제외)',
+    cancel5t: '3일 전~당일', cancel5r: '환불 불가',
+    footerEmail: 'info@yourtravelhokkaido.com',
+    footerMsg: '궁금한 점이 있으시면 언제든지 문의해 주세요.',
+    confirmResetBooking: '예약 정보(고객명, 이용기간, 차량, 인원, 숙소, 일정)를 리셋하시겠습니까?',
+    confirmResetDefaults: '확인사항, 취소정책, 회사정보를 초기값으로 리셋하시겠습니까?',
+    confirmDeleteItem: '이 저장 데이터를 삭제하시겠습니까?',
+    saveFailed: '저장에 실패했습니다.',
+    defaultUnnamed: '이름없음',
+    calToday: '오늘',
+    dialogCancel: '취소',
+    dialogConfirm: '확인'
+  }
+};
+
+function t(key) { return T[currentLang][key] || T['ja'][key] || key; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (T[currentLang][key]) el.textContent = T[currentLang][key];
+  });
+  document.title = t('pageTitle');
+  document.documentElement.lang = currentLang === 'ko' ? 'ko' : currentLang === 'en' ? 'en' : 'ja';
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+  });
+
+  var todayBtn = document.getElementById('calTodayBtn');
+  if (todayBtn) todayBtn.textContent = t('calToday');
+
+  var addSectionBtn = document.getElementById('addSectionBtn');
+  if (addSectionBtn) addSectionBtn.textContent = t('addCategory');
+
+  var tagMap = { bus: 'tagBus', hotel: 'tagHotel', activity: 'tagActivity', restaurant: 'tagRestaurant' };
+  document.querySelectorAll('.service-tag').forEach(function(btn) {
+    var type = btn.getAttribute('data-type');
+    if (tagMap[type]) btn.textContent = t(tagMap[type]);
+  });
+
+  document.querySelectorAll('.schedule-section .add-day-btn').forEach(function(btn) {
+    btn.textContent = t('addDay');
+  });
+}
+
+function switchLang(lang) {
+  saveLangDraft(currentLang);
+  currentLang = lang;
+  localStorage.setItem('invoice_cheryl_lang', lang);
+  loadLangDraft(lang);
+  autoSave();
+}
+
+// --- Draft auto-save (per-language) ---
+var DRAFT_KEY_PREFIX = 'invoice_cheryl_draft_';
+var DRAFT_KEY_LEGACY = 'invoice_cheryl_draft';
+var STORAGE_KEY = 'invoice_cheryl_saves';
+var _draftTimer = null;
+var _defaultPageHTML = '';
+
+function draftKey(lang) { return DRAFT_KEY_PREFIX + (lang || currentLang); }
+
+function autoSave() {
+  clearTimeout(_draftTimer);
+  _draftTimer = setTimeout(function() {
+    saveLangDraft(currentLang);
+  }, 300);
+}
+
+function saveLangDraft(lang) {
   var page = document.querySelector('.page');
-  var frame = document.getElementById('a4Frame');
-  frame.innerHTML = page.innerHTML;
-  frame.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
-  document.getElementById('previewOverlay').classList.add('show');
-  document.body.style.overflow = 'hidden';
+  try {
+    localStorage.setItem(draftKey(lang), page.innerHTML);
+  } catch(e) {}
 }
 
-function closePreview() {
-  document.getElementById('previewOverlay').classList.remove('show');
-  document.body.style.overflow = '';
+function loadLangDraft(lang) {
+  var raw = localStorage.getItem(draftKey(lang));
+  if (raw) {
+    document.querySelector('.page').innerHTML = raw;
+  } else {
+    document.querySelector('.page').innerHTML = _defaultPageHTML;
+  }
+  migrateToolbar();
+  migratePeriodField();
+  migrateScheduleTitle();
+  migrateNotes();
+  translateDefaults();
+  applyLang();
+  setLogo(localStorage.getItem(LOGO_KEY) || DEFAULT_LOGO);
 }
 
-const LOGO_KEY = 'invoice_cheryl_logo';
-const DEFAULT_LOGO = 'https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf';
+function clearDraft() {
+  localStorage.removeItem(draftKey(currentLang));
+  localStorage.removeItem(DRAFT_KEY_LEGACY);
+}
+
+function loadDraft() {
+  var raw = localStorage.getItem(draftKey(currentLang));
+  if (raw) {
+    document.querySelector('.page').innerHTML = raw;
+    return;
+  }
+  var legacy = localStorage.getItem(DRAFT_KEY_LEGACY);
+  if (!legacy) return;
+  try {
+    var draft = JSON.parse(legacy);
+    if (draft.html) {
+      document.querySelector('.page').innerHTML = draft.html;
+      if (draft.lang) currentLang = draft.lang;
+    }
+  } catch(e) {
+    if (legacy && legacy.charAt(0) !== '{') {
+      document.querySelector('.page').innerHTML = legacy;
+    }
+  }
+}
+
+// --- Logo ---
+var LOGO_KEY = 'invoice_cheryl_logo';
+var DEFAULT_LOGO = 'https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf';
 
 function handleLogo(e) {
-  const file = e.target.files[0];
+  var file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
+  var reader = new FileReader();
   reader.onload = function(ev) { setLogo(ev.target.result); };
   reader.readAsDataURL(file);
 }
 
 function setLogo(dataURL) {
-  const area = document.getElementById('logoArea');
-  let img = area.querySelector('img');
+  var area = document.getElementById('logoArea');
+  if (!area) return;
+  var img = area.querySelector('img');
   if (!img) { img = document.createElement('img'); area.appendChild(img); }
   img.src = dataURL;
   area.classList.add('has-logo');
@@ -1015,135 +1715,486 @@ function setLogo(dataURL) {
 
 function removeLogo(e) {
   e.stopPropagation();
-  document.getElementById('logoInput').value = '';
+  var input = document.getElementById('logoInput');
+  if (input) input.value = '';
   localStorage.removeItem(LOGO_KEY);
   setLogo(DEFAULT_LOGO);
 }
 
-(function loadLogo() {
-  var saved = localStorage.getItem(LOGO_KEY);
-  setLogo(saved || DEFAULT_LOGO);
-})();
-
-function deleteRow(btn) {
-  btn.closest('tr').remove();
-}
-
-function deleteStop(btn) {
-  btn.closest('li').remove();
-}
-
-function deleteDay(btn) {
-  btn.closest('.day-block').remove();
-}
+// --- Row / Stop / Day manipulation ---
+function deleteRow(btn) { btn.closest('tr').remove(); }
+function deleteStop(btn) { btn.closest('li').remove(); }
+function deleteDay(btn) { btn.closest('.day-block').remove(); }
 
 function addPickupRow() {
-  const tbody = document.querySelector('#pickupTable tbody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = '<td contenteditable="true">場所名</td><td contenteditable="true">住所</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td>';
+  var tbody = document.querySelector('#pickupTable tbody');
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td contenteditable="true">' + t('defaultLocation') + '</td><td contenteditable="true">' + t('defaultAddress') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td>';
   tbody.appendChild(tr);
   tr.querySelector('td').focus();
 }
 
 function addCancelRow() {
-  const tbody = document.querySelector('#cancelTable tbody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = '<td contenteditable="true">時期</td><td contenteditable="true">返金率</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td>';
+  var tbody = document.querySelector('#cancelTable tbody');
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td contenteditable="true">' + t('defaultTiming') + '</td><td contenteditable="true">' + t('defaultRefund') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td>';
   tbody.appendChild(tr);
   tr.querySelector('td').focus();
 }
 
+function addNoteRow() {
+  var ul = document.getElementById('notesList');
+  var li = document.createElement('li');
+  li.setAttribute('contenteditable', 'true');
+  li.innerHTML = t('defaultNote') + '<button class="delete-btn" onclick="this.parentElement.remove()">×</button>';
+  ul.appendChild(li);
+  li.focus();
+}
+
+function getSectionType(section) {
+  var svc = section.getAttribute('data-service');
+  return (svc && svc !== 'custom') ? svc : 'bus';
+}
+
+function svcTFor(type, key) {
+  var k = type + key.charAt(0).toUpperCase() + key.slice(1);
+  return t(k) || t('default' + key.charAt(0).toUpperCase() + key.slice(1));
+}
+
 function addStop(btn) {
-  const ul = btn.closest('.day-block').querySelector('.day-stops');
-  const li = document.createElement('li');
-  li.innerHTML = '<span class="stop-time" contenteditable="true">00:00</span><span contenteditable="true">停車地</span><button class="delete-btn" onclick="deleteStop(this)" title="削除">×</button>';
+  var section = btn.closest('.schedule-section');
+  var type = section ? getSectionType(section) : 'bus';
+  var ul = btn.closest('.day-block').querySelector('.day-stops');
+  var li = document.createElement('li');
+  li.innerHTML = '<span class="stop-time" contenteditable="true">00:00</span><span contenteditable="true">' + svcTFor(type, 'stop') + '</span><button class="delete-btn" onclick="deleteStop(this)">×</button>';
   ul.appendChild(li);
   li.querySelector('.stop-time').focus();
 }
 
-function addDay() {
-  const container = document.getElementById('scheduleContainer');
-  const block = document.createElement('div');
+function addDayToSection(btn) {
+  var section = btn.closest('.schedule-section');
+  var type = section ? getSectionType(section) : 'bus';
+  var container = section.querySelector('.schedule-days');
+  var block = document.createElement('div');
   block.className = 'day-block';
-  block.innerHTML = `
-    <div class="day-header">
-      <div>
-        <span class="day-date" contenteditable="true">月日（曜日）</span>
-        <span class="day-route" contenteditable="true">ルート</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="day-hours" contenteditable="true">00:00〜00:00 ／ 0時間</span>
-        <button class="delete-btn" onclick="deleteDay(this)" title="削除">×</button>
-      </div>
-    </div>
-    <ul class="day-stops">
-      <li><span class="stop-time" contenteditable="true">00:00</span><span contenteditable="true">停車地</span><button class="delete-btn" onclick="deleteStop(this)" title="削除">×</button></li>
-    </ul>
-    <div style="padding:0 20px 12px"><button class="add-stop-btn" onclick="addStop(this)">＋ 停車地を追加</button></div>
-  `;
+  block.innerHTML =
+    '<div class="day-header"><div><span class="day-date">' + t('defaultDayDate') + '</span> <span class="day-route" contenteditable="true">' + svcTFor(type, 'route') + '</span></div><div style="display:flex;align-items:center;gap:8px"><span class="day-hours" contenteditable="true">' + svcTFor(type, 'hours') + '</span><button class="delete-btn" onclick="deleteDay(this)">×</button></div></div>' +
+    '<ul class="day-stops"><li><span class="stop-time" contenteditable="true">00:00</span><span contenteditable="true">' + svcTFor(type, 'stop') + '</span><button class="delete-btn" onclick="deleteStop(this)">×</button></li></ul>' +
+    '<div style="padding:0 20px 12px"><button class="add-stop-btn" onclick="addStop(this)">' + svcTFor(type, 'addStop') + '</button></div>';
   container.appendChild(block);
-  block.querySelector('.day-date').focus();
 }
 
-function resetBooking() {
-  if (!confirm('予約情報（お客様名・利用期間・車両・人数・宿泊先・スケジュール）をリセットしますか？')) return;
+function deleteSection(btn) {
+  var section = btn.closest('.schedule-section');
+  if (section) section.remove();
+  autoSave();
+}
 
-  document.querySelector('.client-name').textContent = 'お客様名 様';
-  const clientDivs = document.querySelectorAll('.client-info > div:not(.client-name)');
+// --- Service Type ---
+var SERVICE_TITLES = {
+  bus:        { ja: 'バス利用スケジュール', en: 'Bus Schedule', ko: '버스 이용 일정' },
+  hotel:      { ja: 'ホテル利用スケジュール', en: 'Hotel Schedule', ko: '호텔 이용 일정' },
+  activity:   { ja: 'アクティビティスケジュール', en: 'Activity Schedule', ko: '액티비티 일정' },
+  restaurant: { ja: 'レストランスケジュール', en: 'Restaurant Schedule', ko: '레스토랑 일정' }
+};
+
+function setSectionType(btn, type) {
+  var section = btn.closest('.schedule-section');
+  section.querySelectorAll('.service-tag').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+  section.setAttribute('data-service', type);
+
+  if (type === 'custom') {
+    var titleEl = section.querySelector('.schedule-title-text');
+    if (titleEl) titleEl.focus();
+    return;
+  }
+
+  var titles = SERVICE_TITLES[type];
+  if (titles) {
+    var titleEl = section.querySelector('.schedule-title-text');
+    if (titleEl) titleEl.textContent = titles[currentLang] || titles['ja'];
+  }
+
+  updateSectionDayBlocks(section, type);
+  autoSave();
+}
+
+function updateSectionDayBlocks(section, type) {
+  var routeKey = type + 'Route';
+  var hoursKey = type + 'Hours';
+  var stopKey = type + 'Stop';
+  var addStopKey = type + 'AddStop';
+
+  section.querySelectorAll('.day-block').forEach(function(block) {
+    var routeEl = block.querySelector('.day-route');
+    if (routeEl) {
+      var current = routeEl.textContent.trim();
+      var isDefault = !current;
+      ['bus','hotel','activity','restaurant'].forEach(function(tp) {
+        if (T.ja[tp+'Route'] === current || T.en[tp+'Route'] === current || T.ko[tp+'Route'] === current) isDefault = true;
+        if (t('defaultRoute') === current) isDefault = true;
+      });
+      if (isDefault) routeEl.textContent = t(routeKey);
+    }
+
+    var hoursEl = block.querySelector('.day-hours');
+    if (hoursEl) {
+      var current = hoursEl.textContent.trim();
+      var isDefault = !current;
+      ['bus','hotel','activity','restaurant'].forEach(function(tp) {
+        if (T.ja[tp+'Hours'] === current || T.en[tp+'Hours'] === current || T.ko[tp+'Hours'] === current) isDefault = true;
+        if (t('defaultHours') === current) isDefault = true;
+      });
+      if (isDefault) hoursEl.textContent = t(hoursKey);
+    }
+
+    block.querySelectorAll('.day-stops li').forEach(function(li) {
+      var detail = li.querySelector('span:nth-child(2)');
+      if (detail) {
+        var current = detail.textContent.trim();
+        var isDefault = !current;
+        ['bus','hotel','activity','restaurant'].forEach(function(tp) {
+          if (T.ja[tp+'Stop'] === current || T.en[tp+'Stop'] === current || T.ko[tp+'Stop'] === current) isDefault = true;
+          if (t('defaultStop') === current) isDefault = true;
+        });
+        if (isDefault) detail.textContent = t(stopKey);
+      }
+    });
+
+    var addBtn = block.querySelector('.add-stop-btn');
+    if (addBtn) addBtn.textContent = t(addStopKey);
+  });
+}
+
+function addScheduleSection() {
+  var wrap = document.getElementById('allScheduleSections');
+  var section = document.createElement('div');
+  section.className = 'schedule-section';
+  section.setAttribute('data-service', 'bus');
+  section.innerHTML =
+    '<div class="section-title schedule-title-wrap">' +
+      '<span class="schedule-title-text" contenteditable="true">' + (SERVICE_TITLES.bus[currentLang] || SERVICE_TITLES.bus.ja) + '</span>' +
+      '<div class="service-tags">' +
+        '<button class="service-tag active" onclick="setSectionType(this,\'bus\')" data-type="bus">' + t('tagBus') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'hotel\')" data-type="hotel">' + t('tagHotel') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'activity\')" data-type="activity">' + t('tagActivity') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'restaurant\')" data-type="restaurant">' + t('tagRestaurant') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'custom\')" data-type="custom">✏️</button>' +
+      '</div>' +
+      '<button class="delete-btn" onclick="deleteSection(this)">×</button>' +
+    '</div>' +
+    '<div class="schedule-days"></div>' +
+    '<button class="add-day-btn" onclick="addDayToSection(this)">' + t('addDay') + '</button>';
+  wrap.appendChild(section);
+  autoSave();
+}
+
+// --- Custom Calendar ---
+var CAL_DOW = {
+  ja: ['日','月','火','水','木','金','土'],
+  en: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  ko: ['일','월','화','수','목','금','토']
+};
+
+var CAL_MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+var calState = {
+  year: 2026,
+  month: 5,
+  targetEl: null,
+  selectedDate: null
+};
+
+function formatCalDate(year, month, day, lang) {
+  var d = new Date(year, month, day);
+  var dow = CAL_DOW[lang] || CAL_DOW['ja'];
+  var dayOfWeek = dow[d.getDay()];
+
+  if (lang === 'en') {
+    return CAL_MONTHS_EN[month] + ' ' + day + ' (' + dayOfWeek + ')';
+  } else if (lang === 'ko') {
+    return (month + 1) + '월 ' + day + '일 (' + dayOfWeek + ')';
+  } else {
+    return (month + 1) + '月' + day + '日（' + dayOfWeek + '）';
+  }
+}
+
+function openCalendar(el) {
+  if (el.closest('.a4-frame') || el.closest('.preview-overlay')) return;
+
+  var popup = document.getElementById('calendarPopup');
+  calState.targetEl = el;
+
+  var now = new Date();
+  calState.year = now.getFullYear();
+  calState.month = now.getMonth();
+  calState.selectedDate = null;
+
+  var existing = el.getAttribute('data-cal-date');
+  if (existing) {
+    var parts = existing.split('-');
+    calState.year = parseInt(parts[0]);
+    calState.month = parseInt(parts[1]);
+    calState.selectedDate = { y: parseInt(parts[0]), m: parseInt(parts[1]), d: parseInt(parts[2]) };
+  } else if (el.id === 'periodEnd' || el.classList.contains('day-date')) {
+    var ps = document.getElementById('periodStart');
+    if (ps) {
+      var pDate = ps.getAttribute('data-cal-date');
+      if (pDate) {
+        var pp = pDate.split('-');
+        calState.year = parseInt(pp[0]);
+        calState.month = parseInt(pp[1]);
+      }
+    }
+  }
+
+  renderCalendar();
+
+  var rect = el.getBoundingClientRect();
+  var popupW = 300;
+  var popupH = 380;
+  var left = rect.left;
+  var top = rect.bottom + 6;
+
+  if (left + popupW > window.innerWidth) left = window.innerWidth - popupW - 12;
+  if (left < 8) left = 8;
+  if (top + popupH > window.innerHeight) top = rect.top - popupH - 6;
+
+  popup.style.left = left + 'px';
+  popup.style.top = top + 'px';
+  popup.classList.add('show');
+
+  setTimeout(function() {
+    document.addEventListener('mousedown', _calOutsideHandler);
+  }, 0);
+}
+
+function closeCalendar() {
+  document.getElementById('calendarPopup').classList.remove('show');
+  document.removeEventListener('mousedown', _calOutsideHandler);
+  calState.targetEl = null;
+}
+
+function _calOutsideHandler(e) {
+  var popup = document.getElementById('calendarPopup');
+  if (!popup.contains(e.target) && e.target !== calState.targetEl && !calState.targetEl.contains(e.target)) {
+    closeCalendar();
+  }
+}
+
+function calPrev() {
+  calState.month--;
+  if (calState.month < 0) { calState.month = 11; calState.year--; }
+  renderCalendar();
+}
+
+function calNext() {
+  calState.month++;
+  if (calState.month > 11) { calState.month = 0; calState.year++; }
+  renderCalendar();
+}
+
+function calGoToday() {
+  var now = new Date();
+  selectCalDate(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+function renderCalendar() {
+  var y = calState.year, m = calState.month;
+  var titleEl = document.getElementById('calTitle');
+  var gridEl = document.getElementById('calGrid');
+  var todayBtn = document.getElementById('calTodayBtn');
+
+  if (currentLang === 'en') {
+    titleEl.textContent = CAL_MONTHS_EN[m] + ' ' + y;
+  } else if (currentLang === 'ko') {
+    titleEl.textContent = y + '년 ' + (m + 1) + '월';
+  } else {
+    titleEl.textContent = y + '年 ' + (m + 1) + '月';
+  }
+
+  if (todayBtn) todayBtn.textContent = t('calToday');
+
+  var dow = CAL_DOW[currentLang] || CAL_DOW['ja'];
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var cls = 'cal-dow';
+    if (i === 0) cls += ' sun';
+    if (i === 6) cls += ' sat';
+    html += '<div class="' + cls + '">' + dow[i] + '</div>';
+  }
+
+  var firstDay = new Date(y, m, 1).getDay();
+  var daysInMonth = new Date(y, m + 1, 0).getDate();
+  var prevDays = new Date(y, m, 0).getDate();
+  var today = new Date();
+  var sel = calState.selectedDate;
+
+  for (var i = firstDay - 1; i >= 0; i--) {
+    var pd = prevDays - i;
+    var pm = m === 0 ? 11 : m - 1;
+    var py = m === 0 ? y - 1 : y;
+    html += '<div class="cal-day other-month" onclick="selectCalDate(' + py + ',' + pm + ',' + pd + ')">' + pd + '</div>';
+  }
+
+  for (var d = 1; d <= daysInMonth; d++) {
+    var cls = 'cal-day';
+    var dayOfWeek = new Date(y, m, d).getDay();
+    if (dayOfWeek === 0) cls += ' sun';
+    if (dayOfWeek === 6) cls += ' sat';
+    if (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d) cls += ' today';
+    if (sel && sel.y === y && sel.m === m && sel.d === d) cls += ' selected';
+    html += '<div class="' + cls + '" onclick="selectCalDate(' + y + ',' + m + ',' + d + ')">' + d + '</div>';
+  }
+
+  var totalCells = firstDay + daysInMonth;
+  var remaining = (7 - totalCells % 7) % 7;
+  for (var i = 1; i <= remaining; i++) {
+    var nm = m === 11 ? 0 : m + 1;
+    var ny = m === 11 ? y + 1 : y;
+    html += '<div class="cal-day other-month" onclick="selectCalDate(' + ny + ',' + nm + ',' + i + ')">' + i + '</div>';
+  }
+
+  gridEl.innerHTML = html;
+}
+
+function selectCalDate(y, m, d) {
+  calState.selectedDate = { y: y, m: m, d: d };
+
+  if (calState.targetEl) {
+    calState.targetEl.textContent = formatCalDate(y, m, d, currentLang);
+    calState.targetEl.setAttribute('data-cal-date', y + '-' + m + '-' + d);
+    autoSave();
+  }
+
+  closeCalendar();
+}
+
+// Event delegation for day-date and period-date clicks
+document.addEventListener('click', function(e) {
+  var dateEl = e.target.closest('.day-date') || e.target.closest('.period-date');
+  if (dateEl && !dateEl.closest('.a4-frame') && !dateEl.closest('.preview-overlay')) {
+    e.preventDefault();
+    e.stopPropagation();
+    openCalendar(dateEl);
+  }
+});
+
+// --- Custom Dialog ---
+function showDialog(msg, opts) {
+  var overlay = document.getElementById('dialogOverlay');
+  var iconEl = document.getElementById('dialogIcon');
+  var msgEl = document.getElementById('dialogMsg');
+  var actionsEl = document.getElementById('dialogActions');
+
+  var icon = (opts && opts.icon) || 'warn';
+  var icons = { warn: '⚠️', error: '❌', info: 'ℹ️' };
+  iconEl.textContent = icons[icon] || icons.warn;
+  iconEl.className = 'dialog-icon ' + icon;
+  msgEl.textContent = msg;
+
+  actionsEl.innerHTML = '';
+
+  if (opts && opts.alertOnly) {
+    var okBtn = document.createElement('button');
+    okBtn.className = 'dialog-btn primary';
+    okBtn.textContent = 'OK';
+    okBtn.onclick = function() { overlay.classList.remove('show'); };
+    actionsEl.appendChild(okBtn);
+  } else {
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'dialog-btn cancel';
+    cancelBtn.textContent = t('dialogCancel');
+    cancelBtn.onclick = function() { overlay.classList.remove('show'); };
+
+    var confirmBtn = document.createElement('button');
+    confirmBtn.className = 'dialog-btn ' + ((opts && opts.btnClass) || 'danger');
+    confirmBtn.textContent = (opts && opts.confirmText) || t('dialogConfirm');
+    confirmBtn.onclick = function() {
+      overlay.classList.remove('show');
+      if (opts && opts.onConfirm) opts.onConfirm();
+    };
+
+    actionsEl.appendChild(cancelBtn);
+    actionsEl.appendChild(confirmBtn);
+  }
+
+  overlay.classList.add('show');
+}
+
+function showAlert(msg) {
+  showDialog(msg, { alertOnly: true, icon: 'error' });
+}
+
+// --- Reset ---
+function resetBooking() {
+  showDialog(t('confirmResetBooking'), { icon: 'warn', onConfirm: function() {
+
+  document.querySelector('.client-name').textContent = t('defaultClientName');
+  var clientDivs = document.querySelectorAll('.client-info > div:not(.client-name)');
   if (clientDivs[0]) clientDivs[0].textContent = 'Name';
   if (clientDivs[1]) clientDivs[1].textContent = 'email@example.com';
 
-  const cards = document.querySelectorAll('.info-card-value');
-  if (cards[0]) cards[0].textContent = '開始日 〜 終了日';
-  if (cards[1]) cards[1].textContent = '車両タイプ';
-  if (cards[2]) cards[2].textContent = '0名';
-  const detail = document.querySelector('.info-card div[style]');
-  if (detail) detail.textContent = '大人0名 ／ 子供0名 ／ 赤ちゃん0名';
+  var cards = document.querySelectorAll('.info-card-value');
+  var ps = document.getElementById('periodStart');
+  var pe = document.getElementById('periodEnd');
+  if (ps) { ps.textContent = t('periodStart'); ps.removeAttribute('data-cal-date'); }
+  if (pe) { pe.textContent = t('periodEnd'); pe.removeAttribute('data-cal-date'); }
+  if (cards[1]) cards[1].textContent = t('defaultVehicle');
+  if (cards[2]) cards[2].textContent = t('defaultPassengers');
+  var detail = document.querySelector('.info-card div[style]');
+  if (detail) detail.textContent = t('defaultPassengerDetail');
 
   document.querySelector('#pickupTable tbody').innerHTML =
-    '<tr><td contenteditable="true">場所名</td><td contenteditable="true">住所</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>';
+    '<tr><td contenteditable="true">' + t('defaultLocation') + '</td><td contenteditable="true">' + t('defaultAddress') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>';
 
-  document.getElementById('scheduleContainer').innerHTML = '';
+  document.querySelectorAll('.schedule-section .schedule-days').forEach(function(el) { el.innerHTML = ''; });
 
-  document.getElementById('logoInput').value = '';
+  var input = document.getElementById('logoInput');
+  if (input) input.value = '';
   localStorage.removeItem(LOGO_KEY);
   setLogo(DEFAULT_LOGO);
+
+  clearDraft();
+
+  }});
 }
 
 function resetDefaults() {
-  if (!confirm('確認事項・キャンセルポリシー・会社情報を初期値にリセットしますか？')) return;
+  showDialog(t('confirmResetDefaults'), { icon: 'warn', onConfirm: function() {
 
-  const ci = document.querySelector('.company-info');
-  ci.querySelector('strong').textContent = '株式会社トラベル北海道';
-  const spans = ci.querySelectorAll(':scope > span[contenteditable]');
-  const companyDefaults = [
-    '〒001-0045 北海道札幌市北区麻生町５丁目５−２',
-    'アルファスクエア麻生 203号室',
-    'TEL: +81) 11-312-3913',
-    'E-mail: info@yourtravelhokkaido.com'
-  ];
-  spans.forEach((s, i) => { if (companyDefaults[i]) s.textContent = companyDefaults[i]; });
+  var ci = document.querySelector('.company-info');
+  ci.querySelector('strong').textContent = t('companyName');
+  var spans = ci.querySelectorAll(':scope > span[contenteditable]');
+  var companyDefaults = [t('companyAddr1'), t('companyAddr2'), t('companyAddr3'), t('companyTel'), t('companyEmailVal')];
+  spans.forEach(function(s, i) { if (companyDefaults[i]) s.textContent = companyDefaults[i]; });
 
   document.getElementById('notesList').innerHTML =
-    '<li contenteditable="true">振込手数料はお客様のご負担となります。</li>' +
-    '<li contenteditable="true">料金には高速料金・ガソリン代・バス駐車代等が全て含まれております。</li>' +
-    '<li contenteditable="true">運行時間を延長される場合、1時間あたり¥15,000の追加料金が発生いたします。</li>';
+    '<li contenteditable="true">' + t('note1') + '</li>' +
+    '<li contenteditable="true">' + t('note2') + '</li>' +
+    '<li contenteditable="true">' + t('note3') + '</li>';
 
   document.querySelector('#cancelTable tbody').innerHTML =
-    '<tr><td contenteditable="true">旅行開始日の30日前まで</td><td contenteditable="true">100%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>' +
-    '<tr><td contenteditable="true">21日前〜30日前</td><td contenteditable="true">80%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>' +
-    '<tr><td contenteditable="true">11日前〜20日前</td><td contenteditable="true">60%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>' +
-    '<tr><td contenteditable="true">4日前〜10日前</td><td contenteditable="true">30%返金 ※予約金・振込手数料を除く</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>' +
-    '<tr><td contenteditable="true">3日前〜当日</td><td contenteditable="true">返金不可</td><td><button class="delete-btn" onclick="deleteRow(this)" title="削除">×</button></td></tr>';
+    '<tr><td contenteditable="true">' + t('cancel1t') + '</td><td contenteditable="true">' + t('cancel1r') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>' +
+    '<tr><td contenteditable="true">' + t('cancel2t') + '</td><td contenteditable="true">' + t('cancel2r') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>' +
+    '<tr><td contenteditable="true">' + t('cancel3t') + '</td><td contenteditable="true">' + t('cancel3r') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>' +
+    '<tr><td contenteditable="true">' + t('cancel4t') + '</td><td contenteditable="true">' + t('cancel4r') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>' +
+    '<tr><td contenteditable="true">' + t('cancel5t') + '</td><td contenteditable="true">' + t('cancel5r') + '</td><td><button class="delete-btn" onclick="deleteRow(this)">×</button></td></tr>';
 
-  const footer = document.querySelector('.footer');
-  footer.querySelector('strong').textContent = '株式会社トラベル北海道';
-  footer.querySelector('a').textContent = 'info@yourtravelhokkaido.com';
-  footer.querySelector('span').textContent = 'ご不明点がございましたらお気軽にお問い合わせください。';
+  var footer = document.querySelector('.footer');
+  footer.querySelector('strong').textContent = t('footerCompany');
+  footer.querySelector('a').textContent = t('footerEmail');
+  footer.querySelector('span').textContent = t('footerMsg');
+
+  clearDraft();
+
+  }});
 }
 
+// --- Save / Load ---
 function getClientName() {
-  return document.querySelector('.client-name')?.textContent?.trim() || '無名';
+  return document.querySelector('.client-name')?.textContent?.trim() || t('defaultUnnamed');
 }
 
 function getSavedItems() {
@@ -1151,30 +2202,34 @@ function getSavedItems() {
 }
 
 function saveData() {
-  const page = document.querySelector('.page');
-  const name = getClientName();
-  const items = getSavedItems();
-  items.unshift({ id: Date.now(), name: name, timestamp: new Date().toISOString(), content: page.innerHTML });
+  var page = document.querySelector('.page');
+  var name = getClientName();
+  var items = getSavedItems();
+  items.unshift({ id: Date.now(), name: name, timestamp: new Date().toISOString(), lang: currentLang, content: page.innerHTML });
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    const btn = document.getElementById('saveBtn');
+    clearDraft();
+    var btn = document.getElementById('saveBtn');
     btn.classList.add('saved');
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 保存済み';
-    const toast = document.getElementById('saveToast');
+    var savedSpan = btn.querySelector('[data-i18n="saveBtn"]');
+    if (savedSpan) savedSpan.textContent = t('savedBtn');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="saveBtn">' + t('savedBtn') + '</span>';
+    var toast = document.getElementById('saveToast');
+    toast.textContent = t('toastMsg');
     toast.classList.add('show');
-    setTimeout(() => {
+    setTimeout(function() {
       toast.classList.remove('show');
       btn.classList.remove('saved');
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> <span data-i18n="saveBtn">' + t('saveBtn') + '</span>';
     }, 2000);
-  } catch(e) { alert('保存に失敗しました。'); }
+  } catch(e) { showAlert(t('saveFailed')); }
 }
 
 function openSavedList() {
-  const items = getSavedItems();
-  const list = document.getElementById('savedList');
+  var items = getSavedItems();
+  var list = document.getElementById('savedList');
   if (items.length === 0) {
-    list.innerHTML = '<li class="empty-msg">保存されたデータはありません</li>';
+    list.innerHTML = '<li class="empty-msg">' + t('emptyMsg') + '</li>';
   } else {
     list.innerHTML = items.map(function(item) {
       var d = new Date(item.timestamp);
@@ -1190,15 +2245,364 @@ function closeSavedList() { document.getElementById('modalOverlay').classList.re
 function loadItem(id) {
   var items = getSavedItems();
   var item = items.find(function(i) { return i.id === id; });
-  if (item) { document.querySelector('.page').innerHTML = item.content; closeSavedList(); }
+  if (item) {
+    document.querySelector('.page').innerHTML = item.content;
+    if (item.lang) { currentLang = item.lang; localStorage.setItem('invoice_cheryl_lang', currentLang); }
+    applyLang();
+    closeSavedList();
+    autoSave();
+  }
 }
 
 function deleteItem(id) {
-  if (!confirm('この保存データを削除しますか？')) return;
-  var items = getSavedItems().filter(function(i) { return i.id !== id; });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  openSavedList();
+  showDialog(t('confirmDeleteItem'), { icon: 'warn', onConfirm: function() {
+    var items = getSavedItems().filter(function(i) { return i.id !== id; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    openSavedList();
+  }});
 }
+
+// --- Preview ---
+function openPreview() {
+  var page = document.querySelector('.page');
+  var frame = document.getElementById('a4Frame');
+  frame.innerHTML = page.innerHTML;
+  frame.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
+  document.getElementById('previewOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePreview() {
+  document.getElementById('previewOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// --- Init ---
+// --- Migrate notes section (add button + delete buttons) ---
+function migrateNotes() {
+  var section = document.querySelector('.notes-section');
+  if (!section) return;
+  if (section.querySelector('.add-row-btn')) return;
+
+  section.querySelectorAll('#notesList li').forEach(function(li) {
+    if (!li.querySelector('.delete-btn')) {
+      var btn = document.createElement('button');
+      btn.className = 'delete-btn';
+      btn.onclick = function() { this.parentElement.remove(); };
+      btn.textContent = '×';
+      li.appendChild(btn);
+    }
+  });
+
+  var addBtn = document.createElement('button');
+  addBtn.className = 'add-row-btn';
+  addBtn.setAttribute('onclick', 'addNoteRow()');
+  addBtn.setAttribute('data-i18n', 'addNote');
+  addBtn.textContent = t('addNote');
+  section.appendChild(addBtn);
+}
+
+function translateDefaults() {
+  var noteKeys = ['note1','note2','note3'];
+  var cancelKeys = [
+    { t: 'cancel1t', r: 'cancel1r' },
+    { t: 'cancel2t', r: 'cancel2r' },
+    { t: 'cancel3t', r: 'cancel3r' },
+    { t: 'cancel4t', r: 'cancel4r' },
+    { t: 'cancel5t', r: 'cancel5r' }
+  ];
+
+  var notesList = document.getElementById('notesList');
+  if (notesList) {
+    notesList.querySelectorAll('li').forEach(function(li) {
+      var text = li.childNodes[0] ? li.childNodes[0].textContent.trim() : '';
+      for (var i = 0; i < noteKeys.length; i++) {
+        var k = noteKeys[i];
+        if (T.ja[k] === text || T.en[k] === text || T.ko[k] === text || text === '송금 수수료는 고객 부담입니다.' || text === '송금 수수료는 고객님 부담입니다.' || text === '운행 시간을 연장할 경우, 시간당 ¥15,000의 추가 요금이 발생합니다.') {
+          li.childNodes[0].textContent = t(k);
+          break;
+        }
+      }
+    });
+  }
+
+  var cancelBody = document.querySelector('#cancelTable tbody');
+  if (cancelBody) {
+    cancelBody.querySelectorAll('tr').forEach(function(tr) {
+      var tds = tr.querySelectorAll('td[contenteditable]');
+      if (tds.length < 2) return;
+      var timingText = tds[0].textContent.trim();
+      var refundText = tds[1].textContent.trim();
+      for (var i = 0; i < cancelKeys.length; i++) {
+        var tk = cancelKeys[i].t, rk = cancelKeys[i].r;
+        if (T.ja[tk] === timingText || T.en[tk] === timingText || T.ko[tk] === timingText) {
+          tds[0].textContent = t(tk);
+        }
+        if (T.ja[rk] === refundText || T.en[rk] === refundText || T.ko[rk] === refundText) {
+          tds[1].textContent = t(rk);
+        }
+      }
+    });
+  }
+
+  var defaultFields = [
+    { sel: '.client-name', keys: ['defaultClientName'] },
+    { sel: '.footer span[contenteditable]', keys: ['footerMsg'] },
+    { sel: '.footer a[contenteditable]', keys: ['footerEmail'] }
+  ];
+  defaultFields.forEach(function(f) {
+    var el = document.querySelector(f.sel);
+    if (!el) return;
+    var cur = el.textContent.trim();
+    f.keys.forEach(function(k) {
+      if (T.ja[k] === cur || T.en[k] === cur || T.ko[k] === cur) {
+        el.textContent = t(k);
+      }
+    });
+  });
+
+  var addrKeys = ['companyAddr1','companyAddr2','companyAddr3','companyTel','companyEmailVal'];
+  var addrSpans = document.querySelectorAll('.company-info > span[contenteditable]');
+  addrSpans.forEach(function(span, i) {
+    if (i >= addrKeys.length) return;
+    var cur = span.textContent.trim();
+    var k = addrKeys[i];
+    if (T.ja[k] === cur || T.en[k] === cur || T.ko[k] === cur) {
+      span.textContent = t(k);
+    }
+  });
+
+  var periodStart = document.getElementById('periodStart');
+  var periodEnd = document.getElementById('periodEnd');
+  if (periodStart) {
+    var cal = periodStart.getAttribute('data-cal-date');
+    if (cal) {
+      var p = cal.split('-');
+      periodStart.textContent = formatCalDate(parseInt(p[0]), parseInt(p[1]), parseInt(p[2]), currentLang);
+    } else {
+      var cur = periodStart.textContent.trim();
+      if (T.ja.periodStart === cur || T.en.periodStart === cur || T.ko.periodStart === cur) {
+        periodStart.textContent = t('periodStart');
+      }
+    }
+  }
+  if (periodEnd) {
+    var cal = periodEnd.getAttribute('data-cal-date');
+    if (cal) {
+      var p = cal.split('-');
+      periodEnd.textContent = formatCalDate(parseInt(p[0]), parseInt(p[1]), parseInt(p[2]), currentLang);
+    } else {
+      var cur = periodEnd.textContent.trim();
+      if (T.ja.periodEnd === cur || T.en.periodEnd === cur || T.ko.periodEnd === cur) {
+        periodEnd.textContent = t('periodEnd');
+      }
+    }
+  }
+
+  document.querySelectorAll('.day-date').forEach(function(dateEl) {
+    var cal = dateEl.getAttribute('data-cal-date');
+    if (cal) {
+      var p = cal.split('-');
+      dateEl.textContent = formatCalDate(parseInt(p[0]), parseInt(p[1]), parseInt(p[2]), currentLang);
+    } else {
+      var cur = dateEl.textContent.trim();
+      if (T.ja.defaultDayDate === cur || T.en.defaultDayDate === cur || T.ko.defaultDayDate === cur) {
+        dateEl.textContent = t('defaultDayDate');
+      }
+    }
+  });
+}
+
+// --- Migrate toolbar to top ---
+function migrateToolbar() {
+  var page = document.querySelector('.page');
+  var topBar = page.querySelector('.top-bar');
+  var existingTop = page.querySelector('.top-bar + .reset-bar');
+  if (existingTop) return;
+
+  var bars = page.querySelectorAll('.reset-bar');
+  var bottomBar = null;
+  for (var i = 0; i < bars.length; i++) {
+    if (!bars[i].previousElementSibling || !bars[i].previousElementSibling.classList.contains('top-bar')) {
+      bottomBar = bars[i];
+      break;
+    }
+  }
+  if (!bottomBar) return;
+
+  var newBar = document.createElement('div');
+  newBar.className = 'reset-bar';
+
+  var saveBtn = bottomBar.querySelector('.save-btn');
+  var loadBtn = bottomBar.querySelector('.load-btn');
+  var previewBtn = bottomBar.querySelector('.preview-btn');
+  var pdfBtn = bottomBar.querySelector('.pdf-btn');
+  var resetBtns = bottomBar.querySelectorAll('.reset-btn');
+
+  if (saveBtn) newBar.appendChild(saveBtn);
+  if (loadBtn) newBar.appendChild(loadBtn);
+  if (previewBtn) newBar.appendChild(previewBtn);
+  if (pdfBtn) newBar.appendChild(pdfBtn);
+
+  var spacer = document.createElement('div');
+  spacer.className = 'toolbar-spacer';
+  newBar.appendChild(spacer);
+
+  resetBtns.forEach(function(btn) { newBar.appendChild(btn); });
+
+  if (topBar) topBar.after(newBar);
+  bottomBar.remove();
+}
+
+// --- Migrate old period field to new calendar structure ---
+function migratePeriodField() {
+  if (document.getElementById('periodStart')) return;
+  var cards = document.querySelectorAll('.info-card');
+  var periodCard = null;
+  for (var i = 0; i < cards.length; i++) {
+    var label = cards[i].querySelector('[data-i18n="periodLabel"]');
+    if (label) { periodCard = cards[i]; break; }
+  }
+  if (!periodCard) return;
+  var oldVal = periodCard.querySelector('.info-card-value');
+  if (!oldVal) return;
+  var newDiv = document.createElement('div');
+  newDiv.className = 'info-card-value period-value';
+  newDiv.innerHTML =
+    '<span class="period-date" id="periodStart">' + t('periodStart') + '</span>' +
+    '<span class="period-sep">〜</span>' +
+    '<span class="period-date" id="periodEnd">' + t('periodEnd') + '</span>';
+  oldVal.replaceWith(newDiv);
+}
+
+function migrateScheduleTitle() {
+  if (document.getElementById('allScheduleSections')) return;
+
+  var schedTitle = null;
+  var schedContainer = document.getElementById('scheduleContainer');
+  var titles = document.querySelectorAll('.section-title');
+  for (var i = 0; i < titles.length; i++) {
+    var el = titles[i];
+    if (el.getAttribute('data-i18n') === 'scheduleTitle' || el.textContent.indexOf('スケジュール') !== -1 || el.textContent.indexOf('Schedule') !== -1 || el.textContent.indexOf('일정') !== -1) {
+      schedTitle = el;
+      break;
+    }
+  }
+  if (!schedTitle && !schedContainer) return;
+
+  var oldText = schedTitle ? schedTitle.textContent.trim() : (SERVICE_TITLES.bus[currentLang] || SERVICE_TITLES.bus.ja);
+  var oldDays = schedContainer ? schedContainer.innerHTML : '';
+
+  var addDayBtn = null;
+  if (schedContainer) {
+    addDayBtn = schedContainer.nextElementSibling;
+    if (addDayBtn && !addDayBtn.classList.contains('add-day-btn')) addDayBtn = null;
+  }
+
+  var wrap = document.createElement('div');
+  wrap.id = 'allScheduleSections';
+
+  var section = document.createElement('div');
+  section.className = 'schedule-section';
+  section.setAttribute('data-service', 'bus');
+  section.innerHTML =
+    '<div class="section-title schedule-title-wrap">' +
+      '<span class="schedule-title-text" contenteditable="true">' + oldText + '</span>' +
+      '<div class="service-tags">' +
+        '<button class="service-tag active" onclick="setSectionType(this,\'bus\')" data-type="bus">' + t('tagBus') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'hotel\')" data-type="hotel">' + t('tagHotel') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'activity\')" data-type="activity">' + t('tagActivity') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'restaurant\')" data-type="restaurant">' + t('tagRestaurant') + '</button>' +
+        '<button class="service-tag" onclick="setSectionType(this,\'custom\')" data-type="custom">✏️</button>' +
+      '</div>' +
+      '<button class="delete-btn" onclick="deleteSection(this)">×</button>' +
+    '</div>' +
+    '<div class="schedule-days">' + oldDays + '</div>' +
+    '<button class="add-day-btn" onclick="addDayToSection(this)">' + t('addDay') + '</button>';
+  wrap.appendChild(section);
+
+  var addSectionBtn = document.createElement('button');
+  addSectionBtn.className = 'add-day-btn';
+  addSectionBtn.id = 'addSectionBtn';
+  addSectionBtn.style.cssText = 'margin-top:8px;border:1px dashed var(--accent);border-radius:8px;';
+  addSectionBtn.setAttribute('onclick', 'addScheduleSection()');
+  addSectionBtn.textContent = t('addCategory');
+
+  if (schedTitle) schedTitle.remove();
+  if (schedContainer) schedContainer.replaceWith(wrap);
+  if (addDayBtn) addDayBtn.replaceWith(addSectionBtn);
+  else wrap.after(addSectionBtn);
+}
+
+(function init() {
+  _defaultPageHTML = document.querySelector('.page').innerHTML;
+
+  var savedLang = localStorage.getItem('invoice_cheryl_lang');
+  if (savedLang && T[savedLang]) currentLang = savedLang;
+
+  loadDraft();
+  migrateToolbar();
+  migratePeriodField();
+  migrateScheduleTitle();
+  migrateNotes();
+  translateDefaults();
+  applyLang();
+
+  setLogo(localStorage.getItem(LOGO_KEY) || DEFAULT_LOGO);
+
+  // --- Placeholder behavior for contenteditable ---
+  var placeholderKeys = [
+    'defaultClientName','defaultPeriod','defaultVehicle','defaultPassengers','defaultPassengerDetail',
+    'defaultLocation','defaultAddress','defaultTiming','defaultRefund','defaultDayDate',
+    'defaultRoute','defaultHours','defaultStop','defaultNote',
+    'busRoute','busHours','busStop','hotelRoute','hotelHours','hotelStop',
+    'activityRoute','activityHours','activityStop','restaurantRoute','restaurantHours','restaurantStop',
+    'note1','note2','note3',
+    'cancel1t','cancel1r','cancel2t','cancel2r','cancel3t','cancel3r','cancel4t','cancel4r','cancel5t','cancel5r',
+    'companyAddr1','companyAddr2','companyAddr3','companyTel','companyEmailVal','footerMsg','footerEmail',
+    'periodStart','periodEnd'
+  ];
+
+  function isPlaceholder(text) {
+    var trimmed = text.trim();
+    if (!trimmed || trimmed === 'Name' || trimmed === 'email@example.com' || trimmed === '00:00') return true;
+    for (var i = 0; i < placeholderKeys.length; i++) {
+      var k = placeholderKeys[i];
+      if (T.ja[k] === trimmed || T.en[k] === trimmed || T.ko[k] === trimmed) return true;
+    }
+    return false;
+  }
+
+  document.addEventListener('focusin', function(e) {
+    var el = e.target;
+    if (!el.getAttribute || !el.getAttribute('contenteditable')) return;
+    var text = el.textContent;
+    if (isPlaceholder(text)) {
+      el.setAttribute('data-placeholder', text);
+      el.textContent = '';
+    }
+  });
+
+  document.addEventListener('focusout', function(e) {
+    var el = e.target;
+    if (!el.getAttribute || !el.getAttribute('contenteditable')) return;
+    if (!el.textContent.trim() && el.getAttribute('data-placeholder')) {
+      el.textContent = el.getAttribute('data-placeholder');
+      el.removeAttribute('data-placeholder');
+    } else {
+      el.removeAttribute('data-placeholder');
+    }
+  });
+
+  document.addEventListener('input', function(e) {
+    if (e.target.closest && e.target.closest('[contenteditable="true"]')) {
+      autoSave();
+    }
+  });
+
+  var observer = new MutationObserver(function() { autoSave(); });
+  observer.observe(document.querySelector('.page'), { childList: true, subtree: true, characterData: true });
+})();
 </script>
 
 </body>

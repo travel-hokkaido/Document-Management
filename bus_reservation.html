@@ -422,7 +422,7 @@
       padding: 0;
       margin: 0;
     }
-    .toolbar, .add-row-section, .btn-remove, .no-print, #loadOverlay, #pageCountBadge, .combo-arrow, .page-break-line {
+    .toolbar, .add-row-section, .btn-remove, .no-print, #loadOverlay, #pageCountBadge, #customPopup, .combo-arrow, .page-break-line {
       display: none !important;
     }
     .page {
@@ -524,9 +524,97 @@
     margin-right: 8px;
   }
   .save-msg.show { opacity: 1; }
+
+  /* Custom popup */
+  .custom-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    animation: popupFadeIn 0.15s ease;
+  }
+  .custom-popup-overlay.show { display: flex; }
+  @keyframes popupFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popupSlideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .custom-popup-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 32px 20px;
+    min-width: 340px;
+    max-width: 440px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    font-family: var(--font-main);
+    animation: popupSlideIn 0.2s ease;
+  }
+  .custom-popup-msg {
+    font-size: 15px;
+    color: #222;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .custom-popup-input {
+    width: 100%;
+    font-family: var(--font-main);
+    font-size: 15px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    outline: none;
+    text-align: left;
+  }
+  .custom-popup-input:focus { border-color: #2980b9; box-shadow: 0 0 0 2px rgba(41,128,185,0.15); }
+  .custom-popup-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .custom-popup-btns button {
+    font-family: var(--font-main);
+    font-size: 14px;
+    padding: 8px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.15s;
+  }
+  .custom-popup-cancel {
+    background: #eee;
+    color: #333;
+    border: 1px solid #ccc !important;
+  }
+  .custom-popup-cancel:hover { background: #ddd; }
+  .custom-popup-ok {
+    background: #2980b9;
+    color: #fff;
+  }
+  .custom-popup-ok:hover { background: #1f6da0; }
+  .custom-popup-ok.danger {
+    background: #c0392b;
+  }
+  .custom-popup-ok.danger:hover { background: #a93226; }
 </style>
 </head>
 <body>
+
+<!-- Custom popup -->
+<div class="custom-popup-overlay" id="customPopup">
+  <div class="custom-popup-box">
+    <div class="custom-popup-msg" id="customPopupMsg"></div>
+    <input type="text" class="custom-popup-input" id="customPopupInput" style="display:none;">
+    <div class="custom-popup-btns">
+      <button class="custom-popup-cancel" id="customPopupCancel">キャンセル</button>
+      <button class="custom-popup-ok" id="customPopupOk">OK</button>
+    </div>
+  </div>
+</div>
 
 <div class="toolbar no-print" style="justify-content: space-between;">
   <a href="index.html" style="font-family:var(--font-main); font-size:14px; padding:8px 20px; background:#444; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">🏠 ホーム</a>
@@ -785,6 +873,60 @@
 var STOPS_PER_DAY = 3;
 var dayBlocks = [];
 var dayBlockIdCounter = 0;
+var AUTOSAVE_KEY = 'bus_form__autosave';
+
+// Custom popup functions
+function customConfirm(message, isDanger) {
+  return new Promise(function(resolve) {
+    var overlay = document.getElementById('customPopup');
+    var msgEl = document.getElementById('customPopupMsg');
+    var inputEl = document.getElementById('customPopupInput');
+    var okBtn = document.getElementById('customPopupOk');
+    var cancelBtn = document.getElementById('customPopupCancel');
+    msgEl.textContent = message;
+    inputEl.style.display = 'none';
+    inputEl.value = '';
+    okBtn.textContent = 'OK';
+    if (isDanger) { okBtn.classList.add('danger'); } else { okBtn.classList.remove('danger'); }
+    overlay.classList.add('show');
+    function cleanup() {
+      overlay.classList.remove('show');
+      okBtn.onclick = null;
+      cancelBtn.onclick = null;
+    }
+    okBtn.onclick = function() { cleanup(); resolve(true); };
+    cancelBtn.onclick = function() { cleanup(); resolve(false); };
+    overlay.onclick = function(e) { if (e.target === overlay) { cleanup(); resolve(false); } };
+  });
+}
+
+function customPrompt(message, defaultVal) {
+  return new Promise(function(resolve) {
+    var overlay = document.getElementById('customPopup');
+    var msgEl = document.getElementById('customPopupMsg');
+    var inputEl = document.getElementById('customPopupInput');
+    var okBtn = document.getElementById('customPopupOk');
+    var cancelBtn = document.getElementById('customPopupCancel');
+    msgEl.textContent = message;
+    inputEl.style.display = '';
+    inputEl.value = defaultVal || '';
+    okBtn.textContent = '保存';
+    okBtn.classList.remove('danger');
+    overlay.classList.add('show');
+    setTimeout(function() { inputEl.focus(); inputEl.select(); }, 50);
+    function cleanup() {
+      overlay.classList.remove('show');
+      okBtn.onclick = null;
+      cancelBtn.onclick = null;
+      overlay.onclick = null;
+      inputEl.onkeydown = null;
+    }
+    okBtn.onclick = function() { var v = inputEl.value; cleanup(); resolve(v || null); };
+    cancelBtn.onclick = function() { cleanup(); resolve(null); };
+    overlay.onclick = function(e) { if (e.target === overlay) { cleanup(); resolve(null); } };
+    inputEl.onkeydown = function(e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); var v = inputEl.value; cleanup(); resolve(v || null); } };
+  });
+}
 
 function initItinerary() {
   const tbody = document.getElementById('itineraryBody');
@@ -952,27 +1094,29 @@ function removeLastDayBlock() {
 }
 
 function clearForm() {
-  if (!confirm('フォームの内容をすべてクリアしますか？')) return;
-  clearAutoSave();
-  const inputs = document.querySelectorAll('input[type="text"], textarea');
-  inputs.forEach(inp => {
-    if (inp.id === 'personInCharge') {
-      inp.value = 'ユーミン';
-    } else if (inp.id === 'greetingText') {
-      inp.value = 'いつもお世話になっております。\n下記内容にて車両お手配をお願いいたします。';
-    } else if (inp.id === 'plateName') {
-      inp.value = '同上';
-    } else if (inp.id === 'companyName') {
-      inp.value = '株式会社トラベル北海道';
-    } else {
-      inp.value = '';
-    }
+  customConfirm('フォームの内容をすべてクリアしますか？', true).then(function(ok) {
+    if (!ok) return;
+    clearAutoSave();
+    const inputs = document.querySelectorAll('input[type="text"], textarea');
+    inputs.forEach(inp => {
+      if (inp.id === 'personInCharge') {
+        inp.value = 'ユーミン';
+      } else if (inp.id === 'greetingText') {
+        inp.value = 'いつもお世話になっております。\n下記内容にて車両お手配をお願いいたします。';
+      } else if (inp.id === 'plateName') {
+        inp.value = '同上';
+      } else if (inp.id === 'companyName') {
+        inp.value = '株式会社トラベル北海道';
+      } else {
+        inp.value = '';
+      }
+    });
+    document.getElementById('docType').value = '新規予約依頼書';
+    document.getElementById('vehicleType').value = '大型バス';
+    document.getElementById('paymentMethod').value = '振込';
+    STOPS_PER_DAY = 3;
+    initItinerary();
   });
-  document.getElementById('docType').value = '新規予約依頼書';
-  document.getElementById('vehicleType').value = '大型バス';
-  document.getElementById('paymentMethod').value = '振込';
-  STOPS_PER_DAY = 3;
-  initItinerary();
 }
 
 // Auto-calculate total
@@ -1184,7 +1328,6 @@ setTimeout(updatePageDisplay, 200);
 
 // === Save / Load / Export / Import ===
 var STORAGE_PREFIX = 'bus_form_';
-var AUTOSAVE_KEY = 'bus_form__autosave';
 
 function autoSaveForm() {
   try {
@@ -1282,16 +1425,17 @@ function saveForm() {
     var group = data.groupName || '';
     var date = data.useDate || '';
     var label = (group || '新規') + '　' + date;
-    var slotName = prompt('保存名を入力してください', label);
-    if (!slotName) return;
-    var key = STORAGE_PREFIX + slotName;
-    data._savedAt = new Date().toLocaleString('ja-JP');
-    data._label = slotName;
-    localStorage.setItem(key, JSON.stringify(data));
-    clearAutoSave();
-    var msg = document.getElementById('saveMsg');
-    msg.classList.add('show');
-    setTimeout(function() { msg.classList.remove('show'); }, 2000);
+    customPrompt('保存名を入力してください', label).then(function(slotName) {
+      if (!slotName) return;
+      var key = STORAGE_PREFIX + slotName;
+      data._savedAt = new Date().toLocaleString('ja-JP');
+      data._label = slotName;
+      localStorage.setItem(key, JSON.stringify(data));
+      clearAutoSave();
+      var msg = document.getElementById('saveMsg');
+      msg.classList.add('show');
+      setTimeout(function() { msg.classList.remove('show'); }, 2000);
+    });
   } catch(e) {}
 }
 
@@ -1307,9 +1451,11 @@ function loadSlot(key) {
 }
 
 function deleteSlot(key) {
-  if (!confirm('このデータを削除しますか？')) return;
-  localStorage.removeItem(key);
-  showLoadDialog();
+  customConfirm('このデータを削除しますか？', true).then(function(ok) {
+    if (!ok) return;
+    localStorage.removeItem(key);
+    showLoadDialog();
+  });
 }
 
 function showLoadDialog() {

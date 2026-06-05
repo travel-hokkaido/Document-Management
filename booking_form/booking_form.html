@@ -54,7 +54,37 @@
   .save-item .btn-item-load { color:#1a5276; border-color:#1a5276; }
   .save-item .btn-item-del { color:#c33; border-color:#c33; }
   .empty-msg { color:#999; text-align:center; padding:30px 0; font-size:14px; }
-  @media print { .modal-overlay { display:none !important; } }
+
+  .popup-overlay {
+    display:none; position:fixed; top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.45); z-index:300; align-items:center; justify-content:center;
+  }
+  .popup-overlay.open { display:flex; }
+  .popup-box {
+    background:#fff; border-radius:10px; box-shadow:0 8px 36px rgba(0,0,0,0.25);
+    width:380px; padding:28px 24px 20px; text-align:center; animation: popIn 0.18s ease;
+  }
+  @keyframes popIn { from { transform:scale(0.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .popup-icon { font-size:36px; margin-bottom:12px; }
+  .popup-msg { font-size:15px; color:#222; line-height:1.6; margin-bottom:20px; white-space:pre-wrap; }
+  .popup-input {
+    width:100%; padding:9px 12px; font-size:14px; font-family:inherit;
+    border:1.5px solid #bbb; border-radius:5px; margin-bottom:18px; outline:none;
+  }
+  .popup-input:focus { border-color:#2d5a27; }
+  .popup-btns { display:flex; gap:10px; justify-content:center; }
+  .popup-btn {
+    padding:8px 28px; font-size:14px; font-family:inherit; border-radius:5px;
+    cursor:pointer; border:1px solid #ccc; background:#f5f5f5; color:#333; min-width:90px;
+    transition: background 0.15s;
+  }
+  .popup-btn:hover { background:#eee; }
+  .popup-btn-ok { background:#2d5a27; color:#fff; border-color:#2d5a27; }
+  .popup-btn-ok:hover { background:#245020; }
+  .popup-btn-danger { background:#c33; color:#fff; border-color:#c33; }
+  .popup-btn-danger:hover { background:#a22; }
+
+  @media print { .modal-overlay, .popup-overlay { display:none !important; } }
 
   .tabs { max-width:210mm; margin:0 auto; display:flex; margin-bottom:-1px; position:relative; z-index:1; flex-wrap:wrap; }
   .tab {
@@ -173,7 +203,7 @@
     </tr>
   </table>
 
-  <!-- ===== レストラン / アクティビティ ===== -->
+  <!-- ===== レストラン ===== -->
   <div class="type-section show" id="sec_restaurant">
     <table class="ft">
       <tr>
@@ -185,7 +215,7 @@
     </table>
     <table class="ft">
       <tr>
-        <th id="contentLabel" style="vertical-align:middle;">内容</th>
+        <th style="vertical-align:middle;">内容</th>
         <td><textarea class="e" rows="5" placeholder="食事×4名（大人2名＋子供2名　16歳、12歳）&#10;コース名・メニュー・体験内容の詳細など" data-f="content" style="min-height:80px;"></textarea></td>
       </tr>
     </table>
@@ -200,7 +230,36 @@
         </td>
       </tr>
     </table>
-    <table class="ft" id="actTable" style="display:none;">
+  </div>
+
+  <!-- ===== アクティビティ ===== -->
+  <div class="type-section" id="sec_activity">
+    <table class="ft">
+      <tr>
+        <th>日付</th>
+        <td><input class="e" type="date" data-f="act_date" style="font-weight:600;"></td>
+        <th style="width:75px;">希望時間</th>
+        <td style="width:160px;"><input class="e" type="time" data-f="act_time" style="font-size:16px;font-weight:700;"></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th style="vertical-align:middle;">体験内容</th>
+        <td><textarea class="e" rows="3" placeholder="体験名・コース・内容の詳細など" data-f="act_content" style="min-height:50px;"></textarea></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>人数</th>
+        <td style="width:80px;text-align:center;"><input class="e" id="actTotalPeople" readonly style="text-align:center;font-size:18px;font-weight:700;background:#f5f5f5;" data-f="act_total"></td>
+        <td>
+          大人 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="act_adults" oninput="calcActTotal()"> 名
+          ＋ 子供 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="act_children" oninput="calcActTotal(); updateActAges()"> 名
+          <span id="actChildAges" style="margin-left:8px;"></span>
+        </td>
+      </tr>
+    </table>
+    <table class="ft">
       <tr>
         <th>集合場所</th>
         <td><input class="e" placeholder="集合場所" data-f="meeting"></td>
@@ -309,8 +368,98 @@
   </table>
 </div>
 
+<!-- Custom Popup -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <div class="popup-icon" id="popupIcon"></div>
+    <div class="popup-msg" id="popupMsg"></div>
+    <input class="popup-input" id="popupInput" style="display:none;" />
+    <div class="popup-btns" id="popupBtns"></div>
+  </div>
+</div>
+
 <script>
+// --- Custom Popup System ---
+var _popupResolve = null;
+
+function showPopup(opts) {
+  var overlay = document.getElementById('popupOverlay');
+  var icon = document.getElementById('popupIcon');
+  var msg = document.getElementById('popupMsg');
+  var input = document.getElementById('popupInput');
+  var btns = document.getElementById('popupBtns');
+
+  icon.textContent = opts.icon || '';
+  msg.textContent = opts.message || '';
+  input.style.display = opts.showInput ? '' : 'none';
+  input.value = opts.inputValue || '';
+  btns.innerHTML = '';
+
+  if (opts.showInput) {
+    setTimeout(function() { input.focus(); input.select(); }, 80);
+  }
+
+  opts.buttons.forEach(function(b) {
+    var btn = document.createElement('button');
+    btn.className = 'popup-btn' + (b.cls ? ' ' + b.cls : '');
+    btn.textContent = b.label;
+    btn.onclick = function() {
+      overlay.classList.remove('open');
+      if (_popupResolve) _popupResolve(b.value === '_input' ? input.value : b.value);
+      _popupResolve = null;
+    };
+    btns.appendChild(btn);
+  });
+
+  // Enter key support for prompt input
+  input.onkeydown = function(e) {
+    if (e.key === 'Enter') {
+      overlay.classList.remove('open');
+      if (_popupResolve) _popupResolve(input.value);
+      _popupResolve = null;
+    }
+  };
+
+  overlay.classList.add('open');
+
+  return new Promise(function(resolve) { _popupResolve = resolve; });
+}
+
+function customAlert(message) {
+  return showPopup({
+    icon: '✅',
+    message: message,
+    buttons: [{ label: 'OK', value: true, cls: 'popup-btn-ok' }]
+  });
+}
+
+function customConfirm(message, danger) {
+  return showPopup({
+    icon: danger ? '⚠️' : '❓',
+    message: message,
+    buttons: [
+      { label: 'キャンセル', value: false },
+      { label: 'OK', value: true, cls: danger ? 'popup-btn-danger' : 'popup-btn-ok' }
+    ]
+  });
+}
+
+function customPrompt(message, defaultValue) {
+  return showPopup({
+    icon: '✏️',
+    message: message,
+    showInput: true,
+    inputValue: defaultValue || '',
+    buttons: [
+      { label: 'キャンセル', value: null },
+      { label: 'OK', value: '_input', cls: 'popup-btn-ok' }
+    ]
+  });
+}
+
+// --- App Logic ---
 var currentType = 'restaurant';
+var DRAFT_KEY = 'travelhokkaido_draft';
 
 function autoResize(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
 document.querySelectorAll('textarea.e').forEach(function(ta) {
@@ -322,6 +471,12 @@ function calcTotal() {
   var a = parseInt(document.querySelector('[data-f="adults"]').value) || 0;
   var c = parseInt(document.querySelector('[data-f="children"]').value) || 0;
   document.getElementById('totalPeople').value = a + c || '';
+}
+
+function calcActTotal() {
+  var a = parseInt(document.querySelector('[data-f="act_adults"]').value) || 0;
+  var c = parseInt(document.querySelector('[data-f="act_children"]').value) || 0;
+  document.getElementById('actTotalPeople').value = a + c || '';
 }
 
 function updateAges() {
@@ -337,6 +492,27 @@ function updateAges() {
       var inp = document.createElement('input');
       inp.className = 'e';
       inp.style.cssText = 'width:36px;display:inline;text-align:center;font-size:13px;border-bottom:1px solid #999;';
+      inp.addEventListener('input', function() { saveDraft(); });
+      box.appendChild(inp);
+      box.appendChild(document.createTextNode(i < n-1 ? '歳、' : '歳）'));
+    }
+  }
+}
+
+function updateActAges() {
+  var n = parseInt(document.querySelector('[data-f="act_children"]').value) || 0;
+  var box = document.getElementById('actChildAges');
+  box.innerHTML = '';
+  if (n > 0 && n <= 10) {
+    var sp = document.createElement('span');
+    sp.style.cssText = 'font-size:13px;color:#333;';
+    sp.textContent = '（年齢：';
+    box.appendChild(sp);
+    for (var i = 0; i < n; i++) {
+      var inp = document.createElement('input');
+      inp.className = 'e';
+      inp.style.cssText = 'width:36px;display:inline;text-align:center;font-size:13px;border-bottom:1px solid #999;';
+      inp.addEventListener('input', function() { saveDraft(); });
       box.appendChild(inp);
       box.appendChild(document.createTextNode(i < n-1 ? '歳、' : '歳）'));
     }
@@ -348,21 +524,16 @@ function switchType(type, btn) {
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   btn.classList.add('active');
 
-  // hide all sections
   document.querySelectorAll('.type-section').forEach(function(s) { s.classList.remove('show'); });
 
   var title = document.getElementById('docTitle');
   var guestLabel = document.getElementById('guestLabel');
-  var actTable = document.getElementById('actTable');
-  var contentLabel = document.getElementById('contentLabel');
-  var content = document.querySelector('[data-f="content"]');
   var feeLabel = document.getElementById('feeLabel');
 
   var nationTh = document.getElementById('nationTh');
   var nationTd = document.getElementById('nationTd');
   var guestTd = document.getElementById('guestTd');
 
-  actTable.style.display = 'none';
   feeLabel.textContent = '手数料';
   nationTh.style.display = '';
   nationTd.style.display = '';
@@ -372,18 +543,11 @@ function switchType(type, btn) {
     document.getElementById('sec_restaurant').classList.add('show');
     title.textContent = '【予約依頼書】';
     guestLabel.textContent = '予約名';
-    contentLabel.textContent = '内容';
-    content.rows = 5; content.style.minHeight = '80px';
-    content.placeholder = '食事×4名（大人2名＋子供2名　16歳、12歳）\nコース名・メニュー・体験内容の詳細など';
     document.querySelector('[data-f="pay"]').value = '振込';
   } else if (type === 'activity') {
-    document.getElementById('sec_restaurant').classList.add('show');
-    actTable.style.display = '';
+    document.getElementById('sec_activity').classList.add('show');
     title.textContent = '【予約依頼書】';
     guestLabel.textContent = '予約名';
-    contentLabel.textContent = '体験内容';
-    content.rows = 3; content.style.minHeight = '50px';
-    content.placeholder = '体験名・コース・内容の詳細など';
     document.querySelector('[data-f="pay"]').value = '振込';
   } else if (type === 'staff_hotel') {
     document.getElementById('sec_staff_hotel').classList.add('show');
@@ -401,23 +565,27 @@ function switchType(type, btn) {
     document.querySelector('[data-f="pay"]').value = '振込';
   }
 
-  if (content) autoResize(content);
   document.querySelectorAll('.type-section.show textarea.e').forEach(function(ta) { autoResize(ta); });
+  saveDraft();
 }
 
 function clearForm() {
-  if (!confirm('入力内容をすべてクリアしますか？')) return;
-  document.querySelectorAll('input.e, textarea.e').forEach(function(el) {
-    var f = el.dataset.f;
-    if (f === 'sender') el.value = '株式会社トラベル北海道';
-    else if (f === 'sender_tel') el.value = 'TEL：011-312-3913';
-    else if (f === 'sender_fax') el.value = 'FAX：011-351-2945';
-    else if (f === 'staff_tel') el.value = '011-312-3913';
-    else if (f === 'pay') el.value = currentType === 'staff_hotel' || currentType === 'guest_hotel' ? '振込' : '現地';
-    else if (f === 'total') el.value = '';
-    else el.value = '';
+  customConfirm('入力内容をすべてクリアしますか？', true).then(function(ok) {
+    if (!ok) return;
+    document.querySelectorAll('input.e, textarea.e').forEach(function(el) {
+      var f = el.dataset.f;
+      if (f === 'sender') el.value = '株式会社トラベル北海道';
+      else if (f === 'sender_tel') el.value = 'TEL：011-312-3913';
+      else if (f === 'sender_fax') el.value = 'FAX：011-351-2945';
+      else if (f === 'staff_tel') el.value = '011-312-3913';
+      else if (f === 'pay') el.value = currentType === 'staff_hotel' || currentType === 'guest_hotel' ? '振込' : '現地';
+      else if (f === 'total' || f === 'act_total') el.value = '';
+      else el.value = '';
+    });
+    document.getElementById('childAges').innerHTML = '';
+    document.getElementById('actChildAges').innerHTML = '';
+    clearDraft();
   });
-  document.getElementById('childAges').innerHTML = '';
 }
 
 // --- Save/Load ---
@@ -429,6 +597,16 @@ function collectFormData() {
   var data = {};
   document.querySelectorAll('[data-f]').forEach(function(el) { data[el.dataset.f] = el.value; });
   data._type = currentType;
+  var ageInputs = document.querySelectorAll('#childAges input');
+  if (ageInputs.length > 0) {
+    data._childAges = [];
+    ageInputs.forEach(function(inp) { data._childAges.push(inp.value); });
+  }
+  var actAgeInputs = document.querySelectorAll('#actChildAges input');
+  if (actAgeInputs.length > 0) {
+    data._actChildAges = [];
+    actAgeInputs.forEach(function(inp) { data._actChildAges.push(inp.value); });
+  }
   return data;
 }
 
@@ -438,13 +616,15 @@ function saveForm() {
   var receiver = data.receiver || '';
   var typeName = {restaurant:'レストラン',activity:'アクティビティ',staff_hotel:'スタッフ宿泊',guest_hotel:'ホテル'}[currentType];
   var label = '[' + typeName + '] ' + guest + (receiver ? ' → ' + receiver : '');
-  var name = prompt('保存名を入力してください：', label);
-  if (name === null) return;
-  if (!name.trim()) name = label;
-  var list = getSaves();
-  list.unshift({ name: name, date: new Date().toLocaleString('ja-JP'), data: data });
-  putSaves(list);
-  alert('保存しました：' + name);
+  customPrompt('保存名を入力してください：', label).then(function(name) {
+    if (name === null) return;
+    if (!name.trim()) name = label;
+    var list = getSaves();
+    list.unshift({ name: name, date: new Date().toLocaleString('ja-JP'), data: data });
+    putSaves(list);
+    clearDraft();
+    customAlert('保存しました：' + name);
+  });
 }
 
 function loadFormData(data) {
@@ -456,7 +636,23 @@ function loadFormData(data) {
     if (data[el.dataset.f] !== undefined) el.value = data[el.dataset.f];
   });
   calcTotal();
+  calcActTotal();
+  updateAges();
+  updateActAges();
+  if (data._childAges && data._childAges.length > 0) {
+    var ageInputs = document.querySelectorAll('#childAges input');
+    data._childAges.forEach(function(v, i) {
+      if (ageInputs[i]) ageInputs[i].value = v;
+    });
+  }
+  if (data._actChildAges && data._actChildAges.length > 0) {
+    var actAgeInputs = document.querySelectorAll('#actChildAges input');
+    data._actChildAges.forEach(function(v, i) {
+      if (actAgeInputs[i]) actAgeInputs[i].value = v;
+    });
+  }
   document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
+  saveDraft();
 }
 
 function openLoadModal() {
@@ -485,8 +681,11 @@ function openLoadModal() {
     });
     body.querySelectorAll('.btn-item-del').forEach(function(btn) {
       btn.onclick = function() {
-        if (!confirm('この保存データを削除しますか？')) return;
-        var list = getSaves(); list.splice(parseInt(this.dataset.i), 1); putSaves(list); openLoadModal();
+        var idx = parseInt(this.dataset.i);
+        customConfirm('この保存データを削除しますか？', true).then(function(ok) {
+          if (!ok) return;
+          var list = getSaves(); list.splice(idx, 1); putSaves(list); openLoadModal();
+        });
       };
     });
   }
@@ -494,6 +693,57 @@ function openLoadModal() {
 }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 function escHtml(s) { var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+// --- Draft auto-save/restore ---
+function saveDraft() {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(collectFormData())); } catch(e) {}
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
+function loadDraft() {
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return;
+    var type = data._type || 'restaurant';
+    var tabs = document.querySelectorAll('.tab');
+    var idx = {restaurant:0, activity:1, staff_hotel:2, guest_hotel:3}[type] || 0;
+    switchType(type, tabs[idx]);
+    document.querySelectorAll('[data-f]').forEach(function(el) {
+      if (data[el.dataset.f] !== undefined) el.value = data[el.dataset.f];
+    });
+    calcTotal();
+    calcActTotal();
+    updateAges();
+    updateActAges();
+    if (data._childAges && data._childAges.length > 0) {
+      var ageInputs = document.querySelectorAll('#childAges input');
+      data._childAges.forEach(function(v, i) {
+        if (ageInputs[i]) ageInputs[i].value = v;
+      });
+    }
+    if (data._actChildAges && data._actChildAges.length > 0) {
+      var actAgeInputs = document.querySelectorAll('#actChildAges input');
+      data._actChildAges.forEach(function(v, i) {
+        if (actAgeInputs[i]) actAgeInputs[i].value = v;
+      });
+    }
+    document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
+  } catch(e) {}
+}
+
+// Auto-save on every input change
+document.querySelectorAll('input.e, textarea.e').forEach(function(el) {
+  el.addEventListener('input', function() { saveDraft(); });
+  el.addEventListener('change', function() { saveDraft(); });
+});
+
+// Restore draft on page load
+loadDraft();
 </script>
 
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">

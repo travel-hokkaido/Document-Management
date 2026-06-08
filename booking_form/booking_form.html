@@ -168,7 +168,7 @@
     <div class="header-logo"><img src="images/white_logo_transparent.png" alt="Travel Hokkaido" style="width:130px;height:auto;"></div>
   </div>
 
-  <div class="doc-title" id="docTitle">【予約依頼書】</div>
+  <div class="doc-title"><input class="e" data-f="doc_title" value="【新規予約依頼書】" style="text-align:center;font-size:22px;font-weight:700;letter-spacing:0.25em;"></div>
 
   <!-- 発信者・受信 (common) -->
   <table class="ft">
@@ -461,6 +461,26 @@ function customPrompt(message, defaultValue) {
 var currentType = 'restaurant';
 var DRAFT_KEY = 'travelhokkaido_draft';
 
+var commonFields = ['doc_title','sender','sender_tel','sender_fax','receiver','receiver_fax','guest','nation','staff','staff_tel','message','fee','pay','remarks'];
+var commonDefaults = {};
+commonFields.forEach(function(f) {
+  var el = document.querySelector('[data-f="' + f + '"]');
+  if (el) commonDefaults[f] = el.value;
+});
+function copyObj(o) { var r = {}; for (var k in o) if (o.hasOwnProperty(k)) r[k] = o[k]; return r; }
+var perTypeData = { restaurant: null, activity: copyObj(commonDefaults), staff_hotel: copyObj(commonDefaults), guest_hotel: copyObj(commonDefaults) };
+
+function saveCommonFields(type) {
+  var d = {};
+  commonFields.forEach(function(f) { var el = document.querySelector('[data-f="' + f + '"]'); if (el) d[f] = el.value; });
+  perTypeData[type] = d;
+}
+function restoreCommonFields(type) {
+  var d = perTypeData[type];
+  if (!d) return;
+  commonFields.forEach(function(f) { var el = document.querySelector('[data-f="' + f + '"]'); if (el && d[f] !== undefined) el.value = d[f]; });
+}
+
 function autoResize(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
 document.querySelectorAll('textarea.e').forEach(function(ta) {
   ta.addEventListener('input', function() { autoResize(this); });
@@ -520,13 +540,13 @@ function updateActAges() {
 }
 
 function switchType(type, btn) {
+  saveCommonFields(currentType);
   currentType = type;
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   btn.classList.add('active');
 
   document.querySelectorAll('.type-section').forEach(function(s) { s.classList.remove('show'); });
 
-  var title = document.getElementById('docTitle');
   var guestLabel = document.getElementById('guestLabel');
   var feeLabel = document.getElementById('feeLabel');
 
@@ -541,17 +561,14 @@ function switchType(type, btn) {
 
   if (type === 'restaurant') {
     document.getElementById('sec_restaurant').classList.add('show');
-    title.textContent = '【予約依頼書】';
     guestLabel.textContent = '予約名';
     document.querySelector('[data-f="pay"]').value = '振込';
   } else if (type === 'activity') {
     document.getElementById('sec_activity').classList.add('show');
-    title.textContent = '【予約依頼書】';
     guestLabel.textContent = '予約名';
     document.querySelector('[data-f="pay"]').value = '振込';
   } else if (type === 'staff_hotel') {
     document.getElementById('sec_staff_hotel').classList.add('show');
-    title.textContent = '【新規予約依頼書】';
     guestLabel.textContent = '予約名';
     document.querySelector('[data-f="pay"]').value = '振込';
     nationTh.style.display = 'none';
@@ -559,13 +576,13 @@ function switchType(type, btn) {
     guestTd.colSpan = 3;
   } else if (type === 'guest_hotel') {
     document.getElementById('sec_guest_hotel').classList.add('show');
-    title.textContent = '【新規予約依頼書】';
     guestLabel.textContent = '団体名';
     feeLabel.textContent = '手数料%';
     document.querySelector('[data-f="pay"]').value = '振込';
   }
 
-  document.querySelectorAll('.type-section.show textarea.e').forEach(function(ta) { autoResize(ta); });
+  restoreCommonFields(type);
+  document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
   saveDraft();
 }
 
@@ -574,7 +591,8 @@ function clearForm() {
     if (!ok) return;
     document.querySelectorAll('input.e, textarea.e').forEach(function(el) {
       var f = el.dataset.f;
-      if (f === 'sender') el.value = '株式会社トラベル北海道';
+      if (f === 'doc_title') el.value = '【新規予約依頼書】';
+      else if (f === 'sender') el.value = '株式会社トラベル北海道';
       else if (f === 'sender_tel') el.value = 'TEL：011-312-3913';
       else if (f === 'sender_fax') el.value = 'FAX：011-351-2945';
       else if (f === 'staff_tel') el.value = '011-312-3913';
@@ -652,6 +670,7 @@ function loadFormData(data) {
     });
   }
   document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
+  saveCommonFields(currentType);
   saveDraft();
 }
 
@@ -733,6 +752,8 @@ function loadDraft() {
       });
     }
     document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
+    saveCommonFields(currentType);
+    saveDraft();
   } catch(e) {}
 }
 

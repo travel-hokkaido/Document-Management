@@ -653,88 +653,6 @@
 
   .pdf-btn:hover { background: #1d4ed8; }
 
-  .preview-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: white;
-    background: #6366f1;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.15s;
-  }
-
-  .preview-btn:hover { background: #4f46e5; }
-
-  .preview-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: #555;
-    z-index: 3000;
-    overflow-y: auto;
-    padding: 32px;
-  }
-
-  .preview-overlay.show { display: block; }
-
-  .preview-close {
-    position: fixed;
-    top: 16px;
-    right: 24px;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 18px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    z-index: 3001;
-    transition: background 0.15s;
-  }
-
-  .preview-close:hover { background: rgba(0,0,0,0.8); }
-
-  .a4-frame {
-    width: 210mm;
-    min-height: 297mm;
-    background: white;
-    margin: 0 auto;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-    padding: 20mm;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-
-  .a4-frame .top-bar,
-  .a4-frame .reset-bar,
-  .a4-frame .add-row-btn,
-  .a4-frame .add-stop-btn,
-  .a4-frame .add-day-btn,
-  .a4-frame .delete-btn,
-  .a4-frame .logo-placeholder,
-  .a4-frame .logo-remove { display: none !important; }
-
-  .a4-frame .service-tags { display: none !important; }
-  .a4-frame #addSectionBtn { display: none !important; }
-  .a4-frame .schedule-section .schedule-title-wrap > .delete-btn { display: none !important; }
-  .a4-frame .schedule-section { border-bottom: none; }
-  .a4-frame .schedule-title-text { cursor: default; }
-  .a4-frame .schedule-title-text:hover { background: transparent; }
-
-  .a4-frame .day-date::after { display: none !important; }
-  .a4-frame .day-date { cursor: default; }
-  .a4-frame .day-date:hover { background: transparent; }
-  .a4-frame .period-date { cursor: default; }
-  .a4-frame .period-date:hover { background: transparent; }
-
-  .a4-frame .page { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
-
   .load-btn {
     display: inline-flex;
     align-items: center;
@@ -846,7 +764,6 @@
     padding: 32px 0;
   }
 
-  /* Custom Confirm / Alert Dialog */
   .dialog-overlay {
     display: none;
     position: fixed;
@@ -976,7 +893,6 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  /* === Custom Calendar === */
   .calendar-popup {
     display: none;
     position: fixed;
@@ -1159,22 +1075,14 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       <span data-i18n="loadBtn">保存一覧</span>
     </button>
-    <button class="preview-btn" onclick="openPreview()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      <span data-i18n="previewBtn">A4 Preview</span>
-    </button>
     <button class="pdf-btn" onclick="window.print()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       <span data-i18n="pdfBtn">PDFで保存</span>
     </button>
     <div class="toolbar-spacer"></div>
-    <button class="reset-btn" onclick="resetBooking()">
+    <button class="reset-btn" onclick="resetAll()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
-      <span data-i18n="resetBookingBtn">予約情報をリセット</span>
-    </button>
-    <button class="reset-btn" onclick="resetDefaults()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 3 6.7"/><polyline points="3 22 3 16 9 16"/></svg>
-      <span data-i18n="resetDefaultBtn">基本情報をリセット</span>
+      <span data-i18n="resetAllBtn">リセット</span>
     </button>
   </div>
 
@@ -1301,11 +1209,6 @@
 
 <div class="save-toast" id="saveToast" data-i18n="toastMsg">保存しました</div>
 
-<div class="preview-overlay" id="previewOverlay">
-  <button class="preview-close" onclick="closePreview()" data-i18n="previewClose">✕ 閉じる</button>
-  <div class="a4-frame" id="a4Frame"></div>
-</div>
-
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeSavedList()">
   <div class="modal">
     <div class="modal-header">
@@ -1318,7 +1221,6 @@
   </div>
 </div>
 
-<!-- Custom Calendar Popup -->
 <div class="calendar-popup" id="calendarPopup">
   <div class="cal-header">
     <button class="cal-nav" onclick="calPrev()">‹</button>
@@ -1329,7 +1231,6 @@
   <button class="cal-today-btn" id="calTodayBtn" onclick="calGoToday()">Today</button>
 </div>
 
-<!-- Custom Dialog -->
 <div class="dialog-overlay" id="dialogOverlay">
   <div class="dialog-box">
     <div class="dialog-body">
@@ -1366,15 +1267,14 @@ var T = {
     timingTh: '時期',
     refundTh: '返金率',
     addRow: '＋ 行を追加',
-    previewBtn: 'A4 Preview',
+
     pdfBtn: 'PDFで保存',
     saveBtn: '保存',
     savedBtn: '保存済み',
     loadBtn: '保存一覧',
-    resetBookingBtn: '予約情報をリセット',
-    resetDefaultBtn: '基本情報をリセット',
+    resetAllBtn: 'リセット',
     toastMsg: '保存しました',
-    previewClose: '✕ 閉じる',
+
     modalTitle: '保存一覧',
     emptyMsg: '保存されたデータはありません',
     companyName: '株式会社トラベル北海道',
@@ -1415,8 +1315,7 @@ var T = {
     cancel5t: '3日前〜当日', cancel5r: '返金不可',
     footerEmail: 'info@yourtravelhokkaido.com',
     footerMsg: 'ご不明点がございましたらお気軽にお問い合わせください。',
-    confirmResetBooking: '予約情報（お客様名・利用期間・車両・人数・宿泊先・スケジュール）をリセットしますか？',
-    confirmResetDefaults: '確認事項・キャンセルポリシー・会社情報を初期値にリセットしますか？',
+    confirmResetAll: 'すべての情報を初期状態にリセットしますか？',
     confirmDeleteItem: 'この保存データを削除しますか？',
     saveFailed: '保存に失敗しました。',
     defaultUnnamed: '無名',
@@ -1446,15 +1345,14 @@ var T = {
     timingTh: 'Timing',
     refundTh: 'Refund',
     addRow: '+ Add Row',
-    previewBtn: 'A4 Preview',
+
     pdfBtn: 'Save as PDF',
     saveBtn: 'Save',
     savedBtn: 'Saved',
     loadBtn: 'Saved List',
-    resetBookingBtn: 'Reset Booking Info',
-    resetDefaultBtn: 'Reset Default Info',
+    resetAllBtn: 'Reset',
     toastMsg: 'Saved successfully',
-    previewClose: '✕ Close',
+
     modalTitle: 'Saved List',
     emptyMsg: 'No saved data',
     companyName: 'Travel Hokkaido Co., Ltd.',
@@ -1495,8 +1393,7 @@ var T = {
     cancel5t: '3 days or less / Day of', cancel5r: 'Non-refundable',
     footerEmail: 'info@yourtravelhokkaido.com',
     footerMsg: "Please don't hesitate to contact us with any questions.",
-    confirmResetBooking: 'Reset booking info (client, period, vehicle, passengers, accommodation, schedule)?',
-    confirmResetDefaults: 'Reset Notes, Cancellation Policy & Company Info to defaults?',
+    confirmResetAll: 'Reset all information to defaults?',
     confirmDeleteItem: 'Delete this saved data?',
     saveFailed: 'Save failed.',
     defaultUnnamed: 'Unnamed',
@@ -1526,15 +1423,14 @@ var T = {
     timingTh: '시기',
     refundTh: '환불율',
     addRow: '+ 행 추가',
-    previewBtn: 'A4 미리보기',
+
     pdfBtn: 'PDF로 저장',
     saveBtn: '저장',
     savedBtn: '저장됨',
     loadBtn: '저장 목록',
-    resetBookingBtn: '예약 정보 리셋',
-    resetDefaultBtn: '기본 정보 리셋',
+    resetAllBtn: '리셋',
     toastMsg: '저장되었습니다',
-    previewClose: '✕ 닫기',
+
     modalTitle: '저장 목록',
     emptyMsg: '저장된 데이터가 없습니다',
     companyName: 'Travel Hokkaido Co., Ltd.',
@@ -1575,8 +1471,7 @@ var T = {
     cancel5t: '3일 전~당일', cancel5r: '환불 불가',
     footerEmail: 'info@yourtravelhokkaido.com',
     footerMsg: '궁금한 점이 있으시면 언제든지 문의해 주세요.',
-    confirmResetBooking: '예약 정보(고객명, 이용기간, 차량, 인원, 숙소, 일정)를 리셋하시겠습니까?',
-    confirmResetDefaults: '확인사항, 취소정책, 회사정보를 초기값으로 리셋하시겠습니까?',
+    confirmResetAll: '모든 정보를 초기 상태로 리셋하시겠습니까?',
     confirmDeleteItem: '이 저장 데이터를 삭제하시겠습니까?',
     saveFailed: '저장에 실패했습니다.',
     defaultUnnamed: '이름없음',
@@ -1624,7 +1519,6 @@ function switchLang(lang) {
   autoSave();
 }
 
-// --- Draft auto-save (per-language) ---
 var DRAFT_KEY_PREFIX = 'invoice_cheryl_draft_';
 var DRAFT_KEY_LEGACY = 'invoice_cheryl_draft';
 var STORAGE_KEY = 'invoice_cheryl_saves';
@@ -1653,6 +1547,15 @@ function loadLangDraft(lang) {
     document.querySelector('.page').innerHTML = raw;
   } else {
     document.querySelector('.page').innerHTML = _defaultPageHTML;
+  }
+  document.querySelectorAll('.preview-btn, .preview-overlay, .preview-close').forEach(function(el) { el.remove(); });
+  // Consolidate old dual reset buttons into single reset
+  var resetBtns = document.querySelectorAll('.reset-btn');
+  if (resetBtns.length > 1) {
+    for (var i = 1; i < resetBtns.length; i++) resetBtns[i].remove();
+    resetBtns[0].setAttribute('onclick', 'resetAll()');
+    var span = resetBtns[0].querySelector('span');
+    if (span) { span.setAttribute('data-i18n', 'resetAllBtn'); span.textContent = t('resetAllBtn'); }
   }
   migrateToolbar();
   migratePeriodField();
@@ -1689,7 +1592,6 @@ function loadDraft() {
   }
 }
 
-// --- Logo ---
 var LOGO_KEY = 'invoice_cheryl_logo';
 var DEFAULT_LOGO = 'https://lh3.googleusercontent.com/d/12xPAlTu5tSet4wDfa8V5tdNxhsmcQyUf';
 
@@ -1721,7 +1623,6 @@ function removeLogo(e) {
   setLogo(DEFAULT_LOGO);
 }
 
-// --- Row / Stop / Day manipulation ---
 function deleteRow(btn) { btn.closest('tr').remove(); }
 function deleteStop(btn) { btn.closest('li').remove(); }
 function deleteDay(btn) { btn.closest('.day-block').remove(); }
@@ -1790,7 +1691,6 @@ function deleteSection(btn) {
   autoSave();
 }
 
-// --- Service Type ---
 var SERVICE_TITLES = {
   bus:        { ja: 'バス利用スケジュール', en: 'Bus Schedule', ko: '버스 이용 일정' },
   hotel:      { ja: 'ホテル利用スケジュール', en: 'Hotel Schedule', ko: '호텔 이용 일정' },
@@ -1890,7 +1790,6 @@ function addScheduleSection() {
   autoSave();
 }
 
-// --- Custom Calendar ---
 var CAL_DOW = {
   ja: ['日','月','火','水','木','金','土'],
   en: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
@@ -1921,8 +1820,6 @@ function formatCalDate(year, month, day, lang) {
 }
 
 function openCalendar(el) {
-  if (el.closest('.a4-frame') || el.closest('.preview-overlay')) return;
-
   var popup = document.getElementById('calendarPopup');
   calState.targetEl = el;
 
@@ -2071,17 +1968,15 @@ function selectCalDate(y, m, d) {
   closeCalendar();
 }
 
-// Event delegation for day-date and period-date clicks
 document.addEventListener('click', function(e) {
   var dateEl = e.target.closest('.day-date') || e.target.closest('.period-date');
-  if (dateEl && !dateEl.closest('.a4-frame') && !dateEl.closest('.preview-overlay')) {
+  if (dateEl) {
     e.preventDefault();
     e.stopPropagation();
     openCalendar(dateEl);
   }
 });
 
-// --- Custom Dialog ---
 function showDialog(msg, opts) {
   var overlay = document.getElementById('dialogOverlay');
   var iconEl = document.getElementById('dialogIcon');
@@ -2127,10 +2022,10 @@ function showAlert(msg) {
   showDialog(msg, { alertOnly: true, icon: 'error' });
 }
 
-// --- Reset ---
-function resetBooking() {
-  showDialog(t('confirmResetBooking'), { icon: 'warn', onConfirm: function() {
+function resetAll() {
+  showDialog(t('confirmResetAll'), { icon: 'warn', onConfirm: function() {
 
+  // Booking info
   document.querySelector('.client-name').textContent = t('defaultClientName');
   var clientDivs = document.querySelectorAll('.client-info > div:not(.client-name)');
   if (clientDivs[0]) clientDivs[0].textContent = 'Name';
@@ -2156,14 +2051,7 @@ function resetBooking() {
   localStorage.removeItem(LOGO_KEY);
   setLogo(DEFAULT_LOGO);
 
-  clearDraft();
-
-  }});
-}
-
-function resetDefaults() {
-  showDialog(t('confirmResetDefaults'), { icon: 'warn', onConfirm: function() {
-
+  // Default info
   var ci = document.querySelector('.company-info');
   ci.querySelector('strong').textContent = t('companyName');
   var spans = ci.querySelectorAll(':scope > span[contenteditable]');
@@ -2192,7 +2080,6 @@ function resetDefaults() {
   }});
 }
 
-// --- Save / Load ---
 function getClientName() {
   return document.querySelector('.client-name')?.textContent?.trim() || t('defaultUnnamed');
 }
@@ -2262,23 +2149,6 @@ function deleteItem(id) {
   }});
 }
 
-// --- Preview ---
-function openPreview() {
-  var page = document.querySelector('.page');
-  var frame = document.getElementById('a4Frame');
-  frame.innerHTML = page.innerHTML;
-  frame.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
-  document.getElementById('previewOverlay').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-
-function closePreview() {
-  document.getElementById('previewOverlay').classList.remove('show');
-  document.body.style.overflow = '';
-}
-
-// --- Init ---
-// --- Migrate notes section (add button + delete buttons) ---
 function migrateNotes() {
   var section = document.querySelector('.notes-section');
   if (!section) return;
@@ -2361,6 +2231,34 @@ function translateDefaults() {
     });
   });
 
+  // --- FIX: Translate vehicle type and passenger fields ---
+  var infoCards = document.querySelectorAll('.info-card');
+  if (infoCards[1]) {
+    var vehicleVal = infoCards[1].querySelector('.info-card-value[contenteditable]');
+    if (vehicleVal) {
+      var cur = vehicleVal.textContent.trim();
+      if (T.ja.defaultVehicle === cur || T.en.defaultVehicle === cur || T.ko.defaultVehicle === cur) {
+        vehicleVal.textContent = t('defaultVehicle');
+      }
+    }
+  }
+  if (infoCards[2]) {
+    var passVal = infoCards[2].querySelector('.info-card-value[contenteditable]');
+    if (passVal) {
+      var cur = passVal.textContent.trim();
+      if (T.ja.defaultPassengers === cur || T.en.defaultPassengers === cur || T.ko.defaultPassengers === cur) {
+        passVal.textContent = t('defaultPassengers');
+      }
+    }
+    var detailDiv = infoCards[2].querySelector('div[style]');
+    if (detailDiv) {
+      var cur = detailDiv.textContent.trim();
+      if (T.ja.defaultPassengerDetail === cur || T.en.defaultPassengerDetail === cur || T.ko.defaultPassengerDetail === cur) {
+        detailDiv.textContent = t('defaultPassengerDetail');
+      }
+    }
+  }
+
   var addrKeys = ['companyAddr1','companyAddr2','companyAddr3','companyTel','companyEmailVal'];
   var addrSpans = document.querySelectorAll('.company-info > span[contenteditable]');
   addrSpans.forEach(function(span, i) {
@@ -2411,9 +2309,38 @@ function translateDefaults() {
       }
     }
   });
+
+  // --- Translate schedule section titles ---
+  document.querySelectorAll('.schedule-section').forEach(function(section) {
+    var titleEl = section.querySelector('.schedule-title-text');
+    if (!titleEl) return;
+    var cur = titleEl.textContent.trim();
+    Object.keys(SERVICE_TITLES).forEach(function(type) {
+      var titles = SERVICE_TITLES[type];
+      if (titles.ja === cur || titles.en === cur || titles.ko === cur) {
+        titleEl.textContent = titles[currentLang] || titles.ja;
+      }
+    });
+  });
+
+  // --- Translate pickup table default values ---
+  var pickupBody = document.querySelector('#pickupTable tbody');
+  if (pickupBody) {
+    pickupBody.querySelectorAll('tr').forEach(function(tr) {
+      var tds = tr.querySelectorAll('td[contenteditable]');
+      if (tds.length < 2) return;
+      var locText = tds[0].textContent.trim();
+      var addrText = tds[1].textContent.trim();
+      if (T.ja.defaultLocation === locText || T.en.defaultLocation === locText || T.ko.defaultLocation === locText) {
+        tds[0].textContent = t('defaultLocation');
+      }
+      if (T.ja.defaultAddress === addrText || T.en.defaultAddress === addrText || T.ko.defaultAddress === addrText) {
+        tds[1].textContent = t('defaultAddress');
+      }
+    });
+  }
 }
 
-// --- Migrate toolbar to top ---
 function migrateToolbar() {
   var page = document.querySelector('.page');
   var topBar = page.querySelector('.top-bar');
@@ -2435,13 +2362,11 @@ function migrateToolbar() {
 
   var saveBtn = bottomBar.querySelector('.save-btn');
   var loadBtn = bottomBar.querySelector('.load-btn');
-  var previewBtn = bottomBar.querySelector('.preview-btn');
   var pdfBtn = bottomBar.querySelector('.pdf-btn');
   var resetBtns = bottomBar.querySelectorAll('.reset-btn');
 
   if (saveBtn) newBar.appendChild(saveBtn);
   if (loadBtn) newBar.appendChild(loadBtn);
-  if (previewBtn) newBar.appendChild(previewBtn);
   if (pdfBtn) newBar.appendChild(pdfBtn);
 
   var spacer = document.createElement('div');
@@ -2454,7 +2379,6 @@ function migrateToolbar() {
   bottomBar.remove();
 }
 
-// --- Migrate old period field to new calendar structure ---
 function migratePeriodField() {
   if (document.getElementById('periodStart')) return;
   var cards = document.querySelectorAll('.info-card');
@@ -2541,6 +2465,16 @@ function migrateScheduleTitle() {
   if (savedLang && T[savedLang]) currentLang = savedLang;
 
   loadDraft();
+  // Remove leftover preview elements from cached drafts
+  document.querySelectorAll('.preview-btn, .preview-overlay, .preview-close').forEach(function(el) { el.remove(); });
+  // Consolidate old dual reset buttons into single reset
+  var resetBtns = document.querySelectorAll('.reset-btn');
+  if (resetBtns.length > 1) {
+    for (var i = 1; i < resetBtns.length; i++) resetBtns[i].remove();
+    resetBtns[0].setAttribute('onclick', 'resetAll()');
+    var span = resetBtns[0].querySelector('span');
+    if (span) { span.setAttribute('data-i18n', 'resetAllBtn'); span.textContent = t('resetAllBtn'); }
+  }
   migrateToolbar();
   migratePeriodField();
   migrateScheduleTitle();
@@ -2550,7 +2484,6 @@ function migrateScheduleTitle() {
 
   setLogo(localStorage.getItem(LOGO_KEY) || DEFAULT_LOGO);
 
-  // --- Placeholder behavior for contenteditable ---
   var placeholderKeys = [
     'defaultClientName','defaultPeriod','defaultVehicle','defaultPassengers','defaultPassengerDetail',
     'defaultLocation','defaultAddress','defaultTiming','defaultRefund','defaultDayDate',

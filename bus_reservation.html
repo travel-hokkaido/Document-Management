@@ -626,7 +626,7 @@
     <button class="btn-clear" onclick="clearForm()">クリア</button>
     <button class="btn-add" onclick="addItineraryRow()">＋ 日程を追加</button>
     <button class="btn-remove" onclick="removeLastDayBlock()">－ 日程を削除</button>
-    <button class="btn-print" onclick="window.print()">印刷 / FAX送信</button>
+    <button class="btn-print" onclick="printForm()">印刷 / FAX送信</button>
   </div>
 </div>
 
@@ -1591,6 +1591,126 @@ window.addEventListener('afterprint', function() {
   });
   savedRowspans = [];
 });
+
+function generatePdfFilename() {
+  var groupName = (document.getElementById('groupName').value || '').trim();
+  var recipientName = (document.getElementById('recipientName').value || '').trim();
+  var namePart = (groupName + ' ' + recipientName).trim();
+  var useDateVal = (document.getElementById('useDate').value || '').trim();
+
+  var yearMatch = useDateVal.match(/(\d{4})/);
+  var year = yearMatch ? yearMatch[1] : String(new Date().getFullYear());
+  var pad2 = function(n) { return String(n).padStart(2, '0'); };
+
+  var firstDate = useDateVal.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  var baseMonth = firstDate ? parseInt(firstDate[2]) : -1;
+
+  var dates = [];
+
+  function parseItem(item, lastMonth) {
+    item = item.trim();
+    var m;
+    m = item.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+    if (m) return { month: parseInt(m[2]), day: parseInt(m[3]) };
+    m = item.match(/(\d{1,2})\D+(\d{1,2})/);
+    if (m) return { month: parseInt(m[1]), day: parseInt(m[2]) };
+    m = item.match(/^(\d{2})(\d{2})$/);
+    if (m) return { month: parseInt(m[1]), day: parseInt(m[2]) };
+    m = item.match(/^(\d{1,2})$/);
+    if (m && lastMonth > 0) return { month: lastMonth, day: parseInt(m[1]) };
+    return null;
+  }
+
+  if (/[~〜]/.test(useDateVal)) {
+    var rangeParts = useDateVal.split(/[~〜]/);
+    if (firstDate) {
+      var startMonth = parseInt(firstDate[2]);
+      var startDay = parseInt(firstDate[3]);
+      var endPart = rangeParts[1].trim();
+      var endMonth = startMonth, endDay = startDay;
+      var em = endPart.match(/(\d{1,2})\D+(\d{1,2})/);
+      if (em) { endMonth = parseInt(em[1]); endDay = parseInt(em[2]); }
+      else { em = endPart.match(/(\d{1,2})/); if (em) endDay = parseInt(em[1]); }
+      var cur = new Date(parseInt(year), startMonth - 1, startDay);
+      var end = new Date(parseInt(year), endMonth - 1, endDay);
+      while (cur <= end) {
+        dates.push({ month: cur.getMonth() + 1, day: cur.getDate() });
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+  } else if (/[,、]/.test(useDateVal)) {
+    var items = useDateVal.split(/[,、]/);
+    var lastM = baseMonth;
+    items.forEach(function(item) {
+      var d = parseItem(item, lastM);
+      if (d) { lastM = d.month; dates.push(d); }
+    });
+  } else if (firstDate) {
+    dates.push({ month: parseInt(firstDate[2]), day: parseInt(firstDate[3]) });
+  } else {
+    var lastM2 = baseMonth;
+    dayBlocks.forEach(function(block) {
+      var startRow = document.querySelector('tr.day-block-start[data-block="' + block.id + '"]');
+      if (!startRow) return;
+      startRow.querySelectorAll('.date-cell input').forEach(function(inp) {
+        var v = (inp.value || '').trim();
+        if (!v) return;
+        var d = parseItem(v, lastM2);
+        if (d) { lastM2 = d.month; dates.push(d); }
+      });
+    });
+  }
+
+  if (dates.length === 0) {
+    var raw = useDateVal.replace(/\D/g, '');
+    if (raw) return raw + ' ' + namePart;
+    return namePart || 'バス予約依頼書';
+  }
+
+  dates.sort(function(a, b) { return (a.month * 100 + a.day) - (b.month * 100 + b.day); });
+  var unique = [dates[0]];
+  for (var i = 1; i < dates.length; i++) {
+    if (dates[i].month !== dates[i-1].month || dates[i].day !== dates[i-1].day) unique.push(dates[i]);
+  }
+  dates = unique;
+
+  if (dates.length === 1) {
+    return year + pad2(dates[0].month) + pad2(dates[0].day) + ' ' + namePart;
+  }
+
+  var dateObjs = dates.map(function(d) { return new Date(parseInt(year), d.month - 1, d.day); });
+  var isConsecutive = true;
+  for (var i = 1; i < dateObjs.length; i++) {
+    if (Math.round((dateObjs[i] - dateObjs[i-1]) / 86400000) !== 1) { isConsecutive = false; break; }
+  }
+
+  if (isConsecutive) {
+    var first = dates[0], last = dates[dates.length - 1];
+    return year + pad2(first.month) + pad2(first.day) + '_' + pad2(last.month) + pad2(last.day) + ' ' + namePart;
+  }
+
+  var parts = [];
+  var prevMonth = -1;
+  for (var i = 0; i < dates.length; i++) {
+    var mm = pad2(dates[i].month);
+    var dd = pad2(dates[i].day);
+    if (i === 0) { parts.push(year + mm + dd); prevMonth = dates[i].month; }
+    else if (dates[i].month !== prevMonth) { parts.push(mm + dd); prevMonth = dates[i].month; }
+    else { parts.push(dd); }
+  }
+  return parts.join(', ') + ' ' + namePart;
+}
+
+function printForm() {
+  var originalTitle = document.title;
+  document.title = generatePdfFilename();
+  var restore = function() {
+    document.title = originalTitle;
+    window.removeEventListener('afterprint', restore);
+  };
+  window.addEventListener('afterprint', restore);
+  window.print();
+}
 </script>
 </body>
 </html>

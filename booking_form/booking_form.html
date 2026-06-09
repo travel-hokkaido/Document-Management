@@ -148,7 +148,7 @@
   <button class="btn btn-save" onclick="saveForm()">保存</button>
   <button class="btn btn-load" onclick="openLoadModal()">保存リスト</button>
   <button class="btn btn-clear" onclick="clearForm()">クリア</button>
-  <button class="btn btn-print" onclick="window.print()">印刷 / PDF</button>
+  <button class="btn btn-print" onclick="printPDF()">印刷 / PDF</button>
 </div>
 
 <div class="tabs">
@@ -755,6 +755,43 @@ function loadDraft() {
     saveCommonFields(currentType);
     saveDraft();
   } catch(e) {}
+}
+
+// --- PDF filename auto-set ---
+function printPDF() {
+  var dateField, nights;
+  if (currentType === 'restaurant') {
+    dateField = document.querySelector('[data-f="date"]').value;
+  } else if (currentType === 'activity') {
+    dateField = document.querySelector('[data-f="act_date"]').value;
+  } else if (currentType === 'staff_hotel') {
+    dateField = document.querySelector('[data-f="sh_date"]').value;
+    nights = document.querySelector('[data-f="sh_nights"]').value;
+  } else if (currentType === 'guest_hotel') {
+    dateField = document.querySelector('[data-f="gh_date"]').value;
+    nights = document.querySelector('[data-f="gh_nights"]').value;
+  }
+
+  var receiver = document.querySelector('[data-f="receiver"]').value.replace(/様$/, '').trim();
+  var dateStr = dateField ? dateField.replace(/-/g, '') : '';
+  var filename = '';
+
+  if (dateStr && receiver) {
+    if ((currentType === 'staff_hotel' || currentType === 'guest_hotel') && nights) {
+      filename = dateStr + '_' + nights + '泊 ' + receiver;
+    } else {
+      filename = dateStr + ' ' + receiver;
+    }
+  } else if (dateStr) {
+    filename = dateStr;
+  } else if (receiver) {
+    filename = receiver;
+  }
+
+  var originalTitle = document.title;
+  if (filename) document.title = filename;
+  window.print();
+  document.title = originalTitle;
 }
 
 // Auto-save on every input change

@@ -81,8 +81,32 @@
   .lang-links a:hover { background: var(--slate-900); color: #fff; }
 
   @media (max-width: 1200px) { .cards { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 800px) { .cards { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 540px) { .cards { grid-template-columns: 1fr; max-width: 340px; } body { padding: 40px 16px 80px; } }
+  @media (max-width: 800px) {
+    .cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card-body { padding: 16px 14px 14px; }
+    .card-icon { width: 36px; height: 36px; border-radius: 8px; font-size: 18px; margin-bottom: 10px; }
+    .card h3 { font-size: 14px; margin-bottom: 5px; }
+    .card p { font-size: 11px; line-height: 1.5; margin-bottom: 12px; }
+    .lang-links a { padding: 4px 10px; font-size: 10.5px; }
+    .header { margin-bottom: 28px; }
+    .header h2 { font-size: 22px; }
+  }
+  @media (max-width: 540px) {
+    .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 100%; }
+    body { padding: 32px 12px 60px; }
+    .card { border-radius: 10px; }
+    .card::before { height: 2px; border-radius: 10px 10px 0 0; }
+    .card-body { padding: 14px 12px 12px; }
+    .card-icon { width: 32px; height: 32px; border-radius: 7px; font-size: 16px; margin-bottom: 8px; }
+    .card h3 { font-size: 13px; margin-bottom: 4px; }
+    .card p { font-size: 10.5px; line-height: 1.4; margin-bottom: 10px; }
+    .lang-links { gap: 4px; }
+    .lang-links a { padding: 3px 8px; font-size: 10px; border-radius: 5px; }
+    .header { margin-bottom: 24px; }
+    .header h1 { font-size: 11px; letter-spacing: 4px; margin-bottom: 8px; }
+    .header h2 { font-size: 20px; }
+    .header .divider { width: 30px; height: 2px; margin-top: 12px; }
+  }
   @media print {
     body { background: white; padding: 20px; }
     .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }

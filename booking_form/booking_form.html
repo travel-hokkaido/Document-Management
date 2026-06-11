@@ -346,7 +346,7 @@
 
   <!-- Message (common) -->
   <div class="msg-box">
-    <textarea class="e" data-f="message" rows="5">お世話になります。トラベル北海道のユーミンと申します。
+    <textarea class="e" data-f="message" rows="5">お世話になります。トラベル北海道の＿＿と申します。
 先程はお電話でのご対応ありがとうございました。
 新規で以下の内容で、予約させていただくことは可能でしょうか？
 お忙しいところ恐れ入りますが、ご回答お待ちしております。
@@ -355,9 +355,9 @@
 
   <!-- Footer (common) -->
   <table class="ft" id="footerTable">
-    <tr>
+    <tr id="feeRow">
       <th id="feeLabel">手数料</th>
-      <td><input class="e" placeholder="" data-f="fee"></td>
+      <td id="feeTd"><input class="e" placeholder="" data-f="fee"></td>
       <th style="width:55px;">支払い</th>
       <td style="width:160px;"><input class="e" value="振込" data-f="pay"></td>
     </tr>
@@ -469,6 +469,7 @@ commonFields.forEach(function(f) {
 });
 function copyObj(o) { var r = {}; for (var k in o) if (o.hasOwnProperty(k)) r[k] = o[k]; return r; }
 var perTypeData = { restaurant: null, activity: copyObj(commonDefaults), staff_hotel: copyObj(commonDefaults), guest_hotel: copyObj(commonDefaults) };
+perTypeData.staff_hotel.guest = 'トラベル北海道';
 
 function saveCommonFields(type) {
   var d = {};
@@ -492,6 +493,16 @@ function calcTotal() {
   var c = parseInt(document.querySelector('[data-f="children"]').value) || 0;
   document.getElementById('totalPeople').value = a + c || '';
 }
+
+function syncStaffToMessage() {
+  var staff = document.querySelector('[data-f="staff"]').value;
+  var name = staff || '＿＿';
+  var msg = document.querySelector('[data-f="message"]');
+  msg.value = msg.value.replace(/トラベル北海道の.*?と申します/, 'トラベル北海道の' + name + 'と申します');
+  autoResize(msg);
+  saveDraft();
+}
+document.querySelector('[data-f="staff"]').addEventListener('input', syncStaffToMessage);
 
 function calcActTotal() {
   var a = parseInt(document.querySelector('[data-f="act_adults"]').value) || 0;
@@ -558,6 +569,8 @@ function switchType(type, btn) {
   nationTh.style.display = '';
   nationTd.style.display = '';
   guestTd.colSpan = 1;
+  document.getElementById('feeLabel').style.display = '';
+  document.getElementById('feeTd').style.display = '';
 
   if (type === 'restaurant') {
     document.getElementById('sec_restaurant').classList.add('show');
@@ -574,6 +587,8 @@ function switchType(type, btn) {
     nationTh.style.display = 'none';
     nationTd.style.display = 'none';
     guestTd.colSpan = 3;
+    document.getElementById('feeLabel').style.display = 'none';
+    document.getElementById('feeTd').style.display = 'none';
   } else if (type === 'guest_hotel') {
     document.getElementById('sec_guest_hotel').classList.add('show');
     guestLabel.textContent = '団体名';
@@ -582,6 +597,9 @@ function switchType(type, btn) {
   }
 
   restoreCommonFields(type);
+  if (type === 'staff_hotel' && !document.querySelector('[data-f="guest"]').value) {
+    document.querySelector('[data-f="guest"]').value = 'トラベル北海道';
+  }
   document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
   saveDraft();
 }
@@ -596,7 +614,9 @@ function clearForm() {
       else if (f === 'sender_tel') el.value = 'TEL：011-312-3913';
       else if (f === 'sender_fax') el.value = 'FAX：011-351-2945';
       else if (f === 'staff_tel') el.value = '011-312-3913';
+      else if (f === 'guest') el.value = currentType === 'staff_hotel' ? 'トラベル北海道' : '';
       else if (f === 'pay') el.value = currentType === 'staff_hotel' || currentType === 'guest_hotel' ? '振込' : '現地';
+      else if (f === 'message') el.value = commonDefaults.message;
       else if (f === 'total' || f === 'act_total') el.value = '';
       else el.value = '';
     });
@@ -653,6 +673,9 @@ function loadFormData(data) {
   document.querySelectorAll('[data-f]').forEach(function(el) {
     if (data[el.dataset.f] !== undefined) el.value = data[el.dataset.f];
   });
+  if (type === 'staff_hotel' && !document.querySelector('[data-f="guest"]').value) {
+    document.querySelector('[data-f="guest"]').value = 'トラベル北海道';
+  }
   calcTotal();
   calcActTotal();
   updateAges();
@@ -735,6 +758,9 @@ function loadDraft() {
     document.querySelectorAll('[data-f]').forEach(function(el) {
       if (data[el.dataset.f] !== undefined) el.value = data[el.dataset.f];
     });
+    if (type === 'staff_hotel' && !document.querySelector('[data-f="guest"]').value) {
+      document.querySelector('[data-f="guest"]').value = 'トラベル北海道';
+    }
     calcTotal();
     calcActTotal();
     updateAges();

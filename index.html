@@ -48,7 +48,6 @@
   .card::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 14px 14px 0 0;
   }
-  .card.dashboard::before { background: #8b5cf6; }
   .card.invoice::before { background: #f59e0b; }
   .card.booking::before { background: #3b82f6; }
   .card.bus::before { background: #22c55e; }
@@ -61,7 +60,6 @@
     width: 52px; height: 52px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 18px;
   }
-  .card.dashboard .card-icon { background: var(--purple-100); }
   .card.invoice .card-icon { background: var(--amber-100); }
   .card.booking .card-icon { background: var(--blue-100); }
   .card.bus .card-icon { background: var(--green-100); }
@@ -122,17 +120,6 @@
 </div>
 
 <div class="cards">
-
-  <div class="card dashboard" onclick="window.open('https://dashboard-nu-ecru-22.vercel.app/', '_blank')">
-    <div class="card-body">
-      <div class="card-icon">📊</div>
-      <h3>Dashboard</h3>
-      <p>管理ダッシュボード<br>予約管理、配車、損益計算</p>
-      <div class="lang-links">
-        <a href="https://dashboard-nu-ecru-22.vercel.app/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open</a>
-      </div>
-    </div>
-  </div>
 
   <div class="card tourbooking" onclick="window.open('https://tour-booking-manager.vercel.app/', '_blank')">
     <div class="card-body">

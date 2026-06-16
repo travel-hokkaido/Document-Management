@@ -138,6 +138,20 @@
     body { padding:8px; }
     .page { width:100%; height:auto; padding:20px 14px; }
   }
+  .btn-add-date {
+    display:block; width:100%; padding:4px 0; margin-bottom:6px;
+    font-size:12px; font-family:inherit; color:#2d5a27; background:#f8f8f8;
+    border:1px dashed #2d5a27; border-radius:3px; cursor:pointer; text-align:center;
+  }
+  .btn-add-date:hover { background:#f0f5ef; }
+  .btn-remove-date {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; border:1px solid #c33; background:#fff;
+    color:#c33; font-size:13px; cursor:pointer; vertical-align:middle; margin-left:4px; padding:0;
+    flex-shrink:0;
+  }
+  .btn-remove-date:hover { background:#fdd; }
+  @media print { .btn-add-date, .btn-remove-date { display:none !important; } }
 </style>
 </head>
 <body>
@@ -205,14 +219,17 @@
 
   <!-- ===== レストラン ===== -->
   <div class="type-section show" id="sec_restaurant">
-    <table class="ft">
-      <tr>
-        <th>日付</th>
-        <td><input class="e" type="date" data-f="date" style="font-weight:600;"></td>
-        <th style="width:75px;">希望時間</th>
-        <td style="width:160px;"><input class="e" type="time" data-f="time" style="font-size:16px;font-weight:700;"></td>
-      </tr>
-    </table>
+    <div id="rest_dates">
+      <table class="ft">
+        <tr>
+          <th>日付</th>
+          <td><input class="e" type="date" data-f="date" style="font-weight:600;"></td>
+          <th style="width:75px;">希望時間</th>
+          <td style="width:160px;"><input class="e" type="time" data-f="time" style="font-size:16px;font-weight:700;"></td>
+        </tr>
+      </table>
+    </div>
+    <button type="button" class="btn-add-date" onclick="addRestDate()">＋ 日付追加</button>
     <table class="ft">
       <tr>
         <th style="vertical-align:middle;">内容</th>
@@ -234,14 +251,17 @@
 
   <!-- ===== アクティビティ ===== -->
   <div class="type-section" id="sec_activity">
-    <table class="ft">
-      <tr>
-        <th>日付</th>
-        <td><input class="e" type="date" data-f="act_date" style="font-weight:600;"></td>
-        <th style="width:75px;">希望時間</th>
-        <td style="width:160px;"><input class="e" type="time" data-f="act_time" style="font-size:16px;font-weight:700;"></td>
-      </tr>
-    </table>
+    <div id="act_dates">
+      <table class="ft">
+        <tr>
+          <th>日付</th>
+          <td><input class="e" type="date" data-f="act_date" style="font-weight:600;"></td>
+          <th style="width:75px;">希望時間</th>
+          <td style="width:160px;"><input class="e" type="time" data-f="act_time" style="font-size:16px;font-weight:700;"></td>
+        </tr>
+      </table>
+    </div>
+    <button type="button" class="btn-add-date" onclick="addActDate()">＋ 日付追加</button>
     <table class="ft">
       <tr>
         <th style="vertical-align:middle;">体験内容</th>
@@ -582,6 +602,42 @@ function updateGhAges() {
   }
 }
 
+function addRestDate(dateVal, timeVal) {
+  var container = document.getElementById('rest_dates');
+  var tbl = document.createElement('table');
+  tbl.className = 'ft date-extra';
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<th>日付</th><td><input class="e" type="date" style="font-weight:600;" value="'+(dateVal||'')+'"></td>' +
+    '<th style="width:75px;">希望時間</th>' +
+    '<td style="width:160px;"><input class="e" type="time" style="font-size:16px;font-weight:700;display:inline;width:calc(100% - 28px);" value="'+(timeVal||'')+'">' +
+    '<button type="button" class="btn-remove-date" onclick="this.closest(\'table\').remove();saveDraft();">×</button></td>';
+  tbl.appendChild(tr);
+  container.appendChild(tbl);
+  tbl.querySelectorAll('input.e').forEach(function(el) {
+    el.addEventListener('input', function() { saveDraft(); });
+    el.addEventListener('change', function() { saveDraft(); });
+  });
+  saveDraft();
+}
+
+function addActDate(dateVal, timeVal) {
+  var container = document.getElementById('act_dates');
+  var tbl = document.createElement('table');
+  tbl.className = 'ft date-extra';
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<th>日付</th><td><input class="e" type="date" style="font-weight:600;" value="'+(dateVal||'')+'"></td>' +
+    '<th style="width:75px;">希望時間</th>' +
+    '<td style="width:160px;"><input class="e" type="time" style="font-size:16px;font-weight:700;display:inline;width:calc(100% - 28px);" value="'+(timeVal||'')+'">' +
+    '<button type="button" class="btn-remove-date" onclick="this.closest(\'table\').remove();saveDraft();">×</button></td>';
+  tbl.appendChild(tr);
+  container.appendChild(tbl);
+  tbl.querySelectorAll('input.e').forEach(function(el) {
+    el.addEventListener('input', function() { saveDraft(); });
+    el.addEventListener('change', function() { saveDraft(); });
+  });
+  saveDraft();
+}
+
 function switchType(type, btn) {
   saveCommonFields(currentType);
   currentType = type;
@@ -654,6 +710,8 @@ function clearForm() {
     });
     document.getElementById('childAges').innerHTML = '';
     document.getElementById('actChildAges').innerHTML = '';
+    document.querySelectorAll('#rest_dates .date-extra').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('#act_dates .date-extra').forEach(function(el) { el.remove(); });
     clearDraft();
   });
 }
@@ -681,6 +739,24 @@ function collectFormData() {
   if (ghAgeInputs.length > 0) {
     data._ghChildAges = [];
     ghAgeInputs.forEach(function(inp) { data._ghChildAges.push(inp.value); });
+  }
+  var restExtras = document.querySelectorAll('#rest_dates .date-extra');
+  if (restExtras.length > 0) {
+    data._restExtraDates = [];
+    restExtras.forEach(function(tbl) {
+      var d = tbl.querySelector('input[type="date"]');
+      var t = tbl.querySelector('input[type="time"]');
+      data._restExtraDates.push({ date: d ? d.value : '', time: t ? t.value : '' });
+    });
+  }
+  var actExtras = document.querySelectorAll('#act_dates .date-extra');
+  if (actExtras.length > 0) {
+    data._actExtraDates = [];
+    actExtras.forEach(function(tbl) {
+      var d = tbl.querySelector('input[type="date"]');
+      var t = tbl.querySelector('input[type="time"]');
+      data._actExtraDates.push({ date: d ? d.value : '', time: t ? t.value : '' });
+    });
   }
   return data;
 }
@@ -737,6 +813,14 @@ function loadFormData(data) {
     data._ghChildAges.forEach(function(v, i) {
       if (ghAgeInputs[i]) ghAgeInputs[i].value = v;
     });
+  }
+  document.querySelectorAll('#rest_dates .date-extra').forEach(function(el) { el.remove(); });
+  if (data._restExtraDates) {
+    data._restExtraDates.forEach(function(d) { addRestDate(d.date, d.time); });
+  }
+  document.querySelectorAll('#act_dates .date-extra').forEach(function(el) { el.remove(); });
+  if (data._actExtraDates) {
+    data._actExtraDates.forEach(function(d) { addActDate(d.date, d.time); });
   }
   document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
   saveCommonFields(currentType);
@@ -822,6 +906,14 @@ function loadDraft() {
       data._actChildAges.forEach(function(v, i) {
         if (actAgeInputs[i]) actAgeInputs[i].value = v;
       });
+    }
+    document.querySelectorAll('#rest_dates .date-extra').forEach(function(el) { el.remove(); });
+    if (data._restExtraDates) {
+      data._restExtraDates.forEach(function(d) { addRestDate(d.date, d.time); });
+    }
+    document.querySelectorAll('#act_dates .date-extra').forEach(function(el) { el.remove(); });
+    if (data._actExtraDates) {
+      data._actExtraDates.forEach(function(d) { addActDate(d.date, d.time); });
     }
     document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
     saveCommonFields(currentType);

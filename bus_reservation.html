@@ -234,9 +234,6 @@
     height: 20px;
     text-align: center;
   }
-  .day-block-start td {
-    border-top: 3px solid var(--border);
-  }
   .itinerary-table .date-cell {
     padding: 0;
   }
@@ -269,7 +266,7 @@
   }
   .itinerary-table .place-cell input,
   .itinerary-table .place-cell textarea {
-    font-size: 13px;
+    font-size: 15px;
   }
 
   /* Costs row */
@@ -459,10 +456,6 @@
       appearance: none;
       background-image: none !important;
       resize: none !important;
-    }
-    textarea {
-      height: auto !important;
-      overflow: visible !important;
     }
     input::placeholder {
       color: transparent !important;
@@ -1224,7 +1217,9 @@ function autoResize(el) {
 
 function autoWrap(el) {
   if (el.tagName !== 'INPUT' || el.type !== 'text' || el.readOnly) return;
-  if (el.scrollWidth > el.clientWidth + 2) {
+  var isDateCell = el.closest('.date-cell');
+  var forceWrap = isDateCell && el.value.includes('/') && el.value.indexOf('/') < el.value.length - 1;
+  if (el.scrollWidth > el.clientWidth + 2 || forceWrap) {
     var ta = document.createElement('textarea');
     ta.value = el.value;
     ta.className = el.className;
@@ -1236,6 +1231,9 @@ function autoWrap(el) {
     ta.style.lineHeight = '1.4';
     if (el.id) ta.id = el.id;
     if (el.placeholder) ta.placeholder = el.placeholder;
+    if (isDateCell && ta.value.includes('/')) {
+      ta.value = ta.value.replace('/', '/\n');
+    }
     el.parentNode.replaceChild(ta, el);
     ta.focus();
     ta.selectionStart = ta.selectionEnd = ta.value.length;
@@ -1246,6 +1244,40 @@ function autoWrap(el) {
 document.addEventListener('input', function(e) {
   autoResize(e.target);
   autoWrap(e.target);
+});
+
+// Date cell: auto line break after "/"
+document.addEventListener('input', function(e) {
+  var el = e.target;
+  var dateCell = el.closest('.date-cell');
+  if (!dateCell) return;
+  if (el.tagName === 'INPUT' && el.value.includes('/')) {
+    var slashIdx = el.value.indexOf('/');
+    if (slashIdx < el.value.length - 1) {
+      var ta = document.createElement('textarea');
+      ta.value = el.value.replace('/', '/\n');
+      ta.className = el.className;
+      ta.style.cssText = el.style.cssText;
+      ta.style.resize = 'none';
+      ta.style.overflow = 'hidden';
+      ta.style.minHeight = '20px';
+      ta.style.lineHeight = '1.4';
+      if (el.id) ta.id = el.id;
+      el.parentNode.replaceChild(ta, el);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = ta.value.length;
+      autoResize(ta);
+    }
+  } else if (el.tagName === 'TEXTAREA' && el.value.includes('/') && !el.value.includes('/\n')) {
+    var idx = el.value.indexOf('/');
+    if (idx < el.value.length - 1) {
+      var pos = el.selectionStart;
+      el.value = el.value.substring(0, idx + 1) + '\n' + el.value.substring(idx + 1);
+      if (pos > idx) pos++;
+      el.selectionStart = el.selectionEnd = pos;
+      autoResize(el);
+    }
+  }
 });
 
 document.querySelectorAll('textarea').forEach(autoResize);
@@ -1537,22 +1569,24 @@ function filterSavedList() {
   });
 }
 
-// Print: temporarily remove rowspan so pages can break
+// Print: minimal fix - only handle date-cell rowspan for page breaks
 var savedRowspans = [];
 window.addEventListener('beforeprint', function() {
   savedRowspans = [];
   var table = document.getElementById('itineraryTable');
   if (!table) return;
-  var spanCells = table.querySelectorAll('td[rowspan]');
-  spanCells.forEach(function(td) {
+
+  // Remove ONLY date-cell rowspans (for page breaks)
+  table.querySelectorAll('.date-cell[rowspan]').forEach(function(td) {
     var span = parseInt(td.getAttribute('rowspan'));
-    var val = '';
     var inp = td.querySelector('input,textarea');
-    if (inp) val = inp.value;
+    var val = inp ? inp.value.replace(/\n/g, '') : '';
     savedRowspans.push({ td: td, rowspan: span, value: val });
     td.removeAttribute('rowspan');
     td.style.borderBottom = 'none';
   });
+
+  // Add empty date-cells to other rows
   var rows = table.querySelectorAll('tbody tr[data-block]');
   rows.forEach(function(tr) {
     if (tr.classList.contains('day-block-start')) return;
@@ -1580,25 +1614,7 @@ window.addEventListener('beforeprint', function() {
       }
     }
   });
-  // Add empty place cells to 発 rows missing them (due to place-cell rowspan removal)
-  rows.forEach(function(tr) {
-    if (tr.classList.contains('day-block-start')) return;
-    if (tr.classList.contains('no-print')) return;
-    var arrDeps = tr.querySelectorAll('.arr-dep');
-    var isDep = false;
-    arrDeps.forEach(function(c) { if (c.textContent === '発') isDep = true; });
-    if (!isDep) return;
-    if (tr.querySelectorAll('.place-cell').length > 0) return;
-    var timeCells = Array.from(tr.querySelectorAll('.time-cell'));
-    for (var t = timeCells.length - 1; t >= 0; t--) {
-      var placeTd = document.createElement('td');
-      placeTd.className = 'place-cell';
-      placeTd.style.borderTop = 'none';
-      placeTd.style.borderBottom = 'none';
-      placeTd.setAttribute('data-print-added', '1');
-      timeCells[t].after(placeTd);
-    }
-  });
+
   // Fix last row border
   var blocks = {};
   rows.forEach(function(tr) {
@@ -1610,21 +1626,50 @@ window.addEventListener('beforeprint', function() {
     lastTr.querySelectorAll('.date-cell').forEach(function(td) {
       td.style.borderBottom = '1px solid #333';
     });
-    lastTr.querySelectorAll('.place-cell[data-print-added]').forEach(function(td) {
-      td.style.borderBottom = '1px solid #333';
-    });
+  });
+
+  // Move date text to middle row for centering (with line break)
+  savedRowspans.forEach(function(s) {
+    var inp = s.td.querySelector('input,textarea');
+    if (!inp) return;
+    var val = inp.value || '';
+    if (!val) return;
+    var block = s.td.closest('tr').dataset.block;
+    var blockRows = Array.from(table.querySelectorAll('tr[data-block="' + block + '"]:not(.no-print):not(.day-block-start)'));
+    if (blockRows.length < 2) return;
+    var middleIdx = Math.floor(blockRows.length / 2);
+    var middleRow = blockRows[middleIdx];
+    var middleCell = middleRow.querySelector('.date-cell');
+    if (middleCell) {
+      inp.style.display = 'none';
+      var displayVal = val.replace(/\n/g, '');
+      if (displayVal.includes('/')) {
+        middleCell.innerHTML = displayVal.replace('/', '/<br>');
+      } else {
+        middleCell.textContent = displayVal;
+      }
+      middleCell.style.fontWeight = 'bold';
+      middleCell.style.fontSize = '14px';
+      middleCell.style.textAlign = 'center';
+      middleCell.style.verticalAlign = 'middle';
+    }
   });
 });
 
 window.addEventListener('afterprint', function() {
   var table = document.getElementById('itineraryTable');
   if (!table) return;
+  // Restore date inputs
+  savedRowspans.forEach(function(s) {
+    var inp = s.td.querySelector('input,textarea');
+    if (inp) inp.style.display = '';
+  });
+  // Remove added cells
   table.querySelectorAll('td[data-print-added]').forEach(function(td) { td.remove(); });
+  // Restore rowspans
   savedRowspans.forEach(function(s) {
     s.td.setAttribute('rowspan', s.rowspan);
     s.td.style.borderBottom = '';
-    var inp = s.td.querySelector('input,textarea');
-    if (inp) inp.value = s.value;
   });
   savedRowspans = [];
 });

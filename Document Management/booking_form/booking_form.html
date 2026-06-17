@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>予約依頼書 トラベル北海道</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+    background: #d8d6d2;
+    color: #000;
+    min-height: 100vh;
+    padding: 16px;
+    padding-bottom: 80px;
+    font-size: 14px;
+  }
+  .toolbar {
+    max-width: 210mm;
+    margin: 0 auto 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .toolbar-title { font-size: 13px; color: #666; margin-right: auto; }
+  .btn {
+    padding: 7px 18px; border: 1px solid #999; background: #fff; color: #000;
+    font-size: 13px; font-family: inherit; border-radius: 4px; cursor: pointer;
+  }
+  .btn:hover { background: #f5f5f5; }
+  .btn-print { background: #2d5a27; color: #fff; border-color: #2d5a27; }
+  .btn-save { background: #1a5276; color: #fff; border-color: #1a5276; }
+  .btn-load { background: #555; color: #fff; border-color: #555; }
+  .btn-clear { color: #c33; border-color: #c33; }
+  .btn-home { background: #444; color: #fff; border-color: #444; }
+
+  .modal-overlay {
+    display:none; position:fixed; top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.4); z-index:100; align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal { background:#fff; border-radius:8px; box-shadow:0 8px 32px rgba(0,0,0,0.2); width:480px; max-height:70vh; display:flex; flex-direction:column; overflow:hidden; }
+  .modal-header { padding:14px 18px; font-size:16px; font-weight:700; border-bottom:1px solid #ddd; display:flex; align-items:center; }
+  .modal-header span { margin-right:auto; }
+  .modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:#999; }
+  .modal-body { padding:12px 18px; overflow-y:auto; flex:1; }
+  .save-item { display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #eee; gap:10px; }
+  .save-item:last-child { border-bottom:none; }
+  .save-item-info { flex:1; min-width:0; }
+  .save-item-name { font-size:14px; font-weight:600; }
+  .save-item-date { font-size:11px; color:#888; margin-top:2px; }
+  .save-item-detail { font-size:12px; color:#555; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .save-item button { padding:5px 12px; font-size:12px; font-family:inherit; border:1px solid #ccc; border-radius:3px; cursor:pointer; background:#fff; flex-shrink:0; }
+  .save-item .btn-item-load { color:#1a5276; border-color:#1a5276; }
+  .save-item .btn-item-del { color:#c33; border-color:#c33; }
+  .empty-msg { color:#999; text-align:center; padding:30px 0; font-size:14px; }
+
+  .popup-overlay {
+    display:none; position:fixed; top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.45); z-index:300; align-items:center; justify-content:center;
+  }
+  .popup-overlay.open { display:flex; }
+  .popup-box {
+    background:#fff; border-radius:10px; box-shadow:0 8px 36px rgba(0,0,0,0.25);
+    width:380px; padding:28px 24px 20px; text-align:center; animation: popIn 0.18s ease;
+  }
+  @keyframes popIn { from { transform:scale(0.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .popup-icon { font-size:36px; margin-bottom:12px; }
+  .popup-msg { font-size:15px; color:#222; line-height:1.6; margin-bottom:20px; white-space:pre-wrap; }
+  .popup-input {
+    width:100%; padding:9px 12px; font-size:14px; font-family:inherit;
+    border:1.5px solid #bbb; border-radius:5px; margin-bottom:18px; outline:none;
+  }
+  .popup-input:focus { border-color:#2d5a27; }
+  .popup-btns { display:flex; gap:10px; justify-content:center; }
+  .popup-btn {
+    padding:8px 28px; font-size:14px; font-family:inherit; border-radius:5px;
+    cursor:pointer; border:1px solid #ccc; background:#f5f5f5; color:#333; min-width:90px;
+    transition: background 0.15s;
+  }
+  .popup-btn:hover { background:#eee; }
+  .popup-btn-ok { background:#2d5a27; color:#fff; border-color:#2d5a27; }
+  .popup-btn-ok:hover { background:#245020; }
+  .popup-btn-danger { background:#c33; color:#fff; border-color:#c33; }
+  .popup-btn-danger:hover { background:#a22; }
+
+  @media print { .modal-overlay, .popup-overlay { display:none !important; } }
+
+  .tabs { max-width:210mm; margin:0 auto; display:flex; margin-bottom:-1px; position:relative; z-index:1; flex-wrap:wrap; }
+  .tab {
+    padding:7px 16px; font-size:12px; font-family:inherit; border:1px solid #bbb;
+    background:#eee; cursor:pointer; border-radius:5px 5px 0 0; color:#888; font-weight:500;
+  }
+  .tab.active { background:#fff; border-bottom-color:#fff; color:#2d5a27; font-weight:600; }
+
+  .page {
+    width:210mm; height:297mm; margin:0 auto; background:#fff; border:1px solid #ccc;
+    box-shadow:0 2px 16px rgba(0,0,0,0.08); padding:8mm 14mm 8mm;
+    position:relative; display:flex; flex-direction:column;
+  }
+  input.e, textarea.e {
+    background:none; border:none; font-family:inherit; font-size:18px; color:#000;
+    outline:none; padding:0; width:100%; border-bottom:1px dashed transparent;
+  }
+  input.e:hover, textarea.e:hover { border-bottom-color:#ccc; }
+  input.e:focus, textarea.e:focus { border-bottom-color:#2d5a27; }
+  textarea.e { resize:none; line-height:1.8; overflow:hidden; }
+
+  .header { margin-bottom:6px; display:flex; align-items:center; gap:14px; }
+  .header-logo { width:130px; flex-shrink:0; }
+  .header-text { flex:1; }
+  .header-company { font-size:24px; font-weight:700; letter-spacing:0.05em; }
+  .header-info { font-size:16px; color:#333; line-height:1.5; margin-top:2px; }
+  .header-license { font-size:14px; color:#666; }
+
+  .doc-title { text-align:center; font-size:22px; font-weight:700; letter-spacing:0.25em; margin:8px 0; padding:5px 0; border-top:2px solid #000; border-bottom:2px solid #000; }
+
+  table.ft { width:100%; border-collapse:collapse; margin-bottom:6px; }
+  table.ft th, table.ft td { border:1.5px solid #000; padding:6px 10px; font-size:18px; vertical-align:middle; text-align:left; }
+  table.ft th { background:#f0f0f0; font-weight:700; font-size:17px; white-space:nowrap; width:65px; text-align:center; }
+
+  .msg-box { border:1.5px solid #000; padding:8px 12px; margin-bottom:6px; }
+  .msg-box textarea.e { font-size:16px; line-height:1.8; }
+
+  .type-section { display:none; }
+  .type-section.show { display:block; }
+
+  @media print {
+    body { background:none; padding:0; margin:0; }
+    .toolbar, .tabs { display:none !important; }
+    .page { border:none; box-shadow:none; width:100%; height:auto; padding:8mm 12mm; }
+    input.e, textarea.e { border-bottom:none !important; }
+    input.e::placeholder, textarea.e::placeholder { color:transparent !important; }
+    table.ft th { background:#eee !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    @page { size:A4 portrait; margin:5mm; }
+  }
+  @media (max-width:600px) {
+    body { padding:8px; }
+    .page { width:100%; height:auto; padding:20px 14px; }
+  }
+  .btn-add-date {
+    display:block; width:100%; padding:4px 0; margin-bottom:6px;
+    font-size:12px; font-family:inherit; color:#2d5a27; background:#f8f8f8;
+    border:1px dashed #2d5a27; border-radius:3px; cursor:pointer; text-align:center;
+  }
+  .btn-add-date:hover { background:#f0f5ef; }
+  .btn-remove-date {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; border:1px solid #c33; background:#fff;
+    color:#c33; font-size:13px; cursor:pointer; vertical-align:middle; margin-left:4px; padding:0;
+    flex-shrink:0;
+  }
+  .btn-remove-date:hover { background:#fdd; }
+  @media print { .btn-add-date, .btn-remove-date { display:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="btn btn-home" onclick="location.href='../index.html'">ホーム</button>
+  <span class="toolbar-title">予約依頼書作成</span>
+  <button class="btn btn-save" onclick="saveForm()">保存</button>
+  <button class="btn btn-load" onclick="openLoadModal()">保存リスト</button>
+  <button class="btn btn-clear" onclick="clearForm()">クリア</button>
+  <button class="btn btn-print" onclick="printPDF()">印刷 / PDF</button>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchType('restaurant',this)">レストラン</button>
+  <button class="tab" onclick="switchType('activity',this)">アクティビティ</button>
+  <button class="tab" onclick="switchType('staff_hotel',this)">スタッフ宿泊</button>
+  <button class="tab" onclick="switchType('guest_hotel',this)">ホテル</button>
+</div>
+
+<div class="page">
+  <div class="header">
+    <div class="header-text">
+      <div class="header-company">株式会社トラベル北海道</div>
+      <div class="header-info">TEL：011-312-3913　FAX：011-351-2945<br>北海道札幌市北区麻生町５丁目５−２ アルファスクエア麻生 203号室</div>
+      <div class="header-license">北海道知事登録旅行サービス手配業第245号</div>
+    </div>
+    <div class="header-logo"><img src="images/white_logo_transparent.png" alt="Travel Hokkaido" style="width:130px;height:auto;"></div>
+  </div>
+
+  <div class="doc-title"><input class="e" data-f="doc_title" value="【新規予約依頼書】" style="text-align:center;font-size:22px;font-weight:700;letter-spacing:0.25em;"></div>
+
+  <!-- 発信者・受信 (common) -->
+  <table class="ft">
+    <tr>
+      <th>発信者</th>
+      <td><input class="e" value="株式会社トラベル北海道" data-f="sender"></td>
+      <td style="width:210px;">
+        <input class="e" value="TEL：011-312-3913" data-f="sender_tel"><br>
+        <input class="e" value="FAX：011-351-2945" data-f="sender_fax" style="margin-top:2px;">
+      </td>
+    </tr>
+    <tr>
+      <th>受信</th>
+      <td><input class="e" placeholder="施設名" data-f="receiver" style="font-size:15px;font-weight:600;display:inline;width:calc(100% - 30px);"><span style="font-size:15px;font-weight:600;">様</span></td>
+      <td><span style="font-size:16px;">FAX：</span><input class="e" placeholder="" data-f="receiver_fax" style="display:inline;width:calc(100% - 50px);"></td>
+    </tr>
+  </table>
+
+  <!-- 予約名・担当 (common) -->
+  <table class="ft">
+    <tr>
+      <th id="guestLabel">予約名</th>
+      <td colspan="1" id="guestTd"><input class="e" placeholder="お客様名" data-f="guest" style="font-size:15px;font-weight:600;"></td>
+      <th style="width:55px;" id="nationTh">国籍</th>
+      <td style="width:80px;" id="nationTd"><input class="e" placeholder="" data-f="nation"></td>
+    </tr>
+    <tr>
+      <th>担当</th>
+      <td><input class="e" placeholder="担当者名" data-f="staff"></td>
+      <th>TEL</th>
+      <td style="width:180px;"><input class="e" value="011-312-3913" data-f="staff_tel"></td>
+    </tr>
+  </table>
+
+  <!-- ===== レストラン ===== -->
+  <div class="type-section show" id="sec_restaurant">
+    <div id="rest_dates">
+      <table class="ft">
+        <tr>
+          <th>日付</th>
+          <td><input class="e" type="date" data-f="date" style="font-weight:600;"></td>
+          <th style="width:75px;">希望時間</th>
+          <td style="width:160px;"><input class="e" type="time" data-f="time" style="font-size:16px;font-weight:700;"></td>
+        </tr>
+      </table>
+    </div>
+    <button type="button" class="btn-add-date" onclick="addRestDate()">＋ 日付追加</button>
+    <table class="ft">
+      <tr>
+        <th style="vertical-align:middle;">内容</th>
+        <td><textarea class="e" rows="5" placeholder="食事×4名（大人2名＋子供2名　16歳、12歳）&#10;コース名・メニュー・体験内容の詳細など" data-f="content" style="min-height:80px;"></textarea></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>人数</th>
+        <td style="width:80px;text-align:center;"><input class="e" id="totalPeople" readonly style="text-align:center;font-size:18px;font-weight:700;background:#f5f5f5;" data-f="total"></td>
+        <td>
+          大人 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="adults" oninput="calcTotal()"> 名
+          ＋ 子供 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="children" oninput="calcTotal(); updateAges()"> 名
+          <span id="childAges" style="margin-left:8px;"></span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===== アクティビティ ===== -->
+  <div class="type-section" id="sec_activity">
+    <div id="act_dates">
+      <table class="ft">
+        <tr>
+          <th>日付</th>
+          <td><input class="e" type="date" data-f="act_date" style="font-weight:600;"></td>
+          <th style="width:75px;">希望時間</th>
+          <td style="width:160px;"><input class="e" type="time" data-f="act_time" style="font-size:16px;font-weight:700;"></td>
+        </tr>
+      </table>
+    </div>
+    <button type="button" class="btn-add-date" onclick="addActDate()">＋ 日付追加</button>
+    <table class="ft">
+      <tr>
+        <th style="vertical-align:middle;">体験内容</th>
+        <td><textarea class="e" rows="3" placeholder="体験名・コース・内容の詳細など" data-f="act_content" style="min-height:50px;"></textarea></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>人数</th>
+        <td style="width:80px;text-align:center;"><input class="e" id="actTotalPeople" readonly style="text-align:center;font-size:18px;font-weight:700;background:#f5f5f5;" data-f="act_total"></td>
+        <td>
+          大人 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="act_adults" oninput="calcActTotal()"> 名
+          ＋ 子供 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="act_children" oninput="calcActTotal(); updateActAges()"> 名
+          <span id="actChildAges" style="margin-left:8px;"></span>
+        </td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>集合場所</th>
+        <td><input class="e" placeholder="集合場所" data-f="meeting"></td>
+        <th style="width:55px;">送迎</th>
+        <td style="width:160px;"><input class="e" placeholder="不要 / 要" data-f="pickup"></td>
+      </tr>
+      <tr>
+        <th>宿泊先</th>
+        <td colspan="3"><input class="e" placeholder="宿泊ホテル名" data-f="act_hotel"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===== スタッフ宿泊 ===== -->
+  <div class="type-section" id="sec_staff_hotel">
+    <table class="ft">
+      <tr>
+        <th>日付</th>
+        <td><input class="e" type="date" data-f="sh_date" style="font-weight:600;"></td>
+        <th>泊数</th>
+        <td style="width:180px;text-align:center;"><input class="e" placeholder="1" data-f="sh_nights" style="text-align:center;font-weight:600;font-size:22px;display:inline;width:40px;"><span style="font-size:22px;font-weight:700;float:right;">泊</span></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th style="vertical-align:middle;">内容</th>
+        <td>
+          <textarea class="e" rows="3" placeholder="ドライバー１名&#10;禁煙シングル×２部屋　素泊まり" data-f="sh_content" style="min-height:50px;"></textarea>
+        </td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>車両</th>
+        <td><input class="e" placeholder="マイクロバス１台" data-f="sh_vehicle"></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>人数</th>
+        <td style="width:60px;text-align:center;"><input class="e" id="shTotalPeople" readonly data-f="sh_total" style="text-align:center;font-size:18px;font-weight:700;background:#f5f5f5;"></td>
+        <td>
+          大人 <input class="e" style="width:35px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="sh_adults" oninput="calcShTotal()"> 名
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===== ホテル（お客様） ===== -->
+  <div class="type-section" id="sec_guest_hotel">
+    <table class="ft">
+      <tr>
+        <th>日付</th>
+        <td><input class="e" type="date" data-f="gh_date" style="font-weight:600;"></td>
+        <th>泊数</th>
+        <td style="width:180px;text-align:center;"><input class="e" placeholder="1" data-f="gh_nights" style="text-align:center;font-weight:600;font-size:22px;display:inline;width:40px;"><span style="font-size:22px;font-weight:700;float:right;">泊</span></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>部屋</th>
+        <td><input class="e" placeholder="クラシカルスイート×１" data-f="gh_room"></td>
+        <th style="width:55px;">食事</th>
+        <td style="width:130px;"><input class="e" placeholder="2食付" data-f="gh_meal"></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th style="vertical-align:middle;">内容</th>
+        <td><textarea class="e" rows="4" placeholder="その他リクエスト・詳細など" data-f="gh_content" style="min-height:60px;"></textarea></td>
+      </tr>
+    </table>
+    <table class="ft">
+      <tr>
+        <th>人数</th>
+        <td style="width:60px;text-align:center;"><input class="e" id="ghTotalPeople" readonly data-f="gh_total" style="text-align:center;font-size:18px;font-weight:700;background:#f5f5f5;"></td>
+        <td>
+          大人 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="gh_adults" oninput="calcGhTotal()"> 名
+          ＋ 子供 <input class="e" style="width:40px;display:inline;text-align:center;font-weight:600;" placeholder="0" data-f="gh_children" oninput="calcGhTotal(); updateGhAges()"> 名
+          <span id="ghChildAges" style="margin-left:8px;"></span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Message (common) -->
+  <div class="msg-box">
+    <textarea class="e" data-f="message" rows="5">お世話になります。トラベル北海道の＿＿と申します。
+先程はお電話でのご対応ありがとうございました。
+新規で以下の内容で、予約させていただくことは可能でしょうか？
+お忙しいところ恐れ入りますが、ご回答お待ちしております。
+よろしくお願いいたします。</textarea>
+  </div>
+
+  <!-- Footer (common) -->
+  <table class="ft" id="footerTable">
+    <tr id="feeRow">
+      <th id="feeLabel">手数料</th>
+      <td id="feeTd"><input class="e" placeholder="" data-f="fee"></td>
+      <th style="width:55px;">支払い</th>
+      <td style="width:160px;"><input class="e" value="振込" data-f="pay"></td>
+    </tr>
+    <tr>
+      <th>備考</th>
+      <td colspan="3"><textarea class="e" rows="1" placeholder="アレルギー、特別リクエスト等" data-f="remarks" style="min-height:24px;"></textarea></td>
+    </tr>
+  </table>
+</div>
+
+<!-- Custom Popup -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box">
+    <div class="popup-icon" id="popupIcon"></div>
+    <div class="popup-msg" id="popupMsg"></div>
+    <input class="popup-input" id="popupInput" style="display:none;" />
+    <div class="popup-btns" id="popupBtns"></div>
+  </div>
+</div>
+
+<script>
+// --- Custom Popup System ---
+var _popupResolve = null;
+
+function showPopup(opts) {
+  var overlay = document.getElementById('popupOverlay');
+  var icon = document.getElementById('popupIcon');
+  var msg = document.getElementById('popupMsg');
+  var input = document.getElementById('popupInput');
+  var btns = document.getElementById('popupBtns');
+
+  icon.textContent = opts.icon || '';
+  msg.textContent = opts.message || '';
+  input.style.display = opts.showInput ? '' : 'none';
+  input.value = opts.inputValue || '';
+  btns.innerHTML = '';
+
+  if (opts.showInput) {
+    setTimeout(function() { input.focus(); input.select(); }, 80);
+  }
+
+  opts.buttons.forEach(function(b) {
+    var btn = document.createElement('button');
+    btn.className = 'popup-btn' + (b.cls ? ' ' + b.cls : '');
+    btn.textContent = b.label;
+    btn.onclick = function() {
+      overlay.classList.remove('open');
+      if (_popupResolve) _popupResolve(b.value === '_input' ? input.value : b.value);
+      _popupResolve = null;
+    };
+    btns.appendChild(btn);
+  });
+
+  // Enter key support for prompt input
+  input.onkeydown = function(e) {
+    if (e.key === 'Enter') {
+      overlay.classList.remove('open');
+      if (_popupResolve) _popupResolve(input.value);
+      _popupResolve = null;
+    }
+  };
+
+  overlay.classList.add('open');
+
+  return new Promise(function(resolve) { _popupResolve = resolve; });
+}
+
+function customAlert(message) {
+  return showPopup({
+    icon: '✅',
+    message: message,
+    buttons: [{ label: 'OK', value: true, cls: 'popup-btn-ok' }]
+  });
+}
+
+function customConfirm(message, danger) {
+  return showPopup({
+    icon: danger ? '⚠️' : '❓',
+    message: message,
+    buttons: [
+      { label: 'キャンセル', value: false },
+      { label: 'OK', value: true, cls: danger ? 'popup-btn-danger' : 'popup-btn-ok' }
+    ]
+  });
+}
+
+function customPrompt(message, defaultValue) {
+  return showPopup({
+    icon: '✏️',
+    message: message,
+    showInput: true,
+    inputValue: defaultValue || '',
+    buttons: [
+      { label: 'キャンセル', value: null },
+      { label: 'OK', value: '_input', cls: 'popup-btn-ok' }
+    ]
+  });
+}
+
+// --- App Logic ---
+var currentType = 'restaurant';
+var DRAFT_KEY = 'travelhokkaido_draft';
+
+var commonFields = ['doc_title','sender','sender_tel','sender_fax','receiver','receiver_fax','guest','nation','staff','staff_tel','message','fee','pay','remarks'];
+var commonDefaults = {};
+commonFields.forEach(function(f) {
+  var el = document.querySelector('[data-f="' + f + '"]');
+  if (el) commonDefaults[f] = el.value;
+});
+function copyObj(o) { var r = {}; for (var k in o) if (o.hasOwnProperty(k)) r[k] = o[k]; return r; }
+var perTypeData = { restaurant: null, activity: copyObj(commonDefaults), staff_hotel: copyObj(commonDefaults), guest_hotel: copyObj(commonDefaults) };
+perTypeData.staff_hotel.guest = 'トラベル北海道';
+
+function saveCommonFields(type) {
+  var d = {};
+  commonFields.forEach(function(f) { var el = document.querySelector('[data-f="' + f + '"]'); if (el) d[f] = el.value; });
+  perTypeData[type] = d;
+}
+function restoreCommonFields(type) {
+  var d = perTypeData[type];
+  if (!d) return;
+  commonFields.forEach(function(f) { var el = document.querySelector('[data-f="' + f + '"]'); if (el && d[f] !== undefined) el.value = d[f]; });
+}
+
+function autoResize(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+document.querySelectorAll('textarea.e').forEach(function(ta) {
+  ta.addEventListener('input', function() { autoResize(this); });
+  autoResize(ta);
+});
+
+function calcTotal() {
+  var a = parseInt(document.querySelector('[data-f="adults"]').value) || 0;
+  var c = parseInt(document.querySelector('[data-f="children"]').value) || 0;
+  document.getElementById('totalPeople').value = a + c || '';
+}
+
+function syncStaffToMessage() {
+  var staff = document.querySelector('[data-f="staff"]').value;
+  var name = staff || '＿＿';
+  var msg = document.querySelector('[data-f="message"]');
+  msg.value = msg.value.replace(/トラベル北海道の.*?と申します/, 'トラベル北海道の' + name + 'と申します');
+  autoResize(msg);
+  saveDraft();
+}
+document.querySelector('[data-f="staff"]').addEventListener('input', syncStaffToMessage);
+
+function calcActTotal() {
+  var a = parseInt(document.querySelector('[data-f="act_adults"]').value) || 0;
+  var c = parseInt(document.querySelector('[data-f="act_children"]').value) || 0;
+  document.getElementById('actTotalPeople').value = a + c || '';
+}
+
+function calcShTotal() {
+  var a = parseInt(document.querySelector('[data-f="sh_adults"]').value) || 0;
+  document.getElementById('shTotalPeople').value = a || '';
+}
+
+function calcGhTotal() {
+  var a = parseInt(document.querySelector('[data-f="gh_adults"]').value) || 0;
+  var c = parseInt(document.querySelector('[data-f="gh_children"]').value) || 0;
+  document.getElementById('ghTotalPeople').value = a + c || '';
+}
+
+function updateAges() {
+  var n = parseInt(document.querySelector('[data-f="children"]').value) || 0;
+  var box = document.getElementById('childAges');
+  box.innerHTML = '';
+  if (n > 0 && n <= 10) {
+    var sp = document.createElement('span');
+    sp.style.cssText = 'font-size:13px;color:#333;';
+    sp.textContent = '（年齢：';
+    box.appendChild(sp);
+    for (var i = 0; i < n; i++) {
+      var inp = document.createElement('input');
+      inp.className = 'e';
+      inp.style.cssText = 'width:36px;display:inline;text-align:center;font-size:13px;border-bottom:1px solid #999;';
+      inp.addEventListener('input', function() { saveDraft(); });
+      box.appendChild(inp);
+      box.appendChild(document.createTextNode(i < n-1 ? '歳、' : '歳）'));
+    }
+  }
+}
+
+function updateActAges() {
+  var n = parseInt(document.querySelector('[data-f="act_children"]').value) || 0;
+  var box = document.getElementById('actChildAges');
+  box.innerHTML = '';
+  if (n > 0 && n <= 10) {
+    var sp = document.createElement('span');
+    sp.style.cssText = 'font-size:13px;color:#333;';
+    sp.textContent = '（年齢：';
+    box.appendChild(sp);
+    for (var i = 0; i < n; i++) {
+      var inp = document.createElement('input');
+      inp.className = 'e';
+      inp.style.cssText = 'width:36px;display:inline;text-align:center;font-size:13px;border-bottom:1px solid #999;';
+      inp.addEventListener('input', function() { saveDraft(); });
+      box.appendChild(inp);
+      box.appendChild(document.createTextNode(i < n-1 ? '歳、' : '歳）'));
+    }
+  }
+}
+
+function updateGhAges() {
+  var n = parseInt(document.querySelector('[data-f="gh_children"]').value) || 0;
+  var box = document.getElementById('ghChildAges');
+  box.innerHTML = '';
+  if (n > 0 && n <= 10) {
+    var sp = document.createElement('span');
+    sp.style.cssText = 'font-size:13px;color:#333;';
+    sp.textContent = '（年齢：';
+    box.appendChild(sp);
+    for (var i = 0; i < n; i++) {
+      var inp = document.createElement('input');
+      inp.className = 'e';
+      inp.style.cssText = 'width:36px;display:inline;text-align:center;font-size:13px;border-bottom:1px solid #999;';
+      inp.addEventListener('input', function() { saveDraft(); });
+      box.appendChild(inp);
+      box.appendChild(document.createTextNode(i < n-1 ? '歳、' : '歳）'));
+    }
+  }
+}
+
+function addRestDate(dateVal, timeVal) {
+  var container = document.getElementById('rest_dates');
+  var tbl = document.createElement('table');
+  tbl.className = 'ft date-extra';
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<th>日付</th><td><input class="e" type="date" style="font-weight:600;" value="'+(dateVal||'')+'"></td>' +
+    '<th style="width:75px;">希望時間</th>' +
+    '<td style="width:160px;"><input class="e" type="time" style="font-size:16px;font-weight:700;display:inline;width:calc(100% - 28px);" value="'+(timeVal||'')+'">' +
+    '<button type="button" class="btn-remove-date" onclick="this.closest(\'table\').remove();saveDraft();">×</button></td>';
+  tbl.appendChild(tr);
+  container.appendChild(tbl);
+  tbl.querySelectorAll('input.e').forEach(function(el) {
+    el.addEventListener('input', function() { saveDraft(); });
+    el.addEventListener('change', function() { saveDraft(); });
+  });
+  saveDraft();
+}
+
+function addActDate(dateVal, timeVal) {
+  var container = document.getElementById('act_dates');
+  var tbl = document.createElement('table');
+  tbl.className = 'ft date-extra';
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<th>日付</th><td><input class="e" type="date" style="font-weight:600;" value="'+(dateVal||'')+'"></td>' +
+    '<th style="width:75px;">希望時間</th>' +
+    '<td style="width:160px;"><input class="e" type="time" style="font-size:16px;font-weight:700;display:inline;width:calc(100% - 28px);" value="'+(timeVal||'')+'">' +
+    '<button type="button" class="btn-remove-date" onclick="this.closest(\'table\').remove();saveDraft();">×</button></td>';
+  tbl.appendChild(tr);
+  container.appendChild(tbl);
+  tbl.querySelectorAll('input.e').forEach(function(el) {
+    el.addEventListener('input', function() { saveDraft(); });
+    el.addEventListener('change', function() { saveDraft(); });
+  });
+  saveDraft();
+}
+
+function switchType(type, btn) {
+  saveCommonFields(currentType);
+  currentType = type;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+
+  document.querySelectorAll('.type-section').forEach(function(s) { s.classList.remove('show'); });
+
+  var guestLabel = document.getElementById('guestLabel');
+  var feeLabel = document.getElementById('feeLabel');
+
+  var nationTh = document.getElementById('nationTh');
+  var nationTd = document.getElementById('nationTd');
+  var guestTd = document.getElementById('guestTd');
+
+  feeLabel.textContent = '手数料';
+  nationTh.style.display = '';
+  nationTd.style.display = '';
+  guestTd.colSpan = 1;
+  document.getElementById('feeLabel').style.display = '';
+  document.getElementById('feeTd').style.display = '';
+
+  if (type === 'restaurant') {
+    document.getElementById('sec_restaurant').classList.add('show');
+    guestLabel.textContent = '予約名';
+    document.querySelector('[data-f="pay"]').value = '振込';
+  } else if (type === 'activity') {
+    document.getElementById('sec_activity').classList.add('show');
+    guestLabel.textContent = '予約名';
+    document.querySelector('[data-f="pay"]').value = '振込';
+  } else if (type === 'staff_hotel') {
+    document.getElementById('sec_staff_hotel').classList.add('show');
+    guestLabel.textContent = '予約名';
+    document.querySelector('[data-f="pay"]').value = '振込';
+    nationTh.style.display = 'none';
+    nationTd.style.display = 'none';
+    guestTd.colSpan = 3;
+    document.getElementById('feeLabel').style.display = 'none';
+    document.getElementById('feeTd').style.display = 'none';
+  } else if (type === 'guest_hotel') {
+    document.getElementById('sec_guest_hotel').classList.add('show');
+    guestLabel.textContent = '団体名';
+    feeLabel.textContent = '手数料%';
+    document.querySelector('[data-f="pay"]').value = '振込';
+  }
+
+  restoreCommonFields(type);
+  if (type === 'staff_hotel' && !document.querySelector('[data-f="guest"]').value) {
+    document.querySelector('[data-f="guest"]').value = 'トラベル北海道';
+  }
+  document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
+  saveDraft();
+}
+
+function clearForm() {
+  customConfirm('入力内容をすべてクリアしますか？', true).then(function(ok) {
+    if (!ok) return;
+    document.querySelectorAll('input.e, textarea.e').forEach(function(el) {
+      var f = el.dataset.f;
+      if (f === 'doc_title') el.value = '【新規予約依頼書】';
+      else if (f === 'sender') el.value = '株式会社トラベル北海道';
+      else if (f === 'sender_tel') el.value = 'TEL：011-312-3913';
+      else if (f === 'sender_fax') el.value = 'FAX：011-351-2945';
+      else if (f === 'staff_tel') el.value = '011-312-3913';
+      else if (f === 'guest') el.value = currentType === 'staff_hotel' ? 'トラベル北海道' : '';
+      else if (f === 'pay') el.value = currentType === 'staff_hotel' || currentType === 'guest_hotel' ? '振込' : '現地';
+      else if (f === 'message') el.value = commonDefaults.message;
+      else if (f === 'total' || f === 'act_total') el.value = '';
+      else el.value = '';
+    });
+    document.getElementById('childAges').innerHTML = '';
+    document.getElementById('actChildAges').innerHTML = '';
+    document.querySelectorAll('#rest_dates .date-extra').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('#act_dates .date-extra').forEach(function(el) { el.remove(); });
+    clearDraft();
+  });
+}
+
+// --- Save/Load ---
+var LIST_KEY = 'travelhokkaido_saves';
+function getSaves() { try { return JSON.parse(localStorage.getItem(LIST_KEY)) || []; } catch(e) { return []; } }
+function putSaves(list) { try { localStorage.setItem(LIST_KEY, JSON.stringify(list)); } catch(e) {} }
+
+function collectFormData() {
+  var data = {};
+  document.querySelectorAll('[data-f]').forEach(function(el) { data[el.dataset.f] = el.value; });
+  data._type = currentType;
+  var ageInputs = document.querySelectorAll('#childAges input');
+  if (ageInputs.length > 0) {
+    data._childAges = [];
+    ageInputs.forEach(function(inp) { data._childAges.push(inp.value); });
+  }
+  var actAgeInputs = document.querySelectorAll('#actChildAges input');
+  if (actAgeInputs.length > 0) {
+    data._actChildAges = [];
+    actAgeInputs.forEach(function(inp) { data._actChildAges.push(inp.value); });
+  }
+  var ghAgeInputs = document.querySelectorAll('#ghChildAges input');
+  if (ghAgeInputs.length > 0) {
+    data._ghChildAges = [];
+    ghAgeInputs.forEach(function(inp) { data._ghChildAges.push(inp.value); });
+  }
+  var restExtras = document.querySelectorAll('#rest_dates .date-extra');
+  if (restExtras.length > 0) {
+    data._restExtraDates = [];
+    restExtras.forEach(function(tbl) {
+      var d = tbl.querySelector('input[type="date"]');
+      var t = tbl.querySelector('input[type="time"]');
+      data._restExtraDates.push({ date: d ? d.value : '', time: t ? t.value : '' });
+    });
+  }
+  var actExtras = document.querySelectorAll('#act_dates .date-extra');
+  if (actExtras.length > 0) {
+    data._actExtraDates = [];
+    actExtras.forEach(function(tbl) {
+      var d = tbl.querySelector('input[type="date"]');
+      var t = tbl.querySelector('input[type="time"]');
+      data._actExtraDates.push({ date: d ? d.value : '', time: t ? t.value : '' });
+    });
+  }
+  return data;
+}
+
+function saveForm() {
+  var data = collectFormData();
+  var guest = data.guest || '名前なし';
+  var receiver = data.receiver || '';
+  var typeName = {restaurant:'レストラン',activity:'アクティビティ',staff_hotel:'スタッフ宿泊',guest_hotel:'ホテル'}[currentType];
+  var label = '[' + typeName + '] ' + guest + (receiver ? ' → ' + receiver : '');
+  customPrompt('保存名を入力してください：', label).then(function(name) {
+    if (name === null) return;
+    if (!name.trim()) name = label;
+    var list = getSaves();
+    list.unshift({ name: name, date: new Date().toLocaleString('ja-JP'), data: data });
+    putSaves(list);
+    clearDraft();
+    customAlert('保存しました：' + name);
+  });
+}
+
+function loadFormData(data) {
+  var type = data._type || 'restaurant';
+  var tabs = document.querySelectorAll('.tab');
+  var idx = {restaurant:0, activity:1, staff_hotel:2, guest_hotel:3}[type] || 0;
+  switchType(type, tabs[idx]);
+  document.querySelectorAll('[data-f]').forEach(function(el) {
+    if (data[el.dataset.f] !== undefined) el.value = data[el.dataset.f];
+  });
+  if (type === 'staff_hotel' && !document.querySelector('[data-f="guest"]').value) {
+    document.querySelector('[data-f="guest"]').value = 'トラベル北海道';
+  }
+  calcTotal();
+  calcActTotal();
+  calcShTotal();
+  calcGhTotal();
+  updateAges();
+  updateActAges();
+  updateGhAges();
+  if (data._childAges && data._childAges.length > 0) {
+    var ageInputs = document.querySelectorAll('#childAges input');
+    data._childAges.forEach(function(v, i) {
+      if (ageInputs[i]) ageInputs[i].value = v;
+    });
+  }
+  if (data._actChildAges && data._actChildAges.length > 0) {
+    var actAgeInputs = document.querySelectorAll('#actChildAges input');
+    data._actChildAges.forEach(function(v, i) {
+      if (actAgeInputs[i]) actAgeInputs[i].value = v;
+    });
+  }
+  if (data._ghChildAges && data._ghChildAges.length > 0) {
+    var ghAgeInputs = document.querySelectorAll('#ghChildAges input');
+    data._ghChildAges.forEach(function(v, i) {
+      if (ghAgeInputs[i]) ghAgeInputs[i].value = v;
+    });
+  }
+  document.querySelectorAll('#rest_dates .date-extra').forEach(function(el) { el.remove(); });
+  if (data._restExtraDates) {
+    data._restExtraDates.forEach(function(d) { addRestDate(d.date, d.time); });
+  }
+  document.querySelectorAll('#act_dates .date-extra').forEach(function(el) { el.remove(); });
+  if (data._actExtraDates) {
+    data._actExtraDates.forEach(function(d) { addActDate(d.date, d.time); });
+  }
+  document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
+  saveCommonFields(currentType);
+  saveDraft();
+}
+
+function openLoadModal() {
+  var list = getSaves();
+  var body = document.getElementById('modalBody');
+  body.innerHTML = '';
+  if (list.length === 0) {
+    body.innerHTML = '<div class="empty-msg">保存データがありません</div>';
+  } else {
+    list.forEach(function(item, i) {
+      var d = document.createElement('div');
+      d.className = 'save-item';
+      var detail = '';
+      if (item.data.receiver) detail += item.data.receiver;
+      d.innerHTML = '<div class="save-item-info">' +
+        '<div class="save-item-name">' + escHtml(item.name) + '</div>' +
+        '<div class="save-item-date">' + escHtml(item.date) + '</div>' +
+        (detail ? '<div class="save-item-detail">' + escHtml(detail) + '</div>' : '') +
+        '</div>' +
+        '<button class="btn-item-load" data-i="'+i+'">読込</button>' +
+        '<button class="btn-item-del" data-i="'+i+'">削除</button>';
+      body.appendChild(d);
+    });
+    body.querySelectorAll('.btn-item-load').forEach(function(btn) {
+      btn.onclick = function() { loadFormData(getSaves()[parseInt(this.dataset.i)].data); closeModal(); };
+    });
+    body.querySelectorAll('.btn-item-del').forEach(function(btn) {
+      btn.onclick = function() {
+        var idx = parseInt(this.dataset.i);
+        customConfirm('この保存データを削除しますか？', true).then(function(ok) {
+          if (!ok) return;
+          var list = getSaves(); list.splice(idx, 1); putSaves(list); openLoadModal();
+        });
+      };
+    });
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function escHtml(s) { var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+// --- Draft auto-save/restore ---
+function saveDraft() {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(collectFormData())); } catch(e) {}
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+}
+
+function loadDraft() {
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return;
+    var type = data._type || 'restaurant';
+    var tabs = document.querySelectorAll('.tab');
+    var idx = {restaurant:0, activity:1, staff_hotel:2, guest_hotel:3}[type] || 0;
+    switchType(type, tabs[idx]);
+    document.querySelectorAll('[data-f]').forEach(function(el) {
+      if (data[el.dataset.f] !== undefined) el.value = data[el.dataset.f];
+    });
+    if (type === 'staff_hotel' && !document.querySelector('[data-f="guest"]').value) {
+      document.querySelector('[data-f="guest"]').value = 'トラベル北海道';
+    }
+    calcTotal();
+    calcActTotal();
+    updateAges();
+    updateActAges();
+    if (data._childAges && data._childAges.length > 0) {
+      var ageInputs = document.querySelectorAll('#childAges input');
+      data._childAges.forEach(function(v, i) {
+        if (ageInputs[i]) ageInputs[i].value = v;
+      });
+    }
+    if (data._actChildAges && data._actChildAges.length > 0) {
+      var actAgeInputs = document.querySelectorAll('#actChildAges input');
+      data._actChildAges.forEach(function(v, i) {
+        if (actAgeInputs[i]) actAgeInputs[i].value = v;
+      });
+    }
+    document.querySelectorAll('#rest_dates .date-extra').forEach(function(el) { el.remove(); });
+    if (data._restExtraDates) {
+      data._restExtraDates.forEach(function(d) { addRestDate(d.date, d.time); });
+    }
+    document.querySelectorAll('#act_dates .date-extra').forEach(function(el) { el.remove(); });
+    if (data._actExtraDates) {
+      data._actExtraDates.forEach(function(d) { addActDate(d.date, d.time); });
+    }
+    document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
+    saveCommonFields(currentType);
+    saveDraft();
+  } catch(e) {}
+}
+
+// --- PDF filename auto-set ---
+function printPDF() {
+  var dateField, nights;
+  if (currentType === 'restaurant') {
+    dateField = document.querySelector('[data-f="date"]').value;
+  } else if (currentType === 'activity') {
+    dateField = document.querySelector('[data-f="act_date"]').value;
+  } else if (currentType === 'staff_hotel') {
+    dateField = document.querySelector('[data-f="sh_date"]').value;
+    nights = document.querySelector('[data-f="sh_nights"]').value;
+  } else if (currentType === 'guest_hotel') {
+    dateField = document.querySelector('[data-f="gh_date"]').value;
+    nights = document.querySelector('[data-f="gh_nights"]').value;
+  }
+
+  var receiver = document.querySelector('[data-f="receiver"]').value.replace(/様$/, '').trim();
+  var dateStr = dateField ? dateField.replace(/-/g, '') : '';
+  var filename = '';
+
+  if (dateStr && receiver) {
+    if ((currentType === 'staff_hotel' || currentType === 'guest_hotel') && nights) {
+      filename = dateStr + '_' + nights + '泊 ' + receiver;
+    } else {
+      filename = dateStr + ' ' + receiver;
+    }
+  } else if (dateStr) {
+    filename = dateStr;
+  } else if (receiver) {
+    filename = receiver;
+  }
+
+  var originalTitle = document.title;
+  if (filename) document.title = filename;
+  window.print();
+  document.title = originalTitle;
+}
+
+// Auto-save on every input change
+document.querySelectorAll('input.e, textarea.e').forEach(function(el) {
+  el.addEventListener('input', function() { saveDraft(); });
+  el.addEventListener('change', function() { saveDraft(); });
+});
+
+// Restore draft on page load
+loadDraft();
+</script>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header"><span>保存リスト</span><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -234,6 +234,9 @@
     height: 20px;
     text-align: center;
   }
+  .day-block-start td {
+    border-top: 3px solid var(--border);
+  }
   .itinerary-table .date-cell {
     padding: 0;
   }
@@ -259,11 +262,13 @@
     width: 56px;
     text-align: center;
   }
-  .itinerary-table .time-cell input {
+  .itinerary-table .time-cell input,
+  .itinerary-table .time-cell textarea {
     text-align: center;
     font-size: 13px;
   }
-  .itinerary-table .place-cell input {
+  .itinerary-table .place-cell input,
+  .itinerary-table .place-cell textarea {
     font-size: 13px;
   }
 
@@ -454,6 +459,10 @@
       appearance: none;
       background-image: none !important;
       resize: none !important;
+    }
+    textarea {
+      height: auto !important;
+      overflow: visible !important;
     }
     input::placeholder {
       color: transparent !important;
@@ -1061,6 +1070,9 @@ function rebuildBlock(blockId) {
   vals.forEach((v, idx) => {
     if (newInputs[idx]) newInputs[idx].value = v;
   });
+  setTimeout(function() {
+    tbody.querySelectorAll('[data-block="' + blockId + '"] input').forEach(function(inp) { autoWrap(inp); });
+  }, 0);
 }
 
 function addStopToBlock(blockId) {
@@ -1217,6 +1229,7 @@ function autoWrap(el) {
     ta.value = el.value;
     ta.className = el.className;
     ta.style.cssText = el.style.cssText;
+    ta.style.fontSize = window.getComputedStyle(el).fontSize;
     ta.style.resize = 'none';
     ta.style.overflow = 'hidden';
     ta.style.minHeight = '20px';
@@ -1427,6 +1440,9 @@ function applyFormData(data) {
       var inputs = tbody.querySelectorAll('[data-block="' + blockId + '"] input, [data-block="' + blockId + '"] textarea');
       bd.values.forEach(function(v, i) { if (inputs[i]) inputs[i].value = v; });
     });
+    setTimeout(function() {
+      document.getElementById('itineraryBody').querySelectorAll('input').forEach(function(inp) { autoWrap(inp); });
+    }, 0);
   }
 }
 

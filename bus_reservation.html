@@ -1397,6 +1397,7 @@ setTimeout(updatePageDisplay, 200);
 
 // === Save / Load / Export / Import ===
 var STORAGE_PREFIX = 'bus_form_';
+var lastLoadedLabel = '';
 
 function autoSaveForm() {
   try {
@@ -1496,7 +1497,7 @@ function saveForm() {
     var data = gatherFormData();
     var group = data.groupName || '';
     var date = data.useDate || '';
-    var label = (group || '新規') + '　' + date;
+    var label = lastLoadedLabel || (group || '新規') + '　' + date;
     customPrompt('保存名を入力してください', label).then(function(slotName) {
       if (!slotName) return;
       var key = STORAGE_PREFIX + slotName;
@@ -1517,6 +1518,7 @@ function loadSlot(key) {
     if (saved) {
       var data = JSON.parse(saved);
       applyFormData(data);
+      lastLoadedLabel = data._label || key.replace(STORAGE_PREFIX, '');
     }
     closeLoadDialog();
   } catch(e) {}
@@ -1650,15 +1652,10 @@ window.addEventListener('beforeprint', function() {
     if (middleCell) {
       inp.style.display = 'none';
       var displayVal = val.replace(/\n/g, '');
-      if (displayVal.includes('/')) {
-        middleCell.innerHTML = displayVal.replace('/', '/<br>');
-      } else {
-        middleCell.textContent = displayVal;
-      }
-      middleCell.style.fontWeight = 'bold';
-      middleCell.style.fontSize = '14px';
-      middleCell.style.textAlign = 'center';
-      middleCell.style.verticalAlign = 'middle';
+      var html = displayVal.includes('/') ? displayVal.replace('/', '/<br>') : displayVal;
+      middleCell.style.position = 'relative';
+      middleCell.style.overflow = 'visible';
+      middleCell.innerHTML = '<span style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-weight:bold; font-size:14px; text-align:center; white-space:nowrap;">' + html + '</span>';
     }
   });
 });

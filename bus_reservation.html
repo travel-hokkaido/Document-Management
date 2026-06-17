@@ -940,7 +940,7 @@ function collectBlockValues(blockId) {
   const rows = document.querySelectorAll(`[data-block="${blockId}"]`);
   const vals = [];
   rows.forEach(r => {
-    r.querySelectorAll('input').forEach(inp => vals.push(inp.value));
+    r.querySelectorAll('input, textarea').forEach(inp => vals.push(inp.value));
   });
   return vals;
 }
@@ -1210,8 +1210,29 @@ function autoResize(el) {
   }
 }
 
+function autoWrap(el) {
+  if (el.tagName !== 'INPUT' || el.type !== 'text' || el.readOnly) return;
+  if (el.scrollWidth > el.clientWidth + 2) {
+    var ta = document.createElement('textarea');
+    ta.value = el.value;
+    ta.className = el.className;
+    ta.style.cssText = el.style.cssText;
+    ta.style.resize = 'none';
+    ta.style.overflow = 'hidden';
+    ta.style.minHeight = '20px';
+    ta.style.lineHeight = '1.4';
+    if (el.id) ta.id = el.id;
+    if (el.placeholder) ta.placeholder = el.placeholder;
+    el.parentNode.replaceChild(ta, el);
+    ta.focus();
+    ta.selectionStart = ta.selectionEnd = ta.value.length;
+    autoResize(ta);
+  }
+}
+
 document.addEventListener('input', function(e) {
   autoResize(e.target);
+  autoWrap(e.target);
 });
 
 document.querySelectorAll('textarea').forEach(autoResize);
@@ -1373,7 +1394,7 @@ function gatherFormData() {
     var rows = document.querySelectorAll('[data-block="' + block.id + '"]');
     var vals = [];
     rows.forEach(function(r) {
-      r.querySelectorAll('input').forEach(function(inp) { vals.push(inp.value); });
+      r.querySelectorAll('input, textarea').forEach(function(inp) { vals.push(inp.value); });
     });
     data.dayBlocks.push({ stops: block.stops, values: vals });
   });
@@ -1403,7 +1424,7 @@ function applyFormData(data) {
       var block = { id: blockId, stops: bd.stops };
       dayBlocks.push(block);
       renderDayBlock(tbody, blockId, bd.stops);
-      var inputs = tbody.querySelectorAll('[data-block="' + blockId + '"] input');
+      var inputs = tbody.querySelectorAll('[data-block="' + blockId + '"] input, [data-block="' + blockId + '"] textarea');
       bd.values.forEach(function(v, i) { if (inputs[i]) inputs[i].value = v; });
     });
   }

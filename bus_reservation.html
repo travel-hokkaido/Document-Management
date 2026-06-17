@@ -1637,12 +1637,16 @@ window.addEventListener('beforeprint', function() {
     if (!inp) return;
     var val = inp.value || '';
     if (!val) return;
-    var block = s.td.closest('tr').dataset.block;
+    var startRow = s.td.closest('tr');
+    var dateCellsInStartRow = Array.from(startRow.querySelectorAll('.date-cell'));
+    var colIdx = dateCellsInStartRow.indexOf(s.td);
+    var block = startRow.dataset.block;
     var blockRows = Array.from(table.querySelectorAll('tr[data-block="' + block + '"]:not(.no-print):not(.day-block-start)'));
     if (blockRows.length < 2) return;
     var middleIdx = Math.floor(blockRows.length / 2);
     var middleRow = blockRows[middleIdx];
-    var middleCell = middleRow.querySelector('.date-cell');
+    var middleDateCells = middleRow.querySelectorAll('.date-cell');
+    var middleCell = middleDateCells[colIdx];
     if (middleCell) {
       inp.style.display = 'none';
       var displayVal = val.replace(/\n/g, '');

@@ -1105,6 +1105,7 @@ function clearForm() {
   customConfirm('フォームの内容をすべてクリアしますか？', true).then(function(ok) {
     if (!ok) return;
     clearAutoSave();
+    lastLoadedKey = '';
     const inputs = document.querySelectorAll('input[type="text"], textarea');
     inputs.forEach(inp => {
       if (inp.id === 'personInCharge') {
@@ -1397,7 +1398,7 @@ setTimeout(updatePageDisplay, 200);
 
 // === Save / Load / Export / Import ===
 var STORAGE_PREFIX = 'bus_form_';
-var lastLoadedLabel = '';
+var lastLoadedKey = '';
 
 function autoSaveForm() {
   try {
@@ -1497,18 +1498,50 @@ function saveForm() {
     var data = gatherFormData();
     var group = data.groupName || '';
     var date = data.useDate || '';
-    var label = lastLoadedLabel || (group || '新規') + '　' + date;
-    customPrompt('保存名を入力してください', label).then(function(slotName) {
+
+    function doSave(slotName) {
       if (!slotName) return;
       var key = STORAGE_PREFIX + slotName;
       data._savedAt = new Date().toLocaleString('ja-JP');
       data._label = slotName;
       localStorage.setItem(key, JSON.stringify(data));
       clearAutoSave();
+      lastLoadedKey = key;
       var msg = document.getElementById('saveMsg');
       msg.classList.add('show');
       setTimeout(function() { msg.classList.remove('show'); }, 2000);
-    });
+    }
+
+    if (lastLoadedKey) {
+      var loadedLabel = lastLoadedKey.replace(STORAGE_PREFIX, '');
+      var overlay = document.getElementById('customPopup');
+      var msgEl = document.getElementById('customPopupMsg');
+      var okBtn = document.getElementById('customPopupOk');
+      var cancelBtn = document.getElementById('customPopupCancel');
+      msgEl.textContent = '「' + loadedLabel + '」';
+      okBtn.textContent = '上書き';
+      okBtn.classList.remove('danger');
+      cancelBtn.textContent = '新規';
+      overlay.classList.add('show');
+      function cleanup() {
+        overlay.classList.remove('show');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        overlay.onclick = null;
+        okBtn.textContent = 'OK';
+        cancelBtn.textContent = 'キャンセル';
+      }
+      okBtn.onclick = function() { cleanup(); doSave(loadedLabel); };
+      cancelBtn.onclick = function() {
+        cleanup();
+        var newLabel = (group || '新規') + '　' + date;
+        customPrompt('新しい保存名を入力してください', newLabel).then(doSave);
+      };
+      overlay.onclick = function(e) { if (e.target === overlay) cleanup(); };
+    } else {
+      var label = (group || '新規') + '　' + date;
+      customPrompt('保存名を入力してください', label).then(doSave);
+    }
   } catch(e) {}
 }
 
@@ -1518,7 +1551,7 @@ function loadSlot(key) {
     if (saved) {
       var data = JSON.parse(saved);
       applyFormData(data);
-      lastLoadedLabel = data._label || key.replace(STORAGE_PREFIX, '');
+      lastLoadedKey = key;
     }
     closeLoadDialog();
   } catch(e) {}

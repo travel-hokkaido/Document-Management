@@ -52,6 +52,7 @@
   .card.booking::before { background: #3b82f6; }
   .card.bus::before { background: #22c55e; }
   .card.bookingform::before { background: #f43f5e; }
+  .card.quotation::before { background: #8b5cf6; }
   .card.tourbooking::before { background: #0ea5e9; }
   .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
 
@@ -64,6 +65,7 @@
   .card.booking .card-icon { background: var(--blue-100); }
   .card.bus .card-icon { background: var(--green-100); }
   .card.bookingform .card-icon { background: var(--rose-100); }
+  .card.quotation .card-icon { background: var(--purple-100); }
   .card.tourbooking .card-icon { background: var(--blue-100); }
 
   .card h3 { font-size: 17px; font-weight: 700; color: var(--slate-900); margin-bottom: 8px; line-height: 1.3; }
@@ -121,13 +123,13 @@
 
 <div class="cards">
 
-  <div class="card tourbooking" onclick="window.location.href='https://tour-booking-manager.vercel.app/'">
+  <div class="card tourbooking" onclick="window.open('https://tour-booking-manager.vercel.app/', '_blank')">
     <div class="card-body">
       <div class="card-icon">📅</div>
       <h3>Tour Booking Manager</h3>
       <p>ツアー予約管理<br>予約作成・編集・管理</p>
       <div class="lang-links">
-        <a href="https://tour-booking-manager.vercel.app/" onclick="event.stopPropagation()">Open</a>
+        <a href="https://tour-booking-manager.vercel.app/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open</a>
       </div>
     </div>
   </div>
@@ -176,6 +178,19 @@
       <p>予約依頼書を作成<br>レストラン、体験、ホテル予約</p>
       <div class="lang-links">
         <a href="booking_form/booking_form.html" onclick="event.stopPropagation()">日本語</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card quotation" onclick="window.location.href='QUOTATION.html'">
+    <div class="card-body">
+      <div class="card-icon">📄</div>
+      <h3>Quotation</h3>
+      <p>見積書を作成<br>自動計算、多言語対応</p>
+      <div class="lang-links">
+        <a href="QUOTATION.html" onclick="event.stopPropagation()">日本語</a>
+        <a href="QUOTATION.html" onclick="event.stopPropagation()">EN</a>
+        <a href="QUOTATION.html" onclick="event.stopPropagation()">한국어</a>
       </div>
     </div>
   </div>

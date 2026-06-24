@@ -821,9 +821,7 @@
   }
 
   document.getElementById('items-body').addEventListener('input', function(e) {
-    if (e.target.classList.contains('qty-input') || e.target.classList.contains('unit-input')) {
-      recalc();
-    }
+    recalc();
   });
 
   document.getElementById('items-body').addEventListener('focusout', function(e) {
@@ -867,7 +865,9 @@
   }
 
   function formatJapaneseDate(d) {
-    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '/' + mm + '/' + dd;
   }
 
   var estimateDateEl = document.getElementById('estimate-date');

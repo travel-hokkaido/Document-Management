@@ -655,7 +655,7 @@
     </div>
     <div class="meta-right">
       <div class="meta-line"><span class="meta-label" data-i18n="dateLabel">見積日</span> <span class="meta-value editable" contenteditable="true" id="estimate-date"></span></div>
-      <div class="meta-line"><span class="meta-label" data-i18n="numberLabel">見積書番号</span> <span class="meta-value editable" contenteditable="true"></span></div>
+      <div class="meta-line"><span class="meta-label" data-i18n="numberLabel">見積書番号</span> <span class="meta-value editable" contenteditable="true" id="estimate-number"></span></div>
       <div class="meta-line"><span class="meta-label" data-i18n="validLabel">有効期限</span> <span class="meta-value" id="expiry-date"></span></div>
       <div class="company-block">
         <div class="company-info">
@@ -872,10 +872,14 @@
 
   var estimateDateEl = document.getElementById('estimate-date');
   var expiryDateEl = document.getElementById('expiry-date');
+  var estimateNumberEl = document.getElementById('estimate-number');
 
   function updateExpiry() {
     var d = parseJapaneseDate(estimateDateEl.textContent);
     if (d) {
+      var mm = String(d.getMonth() + 1).padStart(2, '0');
+      var dd = String(d.getDate()).padStart(2, '0');
+      estimateNumberEl.textContent = 'Q-' + d.getFullYear() + mm + dd;
       d.setDate(d.getDate() + 30);
       expiryDateEl.textContent = formatJapaneseDate(d);
     }
@@ -946,7 +950,7 @@
     var data = {};
     data.customerName = document.querySelector('.customer-name .editable').textContent;
     data.estimateDate = document.getElementById('estimate-date').textContent;
-    data.estimateNumber = document.querySelectorAll('.meta-value.editable')[1].textContent;
+    data.estimateNumber = document.getElementById('estimate-number').textContent;
     data.expiryDate = document.getElementById('expiry-date').textContent;
     data.subject = document.querySelector('.subject-value.editable').textContent;
     data.notes = document.querySelector('.notes-body').innerHTML;
@@ -963,7 +967,7 @@
   function applyFormData(data) {
     if (data.customerName !== undefined) document.querySelector('.customer-name .editable').textContent = data.customerName;
     if (data.estimateDate !== undefined) document.getElementById('estimate-date').textContent = data.estimateDate;
-    if (data.estimateNumber !== undefined) document.querySelectorAll('.meta-value.editable')[1].textContent = data.estimateNumber;
+    if (data.estimateNumber !== undefined) document.getElementById('estimate-number').textContent = data.estimateNumber;
     if (data.expiryDate !== undefined) document.getElementById('expiry-date').textContent = data.expiryDate;
     if (data.subject !== undefined) document.querySelector('.subject-value.editable').textContent = data.subject;
     if (data.notes !== undefined) document.querySelector('.notes-body').innerHTML = data.notes;
@@ -1146,7 +1150,7 @@
       if (!ok) return;
       document.querySelector('.customer-name .editable').textContent = '';
       document.getElementById('estimate-date').textContent = '';
-      document.querySelectorAll('.meta-value.editable')[1].textContent = '';
+      document.getElementById('estimate-number').textContent = '';
       document.getElementById('expiry-date').textContent = '';
       document.querySelector('.subject-value.editable').textContent = '';
       document.querySelectorAll('#items-body tr').forEach(function(row) {

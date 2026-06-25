@@ -1222,8 +1222,7 @@ function autoResize(el) {
 function autoWrap(el) {
   if (el.tagName !== 'INPUT' || el.type !== 'text' || el.readOnly) return;
   var isDateCell = el.closest('.date-cell');
-  var forceWrap = isDateCell && el.value.includes('/') && el.value.indexOf('/') < el.value.length - 1;
-  if (el.scrollWidth > el.clientWidth + 2 || forceWrap) {
+  if (el.scrollWidth > el.clientWidth + 2) {
     var ta = document.createElement('textarea');
     ta.value = el.value;
     ta.className = el.className;
@@ -1257,7 +1256,7 @@ document.addEventListener('input', function(e) {
   if (!dateCell) return;
   if (el.tagName === 'INPUT' && el.value.includes('/')) {
     var slashIdx = el.value.indexOf('/');
-    if (slashIdx < el.value.length - 1) {
+    if (slashIdx < el.value.length - 1 && el.scrollWidth > el.clientWidth + 2) {
       var ta = document.createElement('textarea');
       ta.value = el.value.replace('/', '/\n');
       ta.className = el.className;
@@ -1274,7 +1273,14 @@ document.addEventListener('input', function(e) {
     }
   } else if (el.tagName === 'TEXTAREA' && el.value.includes('/') && !el.value.includes('/\n')) {
     var idx = el.value.indexOf('/');
-    if (idx < el.value.length - 1) {
+    var plainText = el.value.replace(/\n/g, '');
+    var span = document.createElement('span');
+    span.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:' + window.getComputedStyle(el).font + ';';
+    span.textContent = plainText;
+    document.body.appendChild(span);
+    var needsWrap = span.offsetWidth > el.clientWidth - 4;
+    document.body.removeChild(span);
+    if (idx < el.value.length - 1 && needsWrap) {
       var pos = el.selectionStart;
       el.value = el.value.substring(0, idx + 1) + '\n' + el.value.substring(idx + 1);
       if (pos > idx) pos++;
@@ -1678,14 +1684,24 @@ window.addEventListener('beforeprint', function() {
     var block = startRow.dataset.block;
     var blockRows = Array.from(table.querySelectorAll('tr[data-block="' + block + '"]:not(.no-print):not(.day-block-start)'));
     if (blockRows.length < 2) return;
-    var middleIdx = Math.floor(blockRows.length / 2);
+    var middleIdx = Math.max(0, Math.floor((blockRows.length - 1) / 2));
     var middleRow = blockRows[middleIdx];
     var middleDateCells = middleRow.querySelectorAll('.date-cell');
     var middleCell = middleDateCells[colIdx];
     if (middleCell) {
       inp.style.display = 'none';
       var displayVal = val.replace(/\n/g, '');
-      var html = displayVal.includes('/') ? displayVal.replace('/', '/<br>') : displayVal;
+      var html;
+      if (displayVal.includes('/')) {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.font = 'bold 14px ' + getComputedStyle(document.body).fontFamily;
+        var textWidth = ctx.measureText(displayVal).width;
+        var cellWidth = s.td.offsetWidth || 44;
+        html = textWidth > cellWidth - 4 ? displayVal.replace('/', '/<br>') : displayVal;
+      } else {
+        html = displayVal;
+      }
       middleCell.style.position = 'relative';
       middleCell.style.overflow = 'visible';
       middleCell.innerHTML = '<span style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-weight:bold; font-size:14px; text-align:center; white-space:nowrap;">' + html + '</span>';

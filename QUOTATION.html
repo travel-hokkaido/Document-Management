@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>見積書 Q-20260624</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --border: #222;
+    --bg: #fff;
+    --accent: #000;
+    --cell-pad: 6px 10px;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", "Noto Serif JP", serif;
+    color: var(--ink);
+    background: var(--bg);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .page { width: 100%; }
+
+  .doc-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1.2em;
+    margin-bottom: 20px;
+    padding-bottom: 6px;
+    border-bottom: 3px double var(--border);
+    padding-left: 1.2em;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 20px;
+  }
+
+  .meta-left { flex: 1; }
+  .meta-right { flex: 1; text-align: right; }
+
+  .customer-name {
+    font-size: 20px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--ink);
+    display: inline-block;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+  }
+
+  .customer-name .sama {
+    font-size: 16px;
+    font-weight: 400;
+    margin-left: 8px;
+  }
+
+  .greeting { font-size: 13px; margin-top: 6px; }
+
+  .meta-label {
+    font-size: 12px;
+    color: #555;
+    display: inline-block;
+    width: 110px;
+    text-align: right;
+    margin-right: 12px;
+  }
+
+  .meta-value {
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 130px;
+    text-align: left;
+  }
+
+  .meta-line {
+    margin-bottom: 4px;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+  }
+
+  .company-block {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+  }
+
+  .company-info {
+    text-align: right;
+  }
+
+  .company-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+
+  .seal-area {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .seal-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .seal-area.has-upload .seal-default { display: none; }
+  .seal-area .seal-upload { display: none; }
+  .seal-area.has-upload .seal-upload { display: block; }
+
+  #seal-upload { display: none; }
+
+  .subject-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 14px;
+    gap: 10px;
+  }
+
+  .subject-label { font-weight: 700; white-space: nowrap; min-width: 60px; }
+
+  .subject-value {
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 1px solid #999;
+    flex: 1;
+    padding-bottom: 2px;
+  }
+
+  .total-box {
+    border: 3px solid var(--accent);
+    padding: 10px 20px;
+    margin: 12px 0 18px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .total-label { font-size: 16px; font-weight: 700; }
+
+  .total-amount {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+  }
+
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2px;
+    font-size: 13px;
+  }
+
+  .items-table th {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    padding: var(--cell-pad);
+    text-align: center;
+    font-size: 13px;
+    border: 1px solid var(--border);
+  }
+
+  .items-table td {
+    padding: 0;
+    border: 1px solid #888;
+    vertical-align: middle;
+  }
+
+  .items-table .col-desc { width: 46%; text-align: left; }
+  .items-table .col-qty { width: 12%; text-align: center; }
+  .items-table .col-unit { width: 21%; text-align: right; }
+  .items-table .col-amount { width: 21%; text-align: right; }
+
+  .items-table tbody td.col-amount {
+    font-weight: 600;
+    font-size: 14px;
+    padding: var(--cell-pad);
+  }
+
+  .items-table input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    padding: 6px 10px;
+    box-sizing: border-box;
+  }
+
+  .items-table input.num-input {
+    text-align: right;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .items-table input.qty-input {
+    text-align: center;
+  }
+
+  .items-table tbody tr { height: 30px; }
+
+  .subtotal-area {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+
+  .subtotal-area td {
+    padding: 5px 10px;
+    border: 1px solid #888;
+    font-size: 13px;
+  }
+
+  .subtotal-area .label-cell {
+    text-align: right;
+    font-weight: 600;
+    width: 60%;
+    background: #f5f5f5;
+  }
+
+  .subtotal-area .value-cell {
+    text-align: right;
+    font-weight: 700;
+    width: 40%;
+    font-size: 14px;
+  }
+
+  .subtotal-area tr.total-row .label-cell {
+    font-size: 14px;
+    font-weight: 800;
+    background: #eee;
+  }
+
+  .subtotal-area tr.total-row .value-cell {
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .breakdown { margin-bottom: 16px; }
+  .breakdown-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+
+  .breakdown-table { border-collapse: collapse; font-size: 12px; }
+  .breakdown-table td { padding: 2px 10px 2px 0; }
+  .breakdown-table .bd-val { text-align: right; font-weight: 600; padding-left: 20px; }
+
+  .notes-section {
+    border: 1px solid #888;
+    padding: 10px 14px;
+    margin-bottom: 0;
+  }
+
+  .notes-label { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .notes-body { font-size: 13px; line-height: 1.6; }
+
+  .editable {
+    outline: none;
+    border-bottom: 1px dashed transparent;
+    transition: border-color 0.2s;
+  }
+
+  .editable:hover { border-bottom-color: #ccc; }
+  .editable:focus { border-bottom-color: #888; }
+
+  .editable-block {
+    outline: none;
+    border: 1px dashed transparent;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 3px;
+    transition: border-color 0.2s;
+  }
+
+  .editable-block:hover { border-color: #ccc; }
+  .editable-block:focus { border-color: #888; }
+
+  .notes-body[contenteditable] {
+    outline: none;
+    min-height: 60px;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+
+  .toolbar-left {
+    margin-right: auto;
+  }
+
+  .btn-home {
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: #fff;
+    background: #444;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-home:hover { background: #333; }
+
+  .toolbar-btn {
+    padding: 8px 20px;
+    font-size: 13px;
+    font-family: sans-serif;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    border: 1px solid #ccc;
+  }
+
+  .btn-reset {
+    color: #888;
+    background: #f5f5f5;
+  }
+
+  .btn-reset:hover {
+    background: #e8e8e8;
+    color: #555;
+  }
+
+  .btn-pdf {
+    color: #fff;
+    background: #333;
+    border-color: #333;
+  }
+
+  .btn-pdf:hover {
+    background: #555;
+  }
+
+  .btn-save {
+    color: #fff;
+    background: #2980b9;
+    border-color: #2980b9;
+  }
+
+  .btn-save:hover { background: #1f6da0; }
+
+  .btn-load {
+    color: #fff;
+    background: #8e44ad;
+    border-color: #8e44ad;
+  }
+
+  .btn-load:hover { background: #7d3c98; }
+
+  .save-msg {
+    font-size: 12px;
+    color: #27ae60;
+    font-weight: bold;
+    font-family: sans-serif;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .save-msg.show { opacity: 1; }
+
+  .load-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .load-overlay.show { display: flex; }
+
+  .load-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 24px;
+    min-width: 360px;
+    max-width: 500px;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    font-family: sans-serif;
+  }
+
+  .load-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .load-header strong { font-size: 18px; }
+
+  .load-close {
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .load-search {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    text-align: left;
+    outline: none;
+  }
+
+  .load-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .load-item:hover { background: #f0f7ff; }
+
+  .load-item-label { font-size: 15px; font-weight: bold; }
+  .load-item-date { font-size: 11px; color: #888; }
+
+  .load-item-del {
+    border: 1px solid #e74c3c;
+    background: #fff;
+    color: #e74c3c;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: sans-serif;
+  }
+
+  .load-item-del:hover { background: #fdf2f2; }
+
+  .prompt-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .prompt-overlay.show { display: flex; }
+
+  .prompt-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 32px 20px;
+    min-width: 340px;
+    max-width: 440px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    font-family: sans-serif;
+  }
+
+  .prompt-msg {
+    font-size: 15px;
+    color: #222;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .prompt-input {
+    width: 100%;
+    font-size: 15px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    outline: none;
+    font-family: sans-serif;
+  }
+
+  .prompt-input:focus { border-color: #2980b9; }
+
+  .prompt-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .prompt-btns button {
+    font-size: 14px;
+    padding: 8px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: sans-serif;
+  }
+
+  .prompt-cancel {
+    background: #eee;
+    color: #333;
+    border: 1px solid #ccc !important;
+  }
+
+  .prompt-ok {
+    background: #2980b9;
+    color: #fff;
+  }
+
+  .prompt-ok:hover { background: #1f6da0; }
+
+  .prompt-ok.danger {
+    background: #c0392b;
+  }
+
+  .lang-switcher {
+    display: flex;
+    gap: 2px;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+  }
+
+  .lang-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    font-family: sans-serif;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-radius: 4px;
+  }
+
+  .lang-btn:not(:last-child) { border-right: none; }
+  .lang-btn:hover { background: #f0f0f0; color: #555; }
+  .lang-btn.active { background: #333; color: #fff; border-radius: 4px; }
+
+  @media print {
+    body { padding: 0; font-size: 12px; max-width: none; margin: 0; }
+    .page { page-break-inside: avoid; page-break-after: avoid; }
+    .notes-section { margin-bottom: 0; }
+    .total-box { border-width: 3px; }
+    .items-table input {
+      border: none;
+      padding: 10px 14px;
+    }
+    .seal-area { border: none; }
+    .seal-placeholder { display: none; }
+    #seal-upload { display: none; }
+    .editable, .editable-block { border-color: transparent !important; }
+    .toolbar { display: none; }
+    .lang-switcher { display: none; }
+    .load-overlay, .prompt-overlay { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Prompt dialog -->
+<div class="prompt-overlay" id="promptOverlay">
+  <div class="prompt-box">
+    <div class="prompt-msg" id="promptMsg"></div>
+    <input type="text" class="prompt-input" id="promptInput">
+    <div class="prompt-btns">
+      <button class="prompt-cancel" id="promptCancel">キャンセル</button>
+      <button class="prompt-ok" id="promptOk">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load dialog -->
+<div class="load-overlay" id="loadOverlay">
+  <div class="load-box">
+    <div class="load-header">
+      <strong>保存データ一覧</strong>
+      <button class="load-close" id="loadClose">✕</button>
+    </div>
+    <input type="text" class="load-search" id="loadSearch" placeholder="検索...">
+    <div id="savedList"></div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="switchLang('ja')">日本語</button>
+    <button class="lang-btn" onclick="switchLang('en')">EN</button>
+    <button class="lang-btn" onclick="switchLang('ko')">한국어</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <a href="index.html" class="btn-home">🏠 ホーム</a>
+    </div>
+    <span class="save-msg" id="saveMsg">✓ 保存しました</span>
+    <button class="toolbar-btn btn-save" id="save-btn" data-i18n="save">保存</button>
+    <button class="toolbar-btn btn-load" id="load-btn" data-i18n="load">呼び出し</button>
+    <button class="toolbar-btn btn-reset" id="reset-btn" data-i18n="reset">リセット</button>
+    <button class="toolbar-btn btn-pdf" id="pdf-btn" data-i18n="pdf">PDF保存</button>
+  </div>
+
+  <h1 class="doc-title" data-i18n="title">お 見 積 書</h1>
+
+  <div class="meta-row">
+    <div class="meta-left">
+      <div class="customer-name"><span class="editable" contenteditable="true"></span><span class="sama" data-i18n="honorific">　様</span></div>
+      <div class="greeting" data-i18n="greeting">下記の通り御見積もり申し上げます。</div>
+    </div>
+    <div class="meta-right">
+      <div class="meta-line"><span class="meta-label" data-i18n="dateLabel">見積日</span> <span class="meta-value editable" contenteditable="true" id="estimate-date"></span></div>
+      <div class="meta-line"><span class="meta-label" data-i18n="numberLabel">見積書番号</span> <span class="meta-value editable" contenteditable="true" id="estimate-number"></span></div>
+      <div class="meta-line"><span class="meta-label" data-i18n="validLabel">有効期限</span> <span class="meta-value" id="expiry-date"></span></div>
+      <div class="company-block">
+        <div class="company-info">
+          <div class="company-name editable" contenteditable="true" id="companyName">株式会社Japan Beyond</div>
+          <div class="editable-block" contenteditable="true" id="companyAddress">〒001-0045<br>
+          北海道札幌市北区麻生町5丁目5-2<br>
+          アルファスクエア麻生 203号<br>
+          TEL: 011-312-3913<br>
+          FAX: 011-351-2945<br>
+          （北海道知事登録旅行業第2-912号）</div>
+        </div>
+        <div class="seal-area" id="seal-area" title="クリックして印鑑画像を変更">
+          <img class="seal-default" src="seal.png" alt="印鑑">
+          <img class="seal-upload" id="seal-img" src="" alt="印鑑">
+        </div>
+        <input type="file" id="seal-upload" accept="image/*">
+      </div>
+    </div>
+  </div>
+
+  <div class="subject-row">
+    <span class="subject-label" data-i18n="subjectLabel">件名</span>
+    <span class="subject-value editable" contenteditable="true"></span>
+  </div>
+
+  <div class="total-box">
+    <span class="total-label" data-i18n="totalLabel">御見積金額（税込）</span>
+    <span class="total-amount" id="grand-total">¥0</span>
+  </div>
+
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th class="col-desc" data-i18n="thDesc">摘要</th>
+        <th class="col-qty" data-i18n="thQty">数量</th>
+        <th class="col-unit" data-i18n="thUnit">単価</th>
+        <th class="col-amount" data-i18n="thAmount">金額</th>
+      </tr>
+    </thead>
+    <tbody id="items-body">
+      <tr>
+        <td class="col-desc"><input type="text" value="" class="desc-input"></td>
+        <td class="col-qty"><input type="text" value="" class="qty-input" inputmode="numeric"></td>
+        <td class="col-unit"><input type="text" value="" class="num-input unit-input" inputmode="numeric"></td>
+        <td class="col-amount"></td>
+      </tr>
+      <tr>
+        <td class="col-desc"><input type="text" value="" class="desc-input"></td>
+        <td class="col-qty"><input type="text" value="" class="qty-input" inputmode="numeric"></td>
+        <td class="col-unit"><input type="text" value="" class="num-input unit-input" inputmode="numeric"></td>
+        <td class="col-amount"></td>
+      </tr>
+      <tr>
+        <td class="col-desc"><input type="text" value="" class="desc-input"></td>
+        <td class="col-qty"><input type="text" value="" class="qty-input" inputmode="numeric"></td>
+        <td class="col-unit"><input type="text" value="" class="num-input unit-input" inputmode="numeric"></td>
+        <td class="col-amount"></td>
+      </tr>
+      <tr>
+        <td class="col-desc"><input type="text" value="" class="desc-input"></td>
+        <td class="col-qty"><input type="text" value="" class="qty-input" inputmode="numeric"></td>
+        <td class="col-unit"><input type="text" value="" class="num-input unit-input" inputmode="numeric"></td>
+        <td class="col-amount"></td>
+      </tr>
+      <tr>
+        <td class="col-desc"><input type="text" value="" class="desc-input"></td>
+        <td class="col-qty"><input type="text" value="" class="qty-input" inputmode="numeric"></td>
+        <td class="col-unit"><input type="text" value="" class="num-input unit-input" inputmode="numeric"></td>
+        <td class="col-amount"></td>
+      </tr>
+      <tr>
+        <td class="col-desc"><input type="text" value="" class="desc-input"></td>
+        <td class="col-qty"><input type="text" value="" class="qty-input" inputmode="numeric"></td>
+        <td class="col-unit"><input type="text" value="" class="num-input unit-input" inputmode="numeric"></td>
+        <td class="col-amount"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="subtotal-area">
+    <tr>
+      <td class="label-cell" data-i18n="subtotalLabel">小計（税抜）</td>
+      <td class="value-cell" id="subtotal">¥0</td>
+    </tr>
+    <tr>
+      <td class="label-cell" data-i18n="taxLabel">消費税（10%）</td>
+      <td class="value-cell" id="tax">¥0</td>
+    </tr>
+    <tr class="total-row">
+      <td class="label-cell" data-i18n="totalTaxLabel">見積金額（税込）</td>
+      <td class="value-cell" id="total-with-tax">¥0</td>
+    </tr>
+  </table>
+
+  <div class="breakdown">
+    <div class="breakdown-title" data-i18n="breakdownTitle">【内訳】</div>
+    <table class="breakdown-table">
+      <tr>
+        <td data-i18n="bdBase">10%対象（税抜）</td>
+        <td class="bd-val" id="bd-base">¥0</td>
+      </tr>
+      <tr>
+        <td data-i18n="bdTax">10%消費税</td>
+        <td class="bd-val" id="bd-tax">¥0</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="notes-section">
+    <div class="notes-label" data-i18n="notesLabel">備考</div>
+    <div class="notes-body" contenteditable="true">
+      いつもお世話になっております。<br>
+      本見積書の有効期限は発行日より30日間となります。<br>
+      ご検討のほど、よろしくお願いいたします。
+    </div>
+  </div>
+
+  <button style="display:none;"></button>
+
+</div>
+
+<script>
+  var STORAGE_PREFIX = 'estimate_';
+  var AUTOSAVE_KEY = 'estimate__autosave';
+  var lastLoadedKey = '';
+  var DEFAULT_NOTES = 'いつもお世話になっております。<br>本見積書の有効期限は発行日より30日間となります。<br>ご検討のほど、よろしくお願いいたします。';
+
+  function parseNum(str) {
+    var s = String(str).replace(/[^0-9-]/g, '');
+    var neg = s.indexOf('-') !== -1;
+    s = s.replace(/-/g, '');
+    var n = parseInt(s, 10);
+    if (isNaN(n)) return 0;
+    return neg ? -n : n;
+  }
+
+  function formatYen(n) {
+    return (n < 0 ? '-¥' : '¥') + Math.abs(n).toLocaleString('ja-JP');
+  }
+
+  function recalc() {
+    var rows = document.querySelectorAll('#items-body tr');
+    var totalAmount = 0;
+    rows.forEach(function(row) {
+      var qtyInput = row.querySelector('.qty-input');
+      var unitInput = row.querySelector('.unit-input');
+      var amountCell = row.querySelector('.col-amount');
+      if (!qtyInput || !unitInput || !amountCell) return;
+      var qty = parseNum(qtyInput.value);
+      var unit = parseNum(unitInput.value);
+      var amount = qty * unit;
+      if (qty !== 0 && unit !== 0) {
+        amountCell.textContent = formatYen(amount);
+        totalAmount += amount;
+      } else {
+        amountCell.textContent = '';
+      }
+    });
+    var taxExcluded = Math.floor(totalAmount / 1.1);
+    var tax = totalAmount - taxExcluded;
+    document.getElementById('grand-total').textContent = formatYen(totalAmount);
+    document.getElementById('subtotal').textContent = formatYen(taxExcluded);
+    document.getElementById('tax').textContent = formatYen(tax);
+    document.getElementById('total-with-tax').textContent = formatYen(totalAmount);
+    document.getElementById('bd-base').textContent = formatYen(taxExcluded);
+    document.getElementById('bd-tax').textContent = formatYen(tax);
+  }
+
+  document.getElementById('items-body').addEventListener('input', function(e) {
+    recalc();
+  });
+
+  document.getElementById('items-body').addEventListener('focusout', function(e) {
+    if (e.target.classList.contains('unit-input')) {
+      var val = parseNum(e.target.value);
+      if (val !== 0) e.target.value = val.toLocaleString('ja-JP');
+    }
+  });
+
+  document.getElementById('items-body').addEventListener('focusin', function(e) {
+    if (e.target.classList.contains('unit-input')) {
+      var val = parseNum(e.target.value);
+      if (val !== 0) e.target.value = val;
+    }
+  });
+
+  // Seal
+  var sealArea = document.getElementById('seal-area');
+  var sealUpload = document.getElementById('seal-upload');
+  var sealImg = document.getElementById('seal-img');
+
+  sealArea.addEventListener('click', function() { sealUpload.click(); });
+
+  sealUpload.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      sealImg.src = ev.target.result;
+      sealImg.style.display = 'block';
+      sealArea.classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Expiry date
+  function parseJapaneseDate(str) {
+    var m = str.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+    if (!m) return null;
+    return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+  }
+
+  function formatJapaneseDate(d) {
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '/' + mm + '/' + dd;
+  }
+
+  var estimateDateEl = document.getElementById('estimate-date');
+  var expiryDateEl = document.getElementById('expiry-date');
+  var estimateNumberEl = document.getElementById('estimate-number');
+
+  function updateExpiry() {
+    var d = parseJapaneseDate(estimateDateEl.textContent);
+    if (d) {
+      var mm = String(d.getMonth() + 1).padStart(2, '0');
+      var dd = String(d.getDate()).padStart(2, '0');
+      estimateNumberEl.textContent = 'Q-' + d.getFullYear() + mm + dd;
+      d.setDate(d.getDate() + 30);
+      expiryDateEl.textContent = formatJapaneseDate(d);
+    }
+  }
+
+  estimateDateEl.addEventListener('blur', updateExpiry);
+  estimateDateEl.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+  });
+
+  // === Prompt dialog ===
+  function showPrompt(message, defaultVal) {
+    return new Promise(function(resolve) {
+      var overlay = document.getElementById('promptOverlay');
+      var msgEl = document.getElementById('promptMsg');
+      var inputEl = document.getElementById('promptInput');
+      var okBtn = document.getElementById('promptOk');
+      var cancelBtn = document.getElementById('promptCancel');
+      msgEl.textContent = message;
+      inputEl.value = defaultVal || '';
+      okBtn.textContent = '保存';
+      okBtn.classList.remove('danger');
+      overlay.classList.add('show');
+      setTimeout(function() { inputEl.focus(); inputEl.select(); }, 50);
+      function cleanup() {
+        overlay.classList.remove('show');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        overlay.onclick = null;
+        inputEl.onkeydown = null;
+      }
+      okBtn.onclick = function() { var v = inputEl.value; cleanup(); resolve(v || null); };
+      cancelBtn.onclick = function() { cleanup(); resolve(null); };
+      overlay.onclick = function(e) { if (e.target === overlay) { cleanup(); resolve(null); } };
+      inputEl.onkeydown = function(e) {
+        if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); var v = inputEl.value; cleanup(); resolve(v || null); }
+      };
+    });
+  }
+
+  function showConfirm(message, isDanger) {
+    return new Promise(function(resolve) {
+      var overlay = document.getElementById('promptOverlay');
+      var msgEl = document.getElementById('promptMsg');
+      var inputEl = document.getElementById('promptInput');
+      var okBtn = document.getElementById('promptOk');
+      var cancelBtn = document.getElementById('promptCancel');
+      msgEl.textContent = message;
+      inputEl.style.display = 'none';
+      okBtn.textContent = 'OK';
+      if (isDanger) okBtn.classList.add('danger'); else okBtn.classList.remove('danger');
+      overlay.classList.add('show');
+      function cleanup() {
+        overlay.classList.remove('show');
+        inputEl.style.display = '';
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        overlay.onclick = null;
+      }
+      okBtn.onclick = function() { cleanup(); resolve(true); };
+      cancelBtn.onclick = function() { cleanup(); resolve(false); };
+      overlay.onclick = function(e) { if (e.target === overlay) { cleanup(); resolve(false); } };
+    });
+  }
+
+  // === Gather / Apply ===
+  function gatherFormData() {
+    var data = {};
+    data.customerName = document.querySelector('.customer-name .editable').textContent;
+    data.estimateDate = document.getElementById('estimate-date').textContent;
+    data.estimateNumber = document.getElementById('estimate-number').textContent;
+    data.expiryDate = document.getElementById('expiry-date').textContent;
+    data.subject = document.querySelector('.subject-value.editable').textContent;
+    data.notes = document.querySelector('.notes-body').innerHTML;
+    data.items = [];
+    document.querySelectorAll('#items-body tr').forEach(function(row) {
+      var desc = row.querySelector('.desc-input');
+      var qty = row.querySelector('.qty-input');
+      var unit = row.querySelector('.unit-input');
+      if (desc) data.items.push({ desc: desc.value, qty: qty.value, unit: unit.value });
+    });
+    return data;
+  }
+
+  function applyFormData(data) {
+    if (data.customerName !== undefined) document.querySelector('.customer-name .editable').textContent = data.customerName;
+    if (data.estimateDate !== undefined) document.getElementById('estimate-date').textContent = data.estimateDate;
+    if (data.estimateNumber !== undefined) document.getElementById('estimate-number').textContent = data.estimateNumber;
+    if (data.expiryDate !== undefined) document.getElementById('expiry-date').textContent = data.expiryDate;
+    if (data.subject !== undefined) document.querySelector('.subject-value.editable').textContent = data.subject;
+    if (data.notes !== undefined) document.querySelector('.notes-body').innerHTML = data.notes;
+    if (data.items) {
+      var rows = document.querySelectorAll('#items-body tr');
+      data.items.forEach(function(item, i) {
+        if (!rows[i]) return;
+        var desc = rows[i].querySelector('.desc-input');
+        var qty = rows[i].querySelector('.qty-input');
+        var unit = rows[i].querySelector('.unit-input');
+        if (desc) desc.value = item.desc || '';
+        if (qty) qty.value = item.qty || '';
+        if (unit) unit.value = item.unit || '';
+      });
+    }
+    recalc();
+    // Format unit prices
+    document.querySelectorAll('.unit-input').forEach(function(inp) {
+      var val = parseNum(inp.value);
+      if (val > 0) inp.value = val.toLocaleString('ja-JP');
+    });
+  }
+
+  // === Auto-save ===
+  function autoSave() {
+    try {
+      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(gatherFormData()));
+    } catch(e) {}
+  }
+
+  function loadAutoSave() {
+    try {
+      var saved = localStorage.getItem(AUTOSAVE_KEY);
+      if (saved) { applyFormData(JSON.parse(saved)); return true; }
+    } catch(e) {}
+    return false;
+  }
+
+  var autoSaveTimer = null;
+  document.querySelector('.page').addEventListener('input', function() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSave, 500);
+  });
+
+  // === Save ===
+  function getSavedKeys() {
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k.startsWith(STORAGE_PREFIX) && k !== AUTOSAVE_KEY) keys.push(k);
+    }
+    keys.sort();
+    return keys;
+  }
+
+  document.getElementById('save-btn').addEventListener('click', function() {
+    var data = gatherFormData();
+    var customer = data.customerName || '';
+    var date = data.estimateDate || '';
+
+    function doSave(slotName) {
+      if (!slotName) return;
+      var key = STORAGE_PREFIX + slotName;
+      data._savedAt = new Date().toLocaleString('ja-JP');
+      data._label = slotName;
+      localStorage.setItem(key, JSON.stringify(data));
+      localStorage.removeItem(AUTOSAVE_KEY);
+      lastLoadedKey = key;
+      var msg = document.getElementById('saveMsg');
+      msg.classList.add('show');
+      setTimeout(function() { msg.classList.remove('show'); }, 2000);
+    }
+
+    if (lastLoadedKey) {
+      var loadedLabel = lastLoadedKey.replace(STORAGE_PREFIX, '');
+      var overlay = document.getElementById('promptOverlay');
+      var msgEl = document.getElementById('promptMsg');
+      var inputEl = document.getElementById('promptInput');
+      var okBtn = document.getElementById('promptOk');
+      var cancelBtn = document.getElementById('promptCancel');
+      msgEl.textContent = '「' + loadedLabel + '」';
+      inputEl.style.display = 'none';
+      okBtn.textContent = '上書き';
+      okBtn.classList.remove('danger');
+      cancelBtn.textContent = '新規保存';
+      overlay.classList.add('show');
+      function cleanup() {
+        overlay.classList.remove('show');
+        inputEl.style.display = '';
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        overlay.onclick = null;
+        cancelBtn.textContent = 'キャンセル';
+      }
+      okBtn.onclick = function() { cleanup(); doSave(loadedLabel); };
+      cancelBtn.onclick = function() {
+        cleanup();
+        var label = (customer || '新規') + '　' + date;
+        showPrompt('保存名を入力してください', label).then(doSave);
+      };
+      overlay.onclick = function(e) { if (e.target === overlay) cleanup(); };
+    } else {
+      var label = (customer || '新規') + '　' + date;
+      showPrompt('保存名を入力してください', label).then(doSave);
+    }
+  });
+
+  // === Load ===
+  document.getElementById('load-btn').addEventListener('click', showLoadDialog);
+  document.getElementById('loadClose').addEventListener('click', closeLoadDialog);
+  document.getElementById('loadOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeLoadDialog();
+  });
+
+  document.getElementById('loadSearch').addEventListener('input', function() {
+    var query = this.value.toLowerCase();
+    document.querySelectorAll('#savedList .load-item').forEach(function(item) {
+      item.style.display = item.textContent.toLowerCase().includes(query) ? '' : 'none';
+    });
+  });
+
+  function showLoadDialog() {
+    var list = document.getElementById('savedList');
+    var keys = getSavedKeys();
+    if (keys.length === 0) {
+      list.innerHTML = '<p style="color:#999; text-align:center; padding:20px;">保存データがありません</p>';
+    } else {
+      list.innerHTML = '';
+      keys.forEach(function(key) {
+        try {
+          var data = JSON.parse(localStorage.getItem(key));
+          var label = data._label || key.replace(STORAGE_PREFIX, '');
+          var savedAt = data._savedAt || '';
+          var item = document.createElement('div');
+          item.className = 'load-item';
+          item.innerHTML = '<div style="flex:1;"><div class="load-item-label">' + label + '</div><div class="load-item-date">' + savedAt + '</div></div>' +
+            '<button class="load-item-del">削除</button>';
+          item.querySelector('.load-item-label').parentElement.addEventListener('click', function() {
+            loadSlot(key);
+          });
+          item.querySelector('.load-item-del').addEventListener('click', function(e) {
+            e.stopPropagation();
+            deleteSlot(key);
+          });
+          list.appendChild(item);
+        } catch(e) {}
+      });
+    }
+    document.getElementById('loadSearch').value = '';
+    document.getElementById('loadOverlay').classList.add('show');
+  }
+
+  function closeLoadDialog() {
+    document.getElementById('loadOverlay').classList.remove('show');
+  }
+
+  function loadSlot(key) {
+    try {
+      var saved = localStorage.getItem(key);
+      if (saved) {
+        applyFormData(JSON.parse(saved));
+        lastLoadedKey = key;
+      }
+      closeLoadDialog();
+    } catch(e) {}
+  }
+
+  function deleteSlot(key) {
+    showConfirm('このデータを削除しますか？', true).then(function(ok) {
+      if (!ok) return;
+      localStorage.removeItem(key);
+      if (lastLoadedKey === key) lastLoadedKey = '';
+      showLoadDialog();
+    });
+  }
+
+  // === Reset ===
+  function resetForm() {
+    showConfirm('入力内容をリセットしますか？', true).then(function(ok) {
+      if (!ok) return;
+      document.querySelector('.customer-name .editable').textContent = '';
+      document.getElementById('estimate-date').textContent = '';
+      document.getElementById('estimate-number').textContent = '';
+      document.getElementById('expiry-date').textContent = '';
+      document.querySelector('.subject-value.editable').textContent = '';
+      document.querySelectorAll('#items-body tr').forEach(function(row) {
+        var desc = row.querySelector('.desc-input');
+        var qty = row.querySelector('.qty-input');
+        var unit = row.querySelector('.unit-input');
+        var amount = row.querySelector('.col-amount');
+        if (desc) desc.value = '';
+        if (qty) qty.value = '';
+        if (unit) unit.value = '';
+        if (amount) amount.textContent = '';
+      });
+      document.querySelector('.notes-body').innerHTML = DEFAULT_NOTES;
+      sealImg.src = '';
+      sealImg.style.display = 'none';
+      sealArea.classList.remove('has-image');
+      sealArea.classList.remove('has-upload');
+      lastLoadedKey = '';
+      localStorage.removeItem(AUTOSAVE_KEY);
+      recalc();
+    });
+  }
+
+  document.getElementById('reset-btn').addEventListener('click', resetForm);
+
+  // PDF
+  document.getElementById('pdf-btn').addEventListener('click', function() {
+    window.print();
+  });
+
+  // Init: load autosave
+  loadAutoSave();
+
+  // === i18n ===
+  var currentLang = 'ja';
+  var i18n = {
+    ja: {
+      title: 'お 見 積 書', honorific: '　様', greeting: '下記の通り御見積もり申し上げます。',
+      dateLabel: '見積日', numberLabel: '見積書番号', validLabel: '有効期限',
+      subjectLabel: '件名', totalLabel: '御見積金額（税込）',
+      thDesc: '摘要', thQty: '数量', thUnit: '単価', thAmount: '金額',
+      subtotalLabel: '小計（税抜）', taxLabel: '消費税（10%）', totalTaxLabel: '見積金額（税込）',
+      breakdownTitle: '【内訳】', bdBase: '10%対象（税抜）', bdTax: '10%消費税',
+      notesLabel: '備考',
+      save: '保存', load: '呼び出し', reset: 'リセット', pdf: 'PDF保存',
+      saveMsg: '✓ 保存しました',
+      promptSave: '保存名を入力してください', promptOverwrite: '上書き', promptNew: '新規保存',
+      promptCancel: 'キャンセル', promptOkSave: '保存',
+      confirmReset: '入力内容をリセットしますか？', confirmDelete: 'このデータを削除しますか？',
+      loadTitle: '保存データ一覧', loadSearch: '検索...', loadEmpty: '保存データがありません', loadDelete: '削除',
+      defaultNotes: 'いつもお世話になっております。<br>本見積書の有効期限は発行日より30日間となります。<br>ご検討のほど、よろしくお願いいたします。',
+      companyName: '株式会社Japan Beyond',
+      companyAddress: '〒001-0045<br>北海道札幌市北区麻生町5丁目5-2<br>アルファスクエア麻生 203号<br>TEL: 011-312-3913<br>FAX: 011-351-2945<br>（北海道知事登録旅行業第2-912号）'
+    },
+    en: {
+      title: 'QUOTATION', honorific: '', greeting: 'We are pleased to submit the following quotation for your consideration.',
+      dateLabel: 'Date', numberLabel: 'Quotation No.', validLabel: 'Valid Until',
+      subjectLabel: 'Subject', totalLabel: 'Total Amount (Tax Incl.)',
+      thDesc: 'Description', thQty: 'Qty', thUnit: 'Unit Price', thAmount: 'Amount',
+      subtotalLabel: 'Subtotal (Tax Excl.)', taxLabel: 'Consumption Tax (10%)', totalTaxLabel: 'Total (Tax Incl.)',
+      breakdownTitle: '【Breakdown】', bdBase: '10% Taxable (Excl.)', bdTax: '10% Tax',
+      notesLabel: 'Remarks',
+      save: 'Save', load: 'Load', reset: 'Reset', pdf: 'Save PDF',
+      saveMsg: '✓ Saved',
+      promptSave: 'Enter a save name', promptOverwrite: 'Overwrite', promptNew: 'Save New',
+      promptCancel: 'Cancel', promptOkSave: 'Save',
+      confirmReset: 'Reset all input?', confirmDelete: 'Delete this data?',
+      loadTitle: 'Saved Quotations', loadSearch: 'Search...', loadEmpty: 'No saved data', loadDelete: 'Delete',
+      defaultNotes: 'Thank you for your inquiry.<br>This quotation is valid for 30 days from the date of issue.<br>We look forward to your favorable consideration.',
+      companyName: 'Japan Beyond Co., Ltd.',
+      companyAddress: '5-5-2 Azabu-cho, Kita-ku<br>Sapporo, Hokkaido 001-0045<br>Alpha Square Azabu #203<br>TEL: 011-312-3913<br>FAX: 011-351-2945'
+    },
+    ko: {
+      title: '견 적 서', honorific: '　귀하', greeting: '아래와 같이 견적을 제출합니다.',
+      dateLabel: '견적일', numberLabel: '견적서 번호', validLabel: '유효기한',
+      subjectLabel: '건명', totalLabel: '견적 금액 (세금 포함)',
+      thDesc: '적요', thQty: '수량', thUnit: '단가', thAmount: '금액',
+      subtotalLabel: '소계 (세전)', taxLabel: '소비세 (10%)', totalTaxLabel: '견적 금액 (세후)',
+      breakdownTitle: '【내역】', bdBase: '10% 과세 대상 (세전)', bdTax: '10% 소비세',
+      notesLabel: '비고',
+      save: '저장', load: '불러오기', reset: '리셋', pdf: 'PDF 저장',
+      saveMsg: '✓ 저장됨',
+      promptSave: '저장 이름을 입력하세요', promptOverwrite: '덮어쓰기', promptNew: '새로 저장',
+      promptCancel: '취소', promptOkSave: '저장',
+      confirmReset: '입력 내용을 리셋하시겠습니까?', confirmDelete: '이 데이터를 삭제하시겠습니까?',
+      loadTitle: '저장된 견적서', loadSearch: '검색...', loadEmpty: '저장된 데이터가 없습니다', loadDelete: '삭제',
+      defaultNotes: '항상 신세 지고 있습니다.<br>본 견적서의 유효기한은 발행일로부터 30일입니다.<br>검토 부탁드립니다.',
+      companyName: '주식회사 Japan Beyond',
+      companyAddress: '〒001-0045<br>홋카이도 삿포로시 키타구 아자부쵸 5-5-2<br>알파스퀘어 아자부 203호<br>TEL: 011-312-3913<br>FAX: 011-351-2945'
+    }
+  };
+
+  function switchLang(lang) {
+    currentLang = lang;
+    var t = i18n[lang];
+    DEFAULT_NOTES = t.defaultNotes;
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) el.textContent = t[key];
+    });
+    document.getElementById('companyName').textContent = t.companyName;
+    document.getElementById('companyAddress').innerHTML = t.companyAddress;
+    document.querySelector('.notes-body').innerHTML = t.defaultNotes;
+    document.getElementById('saveMsg').textContent = t.saveMsg;
+    document.getElementById('promptCancel').textContent = t.promptCancel;
+    document.querySelector('.load-header strong').textContent = t.loadTitle;
+    document.getElementById('loadSearch').placeholder = t.loadSearch;
+    document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelector('.lang-btn[onclick*="' + lang + '"]').classList.add('active');
+    if (lang === 'ja') {
+      document.querySelector('.doc-title').style.letterSpacing = '1.2em';
+      document.querySelector('.doc-title').style.paddingLeft = '1.2em';
+    } else if (lang === 'ko') {
+      document.querySelector('.doc-title').style.letterSpacing = '0.8em';
+      document.querySelector('.doc-title').style.paddingLeft = '0.8em';
+    } else {
+      document.querySelector('.doc-title').style.letterSpacing = '0.15em';
+      document.querySelector('.doc-title').style.paddingLeft = '0';
+    }
+    localStorage.setItem('estimate_lang', lang);
+  }
+
+  var savedLang = localStorage.getItem('estimate_lang');
+  if (savedLang && i18n[savedLang]) switchLang(savedLang);
+</script>
+</body>
+</html>

@@ -219,14 +219,17 @@
 
   <!-- ===== レストラン ===== -->
   <div class="type-section show" id="sec_restaurant">
-    <table class="ft">
-      <tr>
-        <th>日付</th>
-        <td><input class="e" type="date" data-f="date" style="font-weight:600;"></td>
-        <th style="width:75px;">希望時間</th>
-        <td style="width:160px;"><input class="e" type="time" data-f="time" style="font-size:16px;font-weight:700;"></td>
-      </tr>
-    </table>
+    <div id="rs_dates">
+      <table class="ft">
+        <tr>
+          <th>日付</th>
+          <td><input class="e" type="date" data-f="date" style="font-weight:600;"></td>
+          <th style="width:75px;">希望時間</th>
+          <td style="width:160px;"><input class="e" type="time" data-f="time" style="font-size:16px;font-weight:700;"></td>
+        </tr>
+      </table>
+    </div>
+    <button type="button" class="btn-add-date" onclick="addRsDate()">＋ 日付追加</button>
     <table class="ft">
       <tr>
         <th style="vertical-align:middle;">内容</th>
@@ -248,14 +251,17 @@
 
   <!-- ===== アクティビティ ===== -->
   <div class="type-section" id="sec_activity">
-    <table class="ft">
-      <tr>
-        <th>日付</th>
-        <td><input class="e" type="date" data-f="act_date" style="font-weight:600;"></td>
-        <th style="width:75px;">希望時間</th>
-        <td style="width:160px;"><input class="e" type="time" data-f="act_time" style="font-size:16px;font-weight:700;"></td>
-      </tr>
-    </table>
+    <div id="ac_dates">
+      <table class="ft">
+        <tr>
+          <th>日付</th>
+          <td><input class="e" type="date" data-f="act_date" style="font-weight:600;"></td>
+          <th style="width:75px;">希望時間</th>
+          <td style="width:160px;"><input class="e" type="time" data-f="act_time" style="font-size:16px;font-weight:700;"></td>
+        </tr>
+      </table>
+    </div>
+    <button type="button" class="btn-add-date" onclick="addAcDate()">＋ 日付追加</button>
     <table class="ft">
       <tr>
         <th style="vertical-align:middle;">体験内容</th>
@@ -638,6 +644,42 @@ function addGhDate(dateVal, nightsVal) {
   saveDraft();
 }
 
+function addRsDate(dateVal, timeVal) {
+  var container = document.getElementById('rs_dates');
+  var tbl = document.createElement('table');
+  tbl.className = 'ft date-extra';
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<th>日付</th><td><input class="e" type="date" style="font-weight:600;" value="'+(dateVal||'')+'"></td>' +
+    '<th style="width:75px;">希望時間</th>' +
+    '<td style="width:160px;position:relative;"><input class="e" type="time" style="font-size:16px;font-weight:700;" value="'+(timeVal||'')+'">' +
+    '<button type="button" class="btn-remove-date" style="position:absolute;top:50%;right:-26px;transform:translateY(-50%);margin:0;" onclick="this.closest(\'table\').remove();saveDraft();">×</button></td>';
+  tbl.appendChild(tr);
+  container.appendChild(tbl);
+  tbl.querySelectorAll('input.e').forEach(function(el) {
+    el.addEventListener('input', function() { saveDraft(); });
+    el.addEventListener('change', function() { saveDraft(); });
+  });
+  saveDraft();
+}
+
+function addAcDate(dateVal, timeVal) {
+  var container = document.getElementById('ac_dates');
+  var tbl = document.createElement('table');
+  tbl.className = 'ft date-extra';
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<th>日付</th><td><input class="e" type="date" style="font-weight:600;" value="'+(dateVal||'')+'"></td>' +
+    '<th style="width:75px;">希望時間</th>' +
+    '<td style="width:160px;position:relative;"><input class="e" type="time" style="font-size:16px;font-weight:700;" value="'+(timeVal||'')+'">' +
+    '<button type="button" class="btn-remove-date" style="position:absolute;top:50%;right:-26px;transform:translateY(-50%);margin:0;" onclick="this.closest(\'table\').remove();saveDraft();">×</button></td>';
+  tbl.appendChild(tr);
+  container.appendChild(tbl);
+  tbl.querySelectorAll('input.e').forEach(function(el) {
+    el.addEventListener('input', function() { saveDraft(); });
+    el.addEventListener('change', function() { saveDraft(); });
+  });
+  saveDraft();
+}
+
 function switchType(type, btn) {
   saveCommonFields(currentType);
   currentType = type;
@@ -712,6 +754,8 @@ function clearForm() {
     document.getElementById('actChildAges').innerHTML = '';
     document.querySelectorAll('#sh_dates .date-extra').forEach(function(el) { el.remove(); });
     document.querySelectorAll('#gh_dates .date-extra').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('#rs_dates .date-extra').forEach(function(el) { el.remove(); });
+    document.querySelectorAll('#ac_dates .date-extra').forEach(function(el) { el.remove(); });
     clearDraft();
   });
 }
@@ -754,6 +798,22 @@ function collectFormData() {
     ghExtras.forEach(function(tbl) {
       var ins = tbl.querySelectorAll('input.e');
       data._ghExtraDates.push({ date: ins[0] ? ins[0].value : '', nights: ins[1] ? ins[1].value : '' });
+    });
+  }
+  var rsExtras = document.querySelectorAll('#rs_dates .date-extra');
+  if (rsExtras.length > 0) {
+    data._rsExtraDates = [];
+    rsExtras.forEach(function(tbl) {
+      var ins = tbl.querySelectorAll('input.e');
+      data._rsExtraDates.push({ date: ins[0] ? ins[0].value : '', time: ins[1] ? ins[1].value : '' });
+    });
+  }
+  var acExtras = document.querySelectorAll('#ac_dates .date-extra');
+  if (acExtras.length > 0) {
+    data._acExtraDates = [];
+    acExtras.forEach(function(tbl) {
+      var ins = tbl.querySelectorAll('input.e');
+      data._acExtraDates.push({ date: ins[0] ? ins[0].value : '', time: ins[1] ? ins[1].value : '' });
     });
   }
   return data;
@@ -819,6 +879,14 @@ function loadFormData(data) {
   document.querySelectorAll('#gh_dates .date-extra').forEach(function(el) { el.remove(); });
   if (data._ghExtraDates) {
     data._ghExtraDates.forEach(function(d) { addGhDate(d.date, d.nights); });
+  }
+  document.querySelectorAll('#rs_dates .date-extra').forEach(function(el) { el.remove(); });
+  if (data._rsExtraDates) {
+    data._rsExtraDates.forEach(function(d) { addRsDate(d.date, d.time); });
+  }
+  document.querySelectorAll('#ac_dates .date-extra').forEach(function(el) { el.remove(); });
+  if (data._acExtraDates) {
+    data._acExtraDates.forEach(function(d) { addAcDate(d.date, d.time); });
   }
   document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
   saveCommonFields(currentType);
@@ -921,6 +989,14 @@ function loadDraft() {
     document.querySelectorAll('#gh_dates .date-extra').forEach(function(el) { el.remove(); });
     if (data._ghExtraDates) {
       data._ghExtraDates.forEach(function(d) { addGhDate(d.date, d.nights); });
+    }
+    document.querySelectorAll('#rs_dates .date-extra').forEach(function(el) { el.remove(); });
+    if (data._rsExtraDates) {
+      data._rsExtraDates.forEach(function(d) { addRsDate(d.date, d.time); });
+    }
+    document.querySelectorAll('#ac_dates .date-extra').forEach(function(el) { el.remove(); });
+    if (data._acExtraDates) {
+      data._acExtraDates.forEach(function(d) { addAcDate(d.date, d.time); });
     }
     document.querySelectorAll('textarea.e').forEach(function(ta) { autoResize(ta); });
     saveCommonFields(currentType);
